@@ -1,33 +1,17 @@
 # Agraria
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+• Nombre del Proyecto: Agraria
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+• Integrantes del Grupo: Urriza Moran Brunella, Liguere Juan, Alarcon Antonella.
 
-## Platforms
+• Descripción Corta del Juego: Agraria es un juego de simulación de granja y gestión de recursos desarrollado. El jugador administra su propia parcela cultivando, cosechando y vendiendo productos para expandir su terreno y progresar en el juego.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+• Tecnologías Utilizadas: Java, LibGDX, Gradle, Tiled, Escritorio (Windows).
 
-## Gradle
+• Cómo Compilar y Ejecutar:
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+1. Abrir Git Bash
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+2. Utilizar este comando: git clone https://github.com/juaniliguere/Agraria.git
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+• Estado Actual del Proyecto: Configuración inicial y estructura del proyecto.
