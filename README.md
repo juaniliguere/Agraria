@@ -15,3 +15,4 @@
 2. Utilizar este comando: git clone https://github.com/juaniliguere/Agraria.git
 
 • Estado Actual del Proyecto: Configuración inicial y estructura del proyecto.
+
