@@ -16,3 +16,5 @@
 
 • Estado Actual del Proyecto: Configuración inicial y estructura del proyecto.
 
+• Enlace a la wiki del proyecto: https://github.com/juaniliguere/Agraria/wiki/Propuesta-del-Proyecto-%E2%80%90-Agraria
+
