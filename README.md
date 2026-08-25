@@ -1,6 +1,6 @@
 # Agraria
 
-• Nombre del Proyecto: Agraria
+• Nombre del Proyecto: Agraria 
 
 • Integrantes del Grupo: Urriza Moran Brunella, Liguere Juan, Alarcon Antonella.
 
