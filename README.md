@@ -14,7 +14,7 @@
 
 2. Utilizar este comando: **git clone https://github.com/juaniliguere/Agraria.git**
 
-3. Abrir el proyecto en algún IDE
+3. Abrir el IDE y cargar el proyecto. (File > Import > Existing Gradle Project)
 
 4. Buscar la clase **Lwjgl3Launcher.java** y ejecutarla. (Run As > Java Application)
 
