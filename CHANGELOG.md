@@ -4,7 +4,7 @@
 
 ## [Unreleased] - 2026/08/26
 
-- Creación del personaje y movimiento.
+- Implementación del personaje y movimiento.
 
 ## [Unreleased] - 2026/08/25
 
