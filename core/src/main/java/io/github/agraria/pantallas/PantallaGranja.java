@@ -22,35 +22,38 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import io.github.agraria.personajes.personaje;
+import io.github.agraria.personajes.Personaje;
 
 // Importá tus otras clases (SpriteBatch, Texture, Camera, etc.)
 
-public class pantallaGranja extends ScreenAdapter {
+public class PantallaGranja extends ScreenAdapter {
 
 	private SpriteBatch batch;
-	private personaje jugador;
+	private Personaje jugador;
 
 	private TiledMap mapa;
 	private OrthogonalTiledMapRenderer mapRenderer;
-    	private OrthographicCamera camara;
-    	private Viewport viewport;
+    private OrthographicCamera camara;
+    private Viewport viewport;
 
     	// Lista de Polígonos de colisión (cubre rectángulos y formas con diagonales)
-    	private Array<Polygon> colisionesMapa;
+    private Array<Polygon> colisionesMapa;
 
    	// Dimensiones en píxeles del mapa completo
-    	private float anchoMapaPixels;
-    	private float altoMapaPixels;
+    private float anchoMapaPixels;
+    private float altoMapaPixels;
 
-    	public static final int V_WIDTH = 800;
-    	public static final int V_HEIGHT = 600;
+    public static final int V_WIDTH = 800;
+    public static final int V_HEIGHT = 600;
+    
+    private int idxAbajo;
+    private int idxArriba;
 
 
-    public pantallaGranja() {
+    public PantallaGranja() {
 
         batch = new SpriteBatch();
-        jugador = new personaje(125, 125);
+        jugador = new Personaje(125, 125);
 
         // 1. Configuración de Cámara y Viewport
         camara = new OrthographicCamera();
@@ -65,7 +68,7 @@ public class pantallaGranja extends ScreenAdapter {
         params.textureMinFilter = Texture.TextureFilter.Nearest;
         params.textureMagFilter = Texture.TextureFilter.Nearest;
 
-        mapa = new TmxMapLoader().load("AgrariaMapa.tmx", params);
+        mapa = new TmxMapLoader().load("pantallas/zona1/AgrariaMapa.tmx", params);
         mapRenderer = new OrthogonalTiledMapRenderer(mapa);
 
         // 3. Obtener tamaño total del mapa
@@ -101,6 +104,9 @@ public class pantallaGranja extends ScreenAdapter {
                 }
             }
         }
+        
+        idxAbajo = mapa.getLayers().getIndex("abajo");
+        idxArriba = mapa.getLayers().getIndex("arriba");
 
     }
 
@@ -132,12 +138,14 @@ public class pantallaGranja extends ScreenAdapter {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
         mapRenderer.setView(camara);
-        mapRenderer.render();
+        mapRenderer.render(new int[] {idxAbajo});
 
         batch.setProjectionMatrix(camara.combined);
         batch.begin();
         jugador.renderizar(batch);
         batch.end();
+        
+        mapRenderer.render(new int[] {idxArriba});
     }
 
     private void actualizarCamara() {

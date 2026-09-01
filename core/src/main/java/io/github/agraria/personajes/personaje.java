@@ -10,17 +10,17 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-public class personaje {
+public class Personaje {
     private float x, y;
     private float velocidad = 150f;
     private Texture textura;
     private Rectangle hitbox;
 
-    public personaje(float xInicial, float yInicial) {
+    public Personaje(float xInicial, float yInicial) {
         this.x = xInicial;
         this.y = yInicial;
         
-        this.textura = new Texture("personaje.png");
+        this.textura = new Texture("personaje/pjFrenteEstatico.png");
         this.textura.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         
         // La hitbox se mantiene en los pies del personaje

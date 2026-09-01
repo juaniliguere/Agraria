@@ -2,13 +2,13 @@
 package io.github.agraria;
 
 import com.badlogic.gdx.Game;
-import io.github.agraria.pantallas.pantallaGranja;
+import io.github.agraria.pantallas.PantallaGranja;
 
-public class principal extends Game {
+public class Agraria extends Game {
 
     @Override
     public void create() {
-        this.setScreen(new pantallaGranja());
+        this.setScreen(new PantallaGranja());
     }
 
     @Override
