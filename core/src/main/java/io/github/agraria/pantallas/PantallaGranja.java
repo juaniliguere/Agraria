@@ -1,174 +1,646 @@
 package io.github.agraria.pantallas;
 
-import com.badlogic.gdx.ScreenAdapter;
+import io.github.agraria.cultivos.ControlCultivos;
+import io.github.agraria.cultivos.Cultivo;
+import io.github.agraria.cultivos.Parcela;
+import io.github.agraria.cultivos.TipoCultivo;
+
+import io.github.agraria.control.ControlJugador;
+import io.github.agraria.personajes.Personaje;
+import io.github.tiempo.Reloj;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.ScreenAdapter;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
+
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import io.github.agraria.personajes.Personaje;
-
-// Importá tus otras clases (SpriteBatch, Texture, Camera, etc.)
 
 public class PantallaGranja extends ScreenAdapter {
 
-	private SpriteBatch batch;
-	private Personaje jugador;
+    // =========================
+    // JUGADOR
+    // =========================
 
-	private TiledMap mapa;
-	private OrthogonalTiledMapRenderer mapRenderer;
+    private SpriteBatch batch;
+    private Personaje jugador;
+
+
+    // =========================
+    // MAPA
+    // =========================
+
+    private TiledMap mapa;
+    private OrthogonalTiledMapRenderer mapRenderer;
+
     private OrthographicCamera camara;
     private Viewport viewport;
 
-    	// Lista de Polígonos de colisión (cubre rectángulos y formas con diagonales)
+    // Colisiones obtenidas desde Tiled
     private Array<Polygon> colisionesMapa;
 
-   	// Dimensiones en píxeles del mapa completo
+    // Dimensiones del mapa en píxeles
     private float anchoMapaPixels;
     private float altoMapaPixels;
 
+    // Dimensiones del mapa en tiles
+    private int mapWidthTiles;
+    private int mapHeightTiles;
+
+    // Tamaño de cada tile
+    private int tileWidth;
+    private int tileHeight;
+
     public static final int V_WIDTH = 800;
     public static final int V_HEIGHT = 600;
-    
+
+    // Índices de las capas que se renderizan antes y después del jugador
     private int idxAbajo;
     private int idxArriba;
 
 
+    // =========================
+    // CULTIVOS
+    // =========================
+
+    private ControlCultivos controlCultivos;
+
+    // Guarda las etapas de cada tipo de cultivo.
+    //
+    // Ejemplo:
+    // ZANAHORIA → [etapa0, etapa1, etapa2, etapa3]
+    // PAPA       → [etapa0, etapa1, etapa2, etapa3]
+    private ObjectMap<TipoCultivo, TextureRegion[]> etapasCultivos;
+
+    // Texturas originales que debemos liberar al cerrar la pantalla
+    private ObjectMap<TipoCultivo, Texture> texturasCultivos;
+
+
+    // =========================
+    // TIEMPO
+    // =========================
+
+
+
+    private Reloj reloj;
+
+
     public PantallaGranja() {
 
+        // =========================
+        // JUGADOR
+        // =========================
+
         batch = new SpriteBatch();
+
         jugador = new Personaje(125, 125);
 
-        // 1. Configuración de Cámara y Viewport
+
+        // =========================
+        // CÁMARA Y VIEWPORT
+        // =========================
+
         camara = new OrthographicCamera();
-        viewport = new FitViewport(V_WIDTH, V_HEIGHT, camara);
+
+        viewport = new FitViewport(
+                V_WIDTH,
+                V_HEIGHT,
+                camara
+        );
+
         viewport.apply();
 
-        // Configurar zoom inicial (0.5f es más cerca, ideal para Pixel Art)
+        // Zoom inicial
         camara.zoom = 0.5f;
 
-        // 2. Cargar el mapa con filtros de textura nítidos (Nearest)
-        TmxMapLoader.Parameters params = new TmxMapLoader.Parameters();
-        params.textureMinFilter = Texture.TextureFilter.Nearest;
-        params.textureMagFilter = Texture.TextureFilter.Nearest;
 
-        mapa = new TmxMapLoader().load("pantallas/zona1/AgrariaMapa.tmx", params);
+        // =========================
+        // MAPA
+        // =========================
+
+        TmxMapLoader.Parameters params =
+                new TmxMapLoader.Parameters();
+
+        params.textureMinFilter =
+                Texture.TextureFilter.Nearest;
+
+        params.textureMagFilter =
+                Texture.TextureFilter.Nearest;
+
+        mapa = new TmxMapLoader().load(
+                "pantallas/zona1/AgrariaMapa.tmx",
+                params
+        );
+
         mapRenderer = new OrthogonalTiledMapRenderer(mapa);
 
-        // 3. Obtener tamaño total del mapa
+
+        // =========================
+        // INFORMACIÓN DEL MAPA
+        // =========================
+
         MapProperties prop = mapa.getProperties();
-        int mapWidthTiles = prop.get("width", Integer.class);
-        int mapHeightTiles = prop.get("height", Integer.class);
-        int tileWidth = prop.get("tilewidth", Integer.class);
-        int tileHeight = prop.get("tileheight", Integer.class);
 
-        anchoMapaPixels = mapWidthTiles * tileWidth;
-        altoMapaPixels = mapHeightTiles * tileHeight;
+        mapWidthTiles =
+                prop.get("width", Integer.class);
 
-        // 4. Cargar colisiones (Polígonos y Rectángulos) desde Tiled
+        mapHeightTiles =
+                prop.get("height", Integer.class);
+
+        tileWidth =
+                prop.get("tilewidth", Integer.class);
+
+        tileHeight =
+                prop.get("tileheight", Integer.class);
+
+        anchoMapaPixels =
+                mapWidthTiles * tileWidth;
+
+        altoMapaPixels =
+                mapHeightTiles * tileHeight;
+
+
+        // =========================
+        // CONTROL DE CULTIVOS
+        // =========================
+
+        boolean[][] matrizPlantable =
+                ControlCultivos.generarMatrizPlantableDesdeMapa(
+                        mapa,
+                        mapWidthTiles,
+                        mapHeightTiles
+                );
+
+        controlCultivos =
+                new ControlCultivos(
+                        mapWidthTiles,
+                        mapHeightTiles,
+                        tileWidth,
+                        matrizPlantable
+                );
+
+
+        // =========================
+        // COLISIONES
+        // =========================
+
         colisionesMapa = new Array<>();
+
         if (mapa.getLayers().get("Colisiones") != null) {
-            for (MapObject objeto : mapa.getLayers().get("Colisiones").getObjects()) {
-                
-                // Si dibujaste un Polígono en Tiled
+
+            for (MapObject objeto :
+                    mapa.getLayers().get("Colisiones").getObjects()) {
+
+                // Colisión dibujada como polígono
                 if (objeto instanceof PolygonMapObject) {
-                    colisionesMapa.add(((PolygonMapObject) objeto).getPolygon());
-                } 
-                // Si dibujaste un Rectángulo en Tiled, lo convertimos a Polígono
+
+                    colisionesMapa.add(
+                            ((PolygonMapObject) objeto).getPolygon()
+                    );
+
+                }
+
+                // Colisión dibujada como rectángulo
                 else if (objeto instanceof RectangleMapObject) {
-                    Rectangle rect = ((RectangleMapObject) objeto).getRectangle();
+
+                    Rectangle rect =
+                            ((RectangleMapObject) objeto).getRectangle();
+
                     Polygon poly = new Polygon(new float[]{
-                        0, 0,
-                        rect.width, 0,
-                        rect.width, rect.height,
-                        0, rect.height
+                            0, 0,
+                            rect.width, 0,
+                            rect.width, rect.height,
+                            0, rect.height
                     });
+
                     poly.setPosition(rect.x, rect.y);
+
                     colisionesMapa.add(poly);
                 }
             }
         }
-        
-        idxAbajo = mapa.getLayers().getIndex("abajo");
-        idxArriba = mapa.getLayers().getIndex("arriba");
 
+
+        // =========================
+        // CAPAS DEL MAPA
+        // =========================
+
+        idxAbajo =
+                mapa.getLayers().getIndex("abajo");
+
+        idxArriba =
+                mapa.getLayers().getIndex("arriba");
+
+
+        // =========================
+        // TEXTURAS DE CULTIVOS
+        // =========================
+
+        cargarTexturasCultivos();
+
+
+        // =========================
+        // RELOJ
+        // =========================
+
+        reloj =
+                new Reloj();
     }
+
+
+    /**
+     * Carga automáticamente las texturas de todos
+     * los tipos de cultivo existentes.
+     *
+     * Si mañana agregamos PAPA o TRIGO a TipoCultivo,
+     * este código los detecta automáticamente.
+     */
+    private void cargarTexturasCultivos() {
+
+        etapasCultivos = new ObjectMap<>();
+        texturasCultivos = new ObjectMap<>();
+
+        for (TipoCultivo tipo : TipoCultivo.values()) {
+
+            Texture textura =
+                    new Texture(tipo.getRutaTextura());
+
+            textura.setFilter(
+                    Texture.TextureFilter.Nearest,
+                    Texture.TextureFilter.Nearest
+            );
+
+            texturasCultivos.put(tipo, textura);
+
+
+            // Actualmente todos los cultivos
+            // tienen 4 etapas.
+            int cantidadEtapas = tipo.getCantidadEtapas();
+
+            int anchoEtapa =
+                    textura.getWidth() / cantidadEtapas;
+
+            int altoEtapa =
+                    textura.getHeight();
+
+            TextureRegion[] etapas =
+                    new TextureRegion[cantidadEtapas];
+
+
+            // Cortamos el spritesheet en regiones
+            for (int i = 0; i < cantidadEtapas; i++) {
+
+                etapas[i] = new TextureRegion(
+                        textura,
+                        i * anchoEtapa,
+                        0,
+                        anchoEtapa,
+                        altoEtapa
+                );
+            }
+
+            etapasCultivos.put(tipo, etapas);
+        }
+    }
+
 
     @Override
     public void show() {
-        // Opcional: Se ejecuta justo cuando esta pantalla pasa a ser la activa.
-        // Podés dejarlo vacío o poner la carga si preferís no usar el constructor.
+
+        ControlJugador controlador =
+                new ControlJugador(jugador, this);
+
+        Gdx.input.setInputProcessor(controlador);
     }
 
-	@Override
-	public void render(float delta) {
 
-        // 1. Control de Zoom con Teclado (+ y -)
-        if (Gdx.input.isKeyPressed(Keys.PLUS) || Gdx.input.isKeyPressed(Keys.EQUALS)) {
+    /**
+     * Se ejecuta cuando el jugador hace clic en el mapa.
+     */
+    public void hacerClicEn(int screenX, int screenY) {
+
+        // Convertimos coordenadas de pantalla
+        // a coordenadas del mundo.
+        com.badlogic.gdx.math.Vector3 posMundo =
+                camara.unproject(
+                        new com.badlogic.gdx.math.Vector3(
+                                screenX,
+                                screenY,
+                                0
+                        )
+                );
+
+
+        Parcela parcela =
+                controlCultivos.getParcelaEnPx(
+                        posMundo.x,
+                        posMundo.y
+                );
+
+
+        if (parcela == null) {
+
+            System.out.println(
+                    "-> La parcela está fuera del mapa."
+            );
+
+            return;
+        }
+
+
+        System.out.println(
+                "-> Parcela encontrada. Plantable: "
+                        + parcela.isEsPlantable()
+                        + " | Cultivo: "
+                        + parcela.tieneCultivo()
+        );
+
+
+        // Por ahora seguimos plantando zanahoria
+        // porque todavía no tenemos selección de cultivo.
+        if (!parcela.tieneCultivo()
+                && parcela.isEsPlantable()) {
+
+            boolean exito =
+                    controlCultivos.plantarEn(
+                            posMundo.x,
+                            posMundo.y,
+                            TipoCultivo.ZANAHORIA
+                    );
+
+            System.out.println(
+                    "-> PlantarEn devolvió: " + exito
+            );
+        }
+    }
+
+
+    @Override
+    public void render(float delta) {
+
+
+        // =========================
+        // ZOOM
+        // =========================
+
+        if (Gdx.input.isKeyPressed(Keys.PLUS)
+                || Gdx.input.isKeyPressed(Keys.EQUALS)) {
+
             camara.zoom -= 0.5f * delta;
         }
+
         if (Gdx.input.isKeyPressed(Keys.MINUS)) {
+
             camara.zoom += 0.5f * delta;
         }
-        camara.zoom = MathUtils.clamp(camara.zoom, 0.2f, 1.5f);
 
-        // 2. Movimiento y colisiones del jugador
-        jugador.actualizar(delta, colisionesMapa, anchoMapaPixels, altoMapaPixels);
+        camara.zoom =
+                MathUtils.clamp(
+                        camara.zoom,
+                        0.2f,
+                        1.5f
+                );
 
-        // 3. Centrar cámara en el personaje y limitar a los bordes del mapa
+
+        // =========================
+        // TIEMPO
+        // =========================
+
+        int minutosPasados =
+                reloj.actualizar(delta);
+
+        if (minutosPasados > 0) {
+
+            controlCultivos.pasarTiempo(
+                    minutosPasados
+            );
+        }
+
+
+        // =========================
+        // JUGADOR
+        // =========================
+
+        jugador.actualizar(
+                delta,
+                colisionesMapa,
+                anchoMapaPixels,
+                altoMapaPixels
+        );
+
+
+        // =========================
+        // CÁMARA
+        // =========================
+
         actualizarCamara();
 
-        // 4. Dibujar Pantalla
-        ScreenUtils.clear(0f, 0f, 0f, 1f);
+
+        // =========================
+        // DIBUJAR
+        // =========================
+
+        ScreenUtils.clear(
+                0f,
+                0f,
+                0f,
+                1f
+        );
+
 
         mapRenderer.setView(camara);
-        mapRenderer.render(new int[] {idxAbajo});
 
-        batch.setProjectionMatrix(camara.combined);
+        // Primero se dibuja el suelo
+        mapRenderer.render(
+                new int[]{idxAbajo}
+        );
+
+
+        // Después cultivos y jugador
+        batch.setProjectionMatrix(
+                camara.combined
+        );
+
         batch.begin();
+
+        renderizarCultivos();
+
         jugador.renderizar(batch);
+
         batch.end();
-        
-        mapRenderer.render(new int[] {idxArriba});
+
+
+        // Finalmente se dibuja lo que va por encima
+        mapRenderer.render(
+                new int[]{idxArriba}
+        );
     }
 
+
+    /**
+     * Actualiza la posición de la cámara
+     * siguiendo al jugador.
+     */
     private void actualizarCamara() {
-        float medioAnchoCamara = (camara.viewportWidth * camara.zoom) / 2f;
-        float medioAltoCamara = (camara.viewportHeight * camara.zoom) / 2f;
 
-        float camX = MathUtils.clamp(jugador.getX(), medioAnchoCamara, anchoMapaPixels - medioAnchoCamara);
-        float camY = MathUtils.clamp(jugador.getY(), medioAltoCamara, altoMapaPixels - medioAltoCamara);
+        float medioAnchoCamara =
+                (camara.viewportWidth * camara.zoom) / 2f;
 
-        camara.position.set(camX, camY, 0);
+        float medioAltoCamara =
+                (camara.viewportHeight * camara.zoom) / 2f;
+
+
+        float camX =
+                MathUtils.clamp(
+                        jugador.getX(),
+                        medioAnchoCamara,
+                        anchoMapaPixels - medioAnchoCamara
+                );
+
+        float camY =
+                MathUtils.clamp(
+                        jugador.getY(),
+                        medioAltoCamara,
+                        altoMapaPixels - medioAltoCamara
+                );
+
+
+        camara.position.set(
+                camX,
+                camY,
+                0
+        );
+
         camara.update();
     }
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height);
+
+    /**
+     * Dibuja todos los cultivos existentes en el mapa.
+     */
+    private void renderizarCultivos() {
+
+        for (int fila = 0;
+             fila < mapHeightTiles;
+             fila++) {
+
+            for (int col = 0;
+                 col < mapWidthTiles;
+                 col++) {
+
+
+                Parcela parcela =
+                        controlCultivos.getParcela(
+                                col,
+                                fila
+                        );
+
+
+                if (parcela == null
+                        || !parcela.tieneCultivo()) {
+
+                    continue;
+                }
+
+
+                Cultivo cultivo =
+                        parcela.getCultivoActual();
+
+
+                TipoCultivo tipo =
+                        cultivo.getTipo();
+
+
+                int etapa =
+                        cultivo.getEtapaActual();
+
+
+                TextureRegion[] etapas =
+                        etapasCultivos.get(tipo);
+
+
+                // Evita intentar acceder a una etapa
+                // que no exista.
+                if (etapas == null
+                        || etapa < 0
+                        || etapa >= etapas.length) {
+
+                    continue;
+                }
+
+
+                float xPx =
+                        col * tileWidth;
+
+                float yPx =
+                        fila * tileHeight;
+
+
+                batch.draw(
+                        etapas[etapa],
+                        xPx,
+                        yPx,
+                        tileWidth,
+                        tileHeight
+                );
+            }
+        }
     }
+
+
+    @Override
+    public void resize(
+            int width,
+            int height) {
+
+        viewport.update(
+                width,
+                height
+        );
+    }
+
 
     @Override
     public void dispose() {
+
         batch.dispose();
+
         jugador.liberarRecursos();
+
         mapa.dispose();
+
         mapRenderer.dispose();
+
+
+        // Liberamos todas las texturas
+        // cargadas automáticamente.
+        for (Texture textura :
+                texturasCultivos.values()) {
+
+            textura.dispose();
+        }
     }
 }

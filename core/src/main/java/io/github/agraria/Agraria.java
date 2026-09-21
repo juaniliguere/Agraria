@@ -3,13 +3,16 @@ package io.github.agraria;
 
 import com.badlogic.gdx.Game;
 import io.github.agraria.pantallas.PantallaGranja;
+import io.github.agraria.cultivos.TipoCultivo;
 
 public class Agraria extends Game {
+	
 
     @Override
     public void create() {
         this.setScreen(new PantallaGranja());
     }
+    
 
     @Override
     public void render() {

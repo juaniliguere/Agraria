@@ -1,7 +1,5 @@
 package io.github.agraria.personajes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
@@ -15,6 +13,13 @@ public class Personaje {
     private float velocidad = 150f;
     private Texture textura;
     private Rectangle hitbox;
+    
+    // Buenas prácticas: Reutilizamos el objeto Polígono para no saturar la memoria (GC)
+    private Polygon hitboxPoly;
+
+    // Dirección del movimiento enviada por el Controlador (-1, 0, 1)
+    private float dirX = 0;
+    private float dirY = 0;
 
     public Personaje(float xInicial, float yInicial) {
         this.x = xInicial;
@@ -23,25 +28,32 @@ public class Personaje {
         this.textura = new Texture("personaje/pjFrenteEstatico.png");
         this.textura.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         
-        // La hitbox se mantiene en los pies del personaje
+        // Hitbox en la base/pies del personaje
         this.hitbox = new Rectangle(x, y, textura.getWidth(), textura.getHeight() / 2f);
+        
+        // Inicializamos el polígono una sola vez
+        this.hitboxPoly = new Polygon(new float[]{
+            0, 0,
+            hitbox.width, 0,
+            hitbox.width, hitbox.height,
+            0, hitbox.height
+        });
+    }
+
+    /**
+     * Método invocado por el ControladorJugador para actualizar la intención de movimiento.
+     */
+    public void mover(float dirX, float dirY) {
+        this.dirX = dirX;
+        this.dirY = dirY;
     }
 
     public void actualizar(float delta, Array<Polygon> colisiones, float limiteAncho, float limiteAlto) {
         float xAnterior = x;
         float yAnterior = y;
 
-        // Creamos un polígono para comprobar la interacción con la hitbox del jugador
-        Polygon hitboxPoly = new Polygon(new float[]{
-            0, 0,
-            hitbox.width, 0,
-            hitbox.width, hitbox.height,
-            0, hitbox.height
-        });
-
-        // --- Movimiento Horizontal ---
-        if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) x -= velocidad * delta;
-        if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) x += velocidad * delta;
+        // --- Movimiento y Colisión Horizontal ---
+        x += dirX * velocidad * delta;
 
         hitboxPoly.setPosition(x, y);
         for (Polygon colision : colisiones) {
@@ -51,9 +63,8 @@ public class Personaje {
             }
         }
 
-        // --- Movimiento Vertical ---
-        if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP)) y += velocidad * delta;
-        if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) y -= velocidad * delta;
+        // --- Movimiento y Colisión Vertical ---
+        y += dirY * velocidad * delta;
 
         hitboxPoly.setPosition(x, y);
         for (Polygon colision : colisiones) {
@@ -63,7 +74,7 @@ public class Personaje {
             }
         }
 
-        // Limites del borde del mapa
+        // Límites de los bordes del mapa
         x = MathUtils.clamp(x, 0, limiteAncho - textura.getWidth());
         y = MathUtils.clamp(y, 0, limiteAlto - textura.getHeight());
 
@@ -78,8 +89,13 @@ public class Personaje {
         textura.dispose();
     }
 
-    // Getters
+    // --- GETTERS (Útiles para la cámara, la grilla y las interacciones) ---
     public float getX() { return x; }
     public float getY() { return y; }
-    public Rectangle getHitbox() { return hitbox; }
+    public float getAncho() { return textura.getWidth(); }
+    public float getAlto() { return textura.getHeight(); }
+    
+    // Punto de los pies del personaje (clave para saber qué celda de cultivo está mirando/pisando)
+    public float getCentroX() { return x + (textura.getWidth() / 2f); }
+    public float getPiesY() { return y + (hitbox.height / 2f); }
 }
