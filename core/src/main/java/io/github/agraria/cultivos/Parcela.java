@@ -25,6 +25,8 @@ public class Parcela {
     public boolean puedePlantar() {
         return esPlantable && cultivoActual == null;
     }
+    
+    
 
     // Intenta plantar un cultivo en esta parcela
     public boolean plantar(TipoCultivo tipo) {

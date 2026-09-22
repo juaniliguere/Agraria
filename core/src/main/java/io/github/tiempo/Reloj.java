@@ -2,7 +2,7 @@ package io.github.tiempo;
 
 public class Reloj {
 
-    private static final float segsPorMinJuego = 0.01f;
+    private static final float segsPorMinJuego = 0.1f; //SEGS_POR_MIN_JUEGO
 	
     private int minutos;
     private int horas;
@@ -13,7 +13,7 @@ public class Reloj {
     public Reloj() {
         this.minutos = 0;
         this.horas = 6;
-        this.dias = 0;
+        this.dias = 1;
 
         this.acumuladorSegundos = 0;
     }
@@ -29,7 +29,7 @@ public class Reloj {
             avanzarUnMinuto();
             minutosPasados++;
         }
-
+//        System.out.println("MP: " + minutosPasados + " / By: " + (horas*60+minutos));
         return minutosPasados;
     }
 
@@ -47,6 +47,24 @@ public class Reloj {
         }
     }
 
+    public int dormir(int horaDespertar) {
+    	
+    	int minutosPasados = 0;
+    	int diaSiguiente = dias + 1;
+    	
+    	while(dias < diaSiguiente || horas < horaDespertar) {
+    		
+    		avanzarUnMinuto();
+    		minutosPasados++;
+    		
+    	}
+    	
+    	acumuladorSegundos = 0;
+    	
+    	return minutosPasados;
+    	
+    }
+    
     public int getMinutos() {
         return minutos;
     }
@@ -57,5 +75,9 @@ public class Reloj {
 
     public int getDias() {
         return dias;
+    }
+    
+    public String getHoraFormateada() {
+        return String.format("%02d:%02d", horas, minutos);
     }
 }

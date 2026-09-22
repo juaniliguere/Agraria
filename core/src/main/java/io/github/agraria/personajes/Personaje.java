@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class Personaje {
     private float x, y;
-    private float velocidad = 150f;
+    private final float velocidad = 150f; //VELOCIDSD
     private Texture textura;
     private Rectangle hitbox;
     
@@ -18,12 +18,13 @@ public class Personaje {
     private Polygon hitboxPoly;
 
     // Dirección del movimiento enviada por el Controlador (-1, 0, 1)
-    private float dirX = 0;
-    private float dirY = 0;
+    public float dirX = 0;
+    public float dirY = 0;
 
     public Personaje(float xInicial, float yInicial) {
         this.x = xInicial;
         this.y = yInicial;
+        System.out.println(x);
         
         this.textura = new Texture("personaje/pjFrenteEstatico.png");
         this.textura.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -51,6 +52,7 @@ public class Personaje {
     public void actualizar(float delta, Array<Polygon> colisiones, float limiteAncho, float limiteAlto) {
         float xAnterior = x;
         float yAnterior = y;
+        //nuevaX, nuevaY
 
         // --- Movimiento y Colisión Horizontal ---
         x += dirX * velocidad * delta;

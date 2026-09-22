@@ -1,5 +1,7 @@
 package io.github.agraria.pantallas;
 
+import io.github.agraria.control.ControlMapa;
+
 import io.github.agraria.cultivos.ControlCultivos;
 import io.github.agraria.cultivos.Cultivo;
 import io.github.agraria.cultivos.Parcela;
@@ -18,20 +20,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.maps.objects.PolygonMapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
-
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -41,78 +31,32 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class PantallaGranja extends ScreenAdapter {
 
-    // =========================
-    // JUGADOR
-    // =========================
-
     private SpriteBatch batch;
     private Personaje jugador;
 
 
-    // =========================
-    // MAPA
-    // =========================
+    private ControlMapa controlMapa;
 
-    private TiledMap mapa;
-    private OrthogonalTiledMapRenderer mapRenderer;
-
+   
     private OrthographicCamera camara;
     private Viewport viewport;
-
-    // Colisiones obtenidas desde Tiled
-    private Array<Polygon> colisionesMapa;
-
-    // Dimensiones del mapa en píxeles
-    private float anchoMapaPixels;
-    private float altoMapaPixels;
-
-    // Dimensiones del mapa en tiles
-    private int mapWidthTiles;
-    private int mapHeightTiles;
-
-    // Tamaño de cada tile
-    private int tileWidth;
-    private int tileHeight;
 
     public static final int V_WIDTH = 800;
     public static final int V_HEIGHT = 600;
 
-    // Índices de las capas que se renderizan antes y después del jugador
-    private int idxAbajo;
-    private int idxArriba;
-
-
-    // =========================
-    // CULTIVOS
-    // =========================
 
     private ControlCultivos controlCultivos;
 
     // Guarda las etapas de cada tipo de cultivo.
-    //
-    // Ejemplo:
-    // ZANAHORIA → [etapa0, etapa1, etapa2, etapa3]
-    // PAPA       → [etapa0, etapa1, etapa2, etapa3]
     private ObjectMap<TipoCultivo, TextureRegion[]> etapasCultivos;
 
     // Texturas originales que debemos liberar al cerrar la pantalla
     private ObjectMap<TipoCultivo, Texture> texturasCultivos;
 
 
-    // =========================
-    // TIEMPO
-    // =========================
-
-
-
     private Reloj reloj;
 
-
     public PantallaGranja() {
-
-        // =========================
-        // JUGADOR
-        // =========================
 
         batch = new SpriteBatch();
 
@@ -125,159 +69,42 @@ public class PantallaGranja extends ScreenAdapter {
 
         camara = new OrthographicCamera();
 
-        viewport = new FitViewport(
-                V_WIDTH,
-                V_HEIGHT,
-                camara
-        );
+        viewport = new FitViewport(V_WIDTH, V_HEIGHT, camara);
 
         viewport.apply();
 
         // Zoom inicial
         camara.zoom = 0.5f;
 
-
-        // =========================
-        // MAPA
-        // =========================
-
-        TmxMapLoader.Parameters params =
-                new TmxMapLoader.Parameters();
-
-        params.textureMinFilter =
-                Texture.TextureFilter.Nearest;
-
-        params.textureMagFilter =
-                Texture.TextureFilter.Nearest;
-
-        mapa = new TmxMapLoader().load(
-                "pantallas/zona1/AgrariaMapa.tmx",
-                params
-        );
-
-        mapRenderer = new OrthogonalTiledMapRenderer(mapa);
-
-
-        // =========================
-        // INFORMACIÓN DEL MAPA
-        // =========================
-
-        MapProperties prop = mapa.getProperties();
-
-        mapWidthTiles =
-                prop.get("width", Integer.class);
-
-        mapHeightTiles =
-                prop.get("height", Integer.class);
-
-        tileWidth =
-                prop.get("tilewidth", Integer.class);
-
-        tileHeight =
-                prop.get("tileheight", Integer.class);
-
-        anchoMapaPixels =
-                mapWidthTiles * tileWidth;
-
-        altoMapaPixels =
-                mapHeightTiles * tileHeight;
+        controlMapa = new ControlMapa("pantallas/zona1/AgrariaMapa.tmx");
 
 
         // =========================
         // CONTROL DE CULTIVOS
         // =========================
 
-        boolean[][] matrizPlantable =
-                ControlCultivos.generarMatrizPlantableDesdeMapa(
-                        mapa,
-                        mapWidthTiles,
-                        mapHeightTiles
+        boolean[][] matrizPlantable = ControlCultivos.generarMatrizPlantableDesdeMapa(
+        		
+                        controlMapa.getMapa(),
+                        controlMapa.getMapWidthTiles(),
+                        controlMapa.getMapHeightTiles()
                 );
 
-        controlCultivos =
-                new ControlCultivos(
-                        mapWidthTiles,
-                        mapHeightTiles,
-                        tileWidth,
+        controlCultivos = new ControlCultivos(
+                		
+                		controlMapa.getMapWidthTiles(),
+                		controlMapa.getMapHeightTiles(),
+                		controlMapa.getTileWidth(),	
                         matrizPlantable
                 );
 
-
-        // =========================
-        // COLISIONES
-        // =========================
-
-        colisionesMapa = new Array<>();
-
-        if (mapa.getLayers().get("Colisiones") != null) {
-
-            for (MapObject objeto :
-                    mapa.getLayers().get("Colisiones").getObjects()) {
-
-                // Colisión dibujada como polígono
-                if (objeto instanceof PolygonMapObject) {
-
-                    colisionesMapa.add(
-                            ((PolygonMapObject) objeto).getPolygon()
-                    );
-
-                }
-
-                // Colisión dibujada como rectángulo
-                else if (objeto instanceof RectangleMapObject) {
-
-                    Rectangle rect =
-                            ((RectangleMapObject) objeto).getRectangle();
-
-                    Polygon poly = new Polygon(new float[]{
-                            0, 0,
-                            rect.width, 0,
-                            rect.width, rect.height,
-                            0, rect.height
-                    });
-
-                    poly.setPosition(rect.x, rect.y);
-
-                    colisionesMapa.add(poly);
-                }
-            }
-        }
-
-
-        // =========================
-        // CAPAS DEL MAPA
-        // =========================
-
-        idxAbajo =
-                mapa.getLayers().getIndex("abajo");
-
-        idxArriba =
-                mapa.getLayers().getIndex("arriba");
-
-
-        // =========================
-        // TEXTURAS DE CULTIVOS
-        // =========================
-
         cargarTexturasCultivos();
 
-
-        // =========================
-        // RELOJ
-        // =========================
-
-        reloj =
-                new Reloj();
+        reloj = new Reloj();
     }
 
+    //Carga automáticamente las texturas de todos los tipos de cultivo existentes.
 
-    /**
-     * Carga automáticamente las texturas de todos
-     * los tipos de cultivo existentes.
-     *
-     * Si mañana agregamos PAPA o TRIGO a TipoCultivo,
-     * este código los detecta automáticamente.
-     */
     private void cargarTexturasCultivos() {
 
         etapasCultivos = new ObjectMap<>();
@@ -285,29 +112,19 @@ public class PantallaGranja extends ScreenAdapter {
 
         for (TipoCultivo tipo : TipoCultivo.values()) {
 
-            Texture textura =
-                    new Texture(tipo.getRutaTextura());
+            Texture textura = new Texture(tipo.getRutaTextura());
 
-            textura.setFilter(
-                    Texture.TextureFilter.Nearest,
-                    Texture.TextureFilter.Nearest
-            );
+            textura.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
             texturasCultivos.put(tipo, textura);
 
-
-            // Actualmente todos los cultivos
-            // tienen 4 etapas.
             int cantidadEtapas = tipo.getCantidadEtapas();
 
-            int anchoEtapa =
-                    textura.getWidth() / cantidadEtapas;
+            int anchoEtapa = textura.getWidth() / cantidadEtapas;
 
-            int altoEtapa =
-                    textura.getHeight();
+            int altoEtapa = textura.getHeight();
 
-            TextureRegion[] etapas =
-                    new TextureRegion[cantidadEtapas];
+            TextureRegion[] etapas = new TextureRegion[cantidadEtapas];
 
 
             // Cortamos el spritesheet en regiones
@@ -330,73 +147,49 @@ public class PantallaGranja extends ScreenAdapter {
     @Override
     public void show() {
 
-        ControlJugador controlador =
-                new ControlJugador(jugador, this);
+        ControlJugador controlador = new ControlJugador(jugador, this);
 
         Gdx.input.setInputProcessor(controlador);
     }
 
 
-    /**
-     * Se ejecuta cuando el jugador hace clic en el mapa.
-     */
+    //Se ejecuta cuando el jugador hace clic en el mapa.
     public void hacerClicEn(int screenX, int screenY) {
 
         // Convertimos coordenadas de pantalla
         // a coordenadas del mundo.
-        com.badlogic.gdx.math.Vector3 posMundo =
-                camara.unproject(
-                        new com.badlogic.gdx.math.Vector3(
-                                screenX,
-                                screenY,
-                                0
-                        )
-                );
+        com.badlogic.gdx.math.Vector3 posMundo = camara.unproject(new com.badlogic.gdx.math.Vector3(screenX, screenY, 0));
 
-
-        Parcela parcela =
-                controlCultivos.getParcelaEnPx(
-                        posMundo.x,
-                        posMundo.y
-                );
+        Parcela parcela = controlCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
 
 
         if (parcela == null) {
 
-            System.out.println(
-                    "-> La parcela está fuera del mapa."
-            );
-
+            System.out.println("-> La parcela está fuera del mapa.");
             return;
+            
         }
 
+        System.out.println("-> Parcela encontrada. Plantable: " + parcela.isEsPlantable() + " | Cultivo: " + parcela.tieneCultivo());
 
-        System.out.println(
-                "-> Parcela encontrada. Plantable: "
-                        + parcela.isEsPlantable()
-                        + " | Cultivo: "
-                        + parcela.tieneCultivo()
-        );
+        if (!parcela.tieneCultivo() && parcela.isEsPlantable()) {
 
+            boolean exito = controlCultivos.plantarEn(posMundo.x, posMundo.y, TipoCultivo.ZANAHORIA);
 
-        // Por ahora seguimos plantando zanahoria
-        // porque todavía no tenemos selección de cultivo.
-        if (!parcela.tieneCultivo()
-                && parcela.isEsPlantable()) {
-
-            boolean exito =
-                    controlCultivos.plantarEn(
-                            posMundo.x,
-                            posMundo.y,
-                            TipoCultivo.ZANAHORIA
-                    );
-
-            System.out.println(
-                    "-> PlantarEn devolvió: " + exito
-            );
+            System.out.println("-> PlantarEn devolvió: " + exito);
+            
         }
     }
+    
+    public void procesarDormir() {
+    	
+    	int minutosDormidos = reloj.dormir(6); // Reloj calcula minutos hasta las 6 AM
+    	controlCultivos.pasarTiempo(minutosDormidos); // Cultivos avanzan su crecimiento
 
+        System.out.println("-> durmio" + minutosDormidos + " minutos.");
+        System.out.println("-> Día: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada());
+    	
+    }
 
     @Override
     public void render(float delta) {
@@ -406,55 +199,31 @@ public class PantallaGranja extends ScreenAdapter {
         // ZOOM
         // =========================
 
-        if (Gdx.input.isKeyPressed(Keys.PLUS)
-                || Gdx.input.isKeyPressed(Keys.EQUALS)) {
+        if (Gdx.input.isKeyPressed(Keys.PLUS) || Gdx.input.isKeyPressed(Keys.EQUALS)) {
 
             camara.zoom -= 0.5f * delta;
+            System.out.println(camara.zoom);
+            
         }
 
         if (Gdx.input.isKeyPressed(Keys.MINUS)) {
-
             camara.zoom += 0.5f * delta;
+            System.out.println(camara.zoom);
+            
         }
 
-        camara.zoom =
-                MathUtils.clamp(
-                        camara.zoom,
-                        0.2f,
-                        1.5f
-                );
+        camara.zoom = MathUtils.clamp(camara.zoom, 0.2f, 1.5f);
 
-
-        // =========================
-        // TIEMPO
-        // =========================
-
-        int minutosPasados =
-                reloj.actualizar(delta);
+        int minutosPasados = reloj.actualizar(delta);
 
         if (minutosPasados > 0) {
 
-            controlCultivos.pasarTiempo(
-                    minutosPasados
-            );
+            controlCultivos.pasarTiempo( minutosPasados);
+            
         }
 
+        jugador.actualizar(delta, controlMapa.getColisionesMapa(), controlMapa.getAnchoMapaPixels(), controlMapa.getAltoMapaPixels());
 
-        // =========================
-        // JUGADOR
-        // =========================
-
-        jugador.actualizar(
-                delta,
-                colisionesMapa,
-                anchoMapaPixels,
-                altoMapaPixels
-        );
-
-
-        // =========================
-        // CÁMARA
-        // =========================
 
         actualizarCamara();
 
@@ -463,26 +232,15 @@ public class PantallaGranja extends ScreenAdapter {
         // DIBUJAR
         // =========================
 
-        ScreenUtils.clear(
-                0f,
-                0f,
-                0f,
-                1f
-        );
+        ScreenUtils.clear(0f, 0f, 0f, 1f);
 
-
-        mapRenderer.setView(camara);
-
-        // Primero se dibuja el suelo
-        mapRenderer.render(
-                new int[]{idxAbajo}
-        );
+        controlMapa.setView(camara);
+        
+        controlMapa.renderAbajo();
 
 
         // Después cultivos y jugador
-        batch.setProjectionMatrix(
-                camara.combined
-        );
+        batch.setProjectionMatrix(camara.combined);
 
         batch.begin();
 
@@ -493,118 +251,73 @@ public class PantallaGranja extends ScreenAdapter {
         batch.end();
 
 
-        // Finalmente se dibuja lo que va por encima
-        mapRenderer.render(
-                new int[]{idxArriba}
-        );
+        controlMapa.renderArriba();
+
     }
 
 
-    /**
-     * Actualiza la posición de la cámara
-     * siguiendo al jugador.
-     */
+    /*Actualiza la posición de la cámara siguiendo al jugador*/
     private void actualizarCamara() {
 
-        float medioAnchoCamara =
-                (camara.viewportWidth * camara.zoom) / 2f;
+        float medioAnchoCamara = (camara.viewportWidth * camara.zoom) / 2f;
 
-        float medioAltoCamara =
-                (camara.viewportHeight * camara.zoom) / 2f;
+        float medioAltoCamara = (camara.viewportHeight * camara.zoom) / 2f;
 
 
-        float camX =
-                MathUtils.clamp(
-                        jugador.getX(),
-                        medioAnchoCamara,
-                        anchoMapaPixels - medioAnchoCamara
-                );
+        float camX = MathUtils.clamp(jugador.getX(), medioAnchoCamara, controlMapa.getAltoMapaPixels() - medioAnchoCamara);
 
-        float camY =
-                MathUtils.clamp(
-                        jugador.getY(),
-                        medioAltoCamara,
-                        altoMapaPixels - medioAltoCamara
-                );
+        float camY = MathUtils.clamp(jugador.getY(), medioAltoCamara, controlMapa.getAltoMapaPixels() - medioAltoCamara);
 
 
-        camara.position.set(
-                camX,
-                camY,
-                0
-        );
+        camara.position.set(camX, camY, 0);
 
         camara.update();
     }
 
 
-    /**
-     * Dibuja todos los cultivos existentes en el mapa.
-     */
+    /*Dibuja todos los cultivos existentes en el mapa*/
     private void renderizarCultivos() {
 
-        for (int fila = 0;
-             fila < mapHeightTiles;
-             fila++) {
+        for (int fila = 0; fila < controlMapa.getMapHeightTiles(); fila++) {
 
-            for (int col = 0;
-                 col < mapWidthTiles;
-                 col++) {
+            for (int col = 0; col < controlMapa.getMapWidthTiles(); col++) {
 
 
-                Parcela parcela =
-                        controlCultivos.getParcela(
-                                col,
-                                fila
-                        );
+                Parcela parcela = controlCultivos.getParcela(col, fila);
 
-
-                if (parcela == null
-                        || !parcela.tieneCultivo()) {
+                if (parcela == null || !parcela.tieneCultivo()) {
 
                     continue;
+                    
                 }
 
-
-                Cultivo cultivo =
-                        parcela.getCultivoActual();
+                Cultivo cultivo = parcela.getCultivoActual();
 
 
-                TipoCultivo tipo =
-                        cultivo.getTipo();
+                TipoCultivo tipo = cultivo.getTipo();
 
 
-                int etapa =
-                        cultivo.getEtapaActual();
+                int etapa = cultivo.getEtapaActual();
 
 
-                TextureRegion[] etapas =
-                        etapasCultivos.get(tipo);
+                TextureRegion[] etapas = etapasCultivos.get(tipo);
 
 
                 // Evita intentar acceder a una etapa
                 // que no exista.
-                if (etapas == null
-                        || etapa < 0
-                        || etapa >= etapas.length) {
+                if (etapas == null || etapa < 0 || etapa >= etapas.length) {
 
                     continue;
+                    
                 }
 
 
-                float xPx =
-                        col * tileWidth;
+                float xPx = col * controlMapa.getTileWidth();
 
-                float yPx =
-                        fila * tileHeight;
+                float yPx = fila * controlMapa.getTileHeight();
 
+                batch.draw(etapas[etapa], xPx, yPx, controlMapa.getTileWidth(), controlMapa.getTileHeight()
 
-                batch.draw(
-                        etapas[etapa],
-                        xPx,
-                        yPx,
-                        tileWidth,
-                        tileHeight
                 );
             }
         }
@@ -612,14 +325,10 @@ public class PantallaGranja extends ScreenAdapter {
 
 
     @Override
-    public void resize(
-            int width,
-            int height) {
+    public void resize(int width, int height) {
 
-        viewport.update(
-                width,
-                height
-        );
+        viewport.update(width, height);
+        
     }
 
 
@@ -629,18 +338,15 @@ public class PantallaGranja extends ScreenAdapter {
         batch.dispose();
 
         jugador.liberarRecursos();
-
-        mapa.dispose();
-
-        mapRenderer.dispose();
+        
+        controlMapa.dispose();
 
 
-        // Liberamos todas las texturas
-        // cargadas automáticamente.
-        for (Texture textura :
-                texturasCultivos.values()) {
+        // Liberamos todas las texturas cargadas automáticamente.
+        for (Texture textura : texturasCultivos.values()) {
 
             textura.dispose();
+            
         }
     }
 }
