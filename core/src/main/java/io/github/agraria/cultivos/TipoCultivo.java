@@ -3,7 +3,12 @@ package io.github.agraria.cultivos;
 public enum TipoCultivo {
 
 	    // Nombre, Precio Compra, Precio Venta, Minutos por Etapa (4 etapas), XP, Ruta de Textura
-	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", 4);
+	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", 4),
+	    CALABAZA("Zanahoria", 10, 25, 90, 15, "cultivos/calabazaEtapas.png", 6);
+	 /*   ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", 4),
+	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", 4),
+	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", 4),
+	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", 4);*/
 
 	    private final String nombre;
 	    private final int precioCompra;
