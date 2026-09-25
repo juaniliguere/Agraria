@@ -1,8 +1,6 @@
 package io.github.agraria.pantallas;
 
-import io.github.agraria.control.ControlMapa;
-
-import io.github.agraria.cultivos.ControlCultivos;
+import io.github.agraria.cultivos.GestorCultivos;
 import io.github.agraria.cultivos.Cultivo;
 import io.github.agraria.cultivos.Parcela;
 import io.github.agraria.cultivos.TipoCultivo;
@@ -34,63 +32,53 @@ public class PantallaGranja extends ScreenAdapter {
     private SpriteBatch batch;
     private Personaje jugador;
 
-
-    private ControlMapa controlMapa;
-
+    private GestorMapa controlMapa;
    
     private OrthographicCamera camara;
-    private Viewport viewport;
+    private Viewport vp;
 
     public static final int V_WIDTH = 800;
     public static final int V_HEIGHT = 600;
 
-
-    private ControlCultivos controlCultivos;
+    private GestorCultivos gestorCultivos;
 
     // Guarda las etapas de cada tipo de cultivo.
     private ObjectMap<TipoCultivo, TextureRegion[]> etapasCultivos;
-
     // Texturas originales que debemos liberar al cerrar la pantalla
     private ObjectMap<TipoCultivo, Texture> texturasCultivos;
 
-
     private Reloj reloj;
+    
 
     public PantallaGranja() {
 
         batch = new SpriteBatch();
-
         jugador = new Personaje(125, 125);
-
 
         // =========================
         // CÁMARA Y VIEWPORT
         // =========================
 
         camara = new OrthographicCamera();
-
-        viewport = new FitViewport(V_WIDTH, V_HEIGHT, camara);
-
-        viewport.apply();
-
+        vp = new FitViewport(V_WIDTH, V_HEIGHT, camara);
+        vp.apply();
         // Zoom inicial
         camara.zoom = 0.5f;
 
-        controlMapa = new ControlMapa("pantallas/zona1/AgrariaMapa.tmx");
-
+        controlMapa = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
 
         // =========================
         // CONTROL DE CULTIVOS
         // =========================
 
-        boolean[][] matrizPlantable = ControlCultivos.generarMatrizPlantableDesdeMapa(
+        boolean[][] matrizPlantable = GestorCultivos.generarMatrizPlantableDesdeMapa(
         		
                         controlMapa.getMapa(),
                         controlMapa.getMapWidthTiles(),
                         controlMapa.getMapHeightTiles()
                 );
 
-        controlCultivos = new ControlCultivos(
+        gestorCultivos = new GestorCultivos(
                 		
                 		controlMapa.getMapWidthTiles(),
                 		controlMapa.getMapHeightTiles(),
@@ -104,7 +92,6 @@ public class PantallaGranja extends ScreenAdapter {
     }
 
     //Carga automáticamente las texturas de todos los tipos de cultivo existentes.
-
     private void cargarTexturasCultivos() {
 
         etapasCultivos = new ObjectMap<>();
@@ -126,17 +113,11 @@ public class PantallaGranja extends ScreenAdapter {
 
             TextureRegion[] etapas = new TextureRegion[cantidadEtapas];
 
-
             // Cortamos el spritesheet en regiones
             for (int i = 0; i < cantidadEtapas; i++) {
 
-                etapas[i] = new TextureRegion(
-                        textura,
-                        i * anchoEtapa,
-                        0,
-                        anchoEtapa,
-                        altoEtapa
-                );
+                etapas[i] = new TextureRegion(textura, i * anchoEtapa, 0, anchoEtapa, altoEtapa);
+                
             }
 
             etapasCultivos.put(tipo, etapas);
@@ -148,20 +129,14 @@ public class PantallaGranja extends ScreenAdapter {
     public void show() {
 
         ControlJugador controlador = new ControlJugador(jugador, this);
-
         Gdx.input.setInputProcessor(controlador);
     }
 
+    public void procesarCultivar(int screenX, int screenY) {
 
-    //Se ejecuta cuando el jugador hace clic en el mapa.
-    public void hacerClicEn(int screenX, int screenY) {
-
-        // Convertimos coordenadas de pantalla
-        // a coordenadas del mundo.
         com.badlogic.gdx.math.Vector3 posMundo = camara.unproject(new com.badlogic.gdx.math.Vector3(screenX, screenY, 0));
 
-        Parcela parcela = controlCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
-
+        Parcela parcela = gestorCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
 
         if (parcela == null) {
 
@@ -174,18 +149,36 @@ public class PantallaGranja extends ScreenAdapter {
 
         if (!parcela.tieneCultivo() && parcela.isEsPlantable()) {
 
-            boolean exito = controlCultivos.plantarEn(posMundo.x, posMundo.y, TipoCultivo.ZANAHORIA);
+            boolean exito = gestorCultivos.plantarEn(posMundo.x, posMundo.y, TipoCultivo.ZANAHORIA);
 
             System.out.println("-> PlantarEn devolvió: " + exito);
             
         }
     }
     
+    public void procesarCosechar() {
+    	
+
+        // Posición de los pies/centro del personaje.
+        float x = jugador.getCentroX();
+        float y = jugador.getPiesY();
+
+        // Intentamos cosechar en esa posición.
+        Cultivo cosechado = gestorCultivos.cosecharEn(x, y);
+
+        if (cosechado != null) {
+            System.out.println("-> Cultivo cosechado: " + cosechado.getTipo());
+        } else {
+            System.out.println("-> No hay un cultivo cosechable delante.");
+        }
+    	
+    }
+    
     public void procesarDormir() {
     	
-    	int minutosDormidos = reloj.dormir(6); // Reloj calcula minutos hasta las 6 AM
-    	controlCultivos.pasarTiempo(minutosDormidos); // Cultivos avanzan su crecimiento
-
+    	int minutosDormidos = reloj.dormir(6);
+    	gestorCultivos.pasarTiempo(minutosDormidos);
+    	
         System.out.println("-> durmio" + minutosDormidos + " minutos.");
         System.out.println("-> Día: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada());
     	
@@ -194,31 +187,31 @@ public class PantallaGranja extends ScreenAdapter {
     @Override
     public void render(float delta) {
 
-
         // =========================
         // ZOOM
         // =========================
 
-        if (Gdx.input.isKeyPressed(Keys.PLUS) || Gdx.input.isKeyPressed(Keys.EQUALS)) {
-
-            camara.zoom -= 0.5f * delta;
-            System.out.println(camara.zoom);
-            
-        }
-
-        if (Gdx.input.isKeyPressed(Keys.MINUS)) {
-            camara.zoom += 0.5f * delta;
-            System.out.println(camara.zoom);
-            
-        }
-
-        camara.zoom = MathUtils.clamp(camara.zoom, 0.2f, 1.5f);
+//        if (Gdx.input.isKeyPressed(Keys.M) || Gdx.input.isKeyPressed(Keys.EQUALS)) {
+//
+//            camara.zoom -= 0.5f * delta;
+//            System.out.println(camara.zoom);
+//            
+//        }
+//
+//        if (Gdx.input.isKeyPressed(Keys.MINUS)) {
+//        	
+//            camara.zoom += 0.5f * delta;
+//            System.out.println(camara.zoom);
+//            
+//        }
+//
+//        camara.zoom = MathUtils.clamp(camara.zoom, 0.2f, 1.5f);
 
         int minutosPasados = reloj.actualizar(delta);
 
         if (minutosPasados > 0) {
 
-            controlCultivos.pasarTiempo( minutosPasados);
+            gestorCultivos.pasarTiempo( minutosPasados);
             
         }
 
@@ -226,7 +219,6 @@ public class PantallaGranja extends ScreenAdapter {
 
 
         actualizarCamara();
-
 
         // =========================
         // DIBUJAR
@@ -245,32 +237,24 @@ public class PantallaGranja extends ScreenAdapter {
         batch.begin();
 
         renderizarCultivos();
-
         jugador.renderizar(batch);
 
         batch.end();
-
 
         controlMapa.renderArriba();
 
     }
 
-
     /*Actualiza la posición de la cámara siguiendo al jugador*/
     private void actualizarCamara() {
 
         float medioAnchoCamara = (camara.viewportWidth * camara.zoom) / 2f;
-
         float medioAltoCamara = (camara.viewportHeight * camara.zoom) / 2f;
 
-
         float camX = MathUtils.clamp(jugador.getX(), medioAnchoCamara, controlMapa.getAltoMapaPixels() - medioAnchoCamara);
-
         float camY = MathUtils.clamp(jugador.getY(), medioAltoCamara, controlMapa.getAltoMapaPixels() - medioAltoCamara);
 
-
         camara.position.set(camX, camY, 0);
-
         camara.update();
     }
 
@@ -282,8 +266,7 @@ public class PantallaGranja extends ScreenAdapter {
 
             for (int col = 0; col < controlMapa.getMapWidthTiles(); col++) {
 
-
-                Parcela parcela = controlCultivos.getParcela(col, fila);
+                Parcela parcela = gestorCultivos.getParcela(col, fila);
 
                 if (parcela == null || !parcela.tieneCultivo()) {
 
@@ -293,32 +276,25 @@ public class PantallaGranja extends ScreenAdapter {
 
                 Cultivo cultivo = parcela.getCultivoActual();
 
-
                 TipoCultivo tipo = cultivo.getTipo();
-
 
                 int etapa = cultivo.getEtapaActual();
 
-
                 TextureRegion[] etapas = etapasCultivos.get(tipo);
 
-
-                // Evita intentar acceder a una etapa
-                // que no exista.
+                // Evita intentar acceder a una etapa que no exista.
                 if (etapas == null || etapa < 0 || etapa >= etapas.length) {
 
                     continue;
                     
                 }
 
-
                 float xPx = col * controlMapa.getTileWidth();
 
                 float yPx = fila * controlMapa.getTileHeight();
 
-                batch.draw(etapas[etapa], xPx, yPx, controlMapa.getTileWidth(), controlMapa.getTileHeight()
-
-                );
+                batch.draw(etapas[etapa], xPx, yPx, controlMapa.getTileWidth(), controlMapa.getTileHeight());
+                
             }
         }
     }
@@ -327,7 +303,7 @@ public class PantallaGranja extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
 
-        viewport.update(width, height);
+        vp.update(width, height);
         
     }
 
@@ -340,7 +316,6 @@ public class PantallaGranja extends ScreenAdapter {
         jugador.liberarRecursos();
         
         controlMapa.dispose();
-
 
         // Liberamos todas las texturas cargadas automáticamente.
         for (Texture textura : texturasCultivos.values()) {

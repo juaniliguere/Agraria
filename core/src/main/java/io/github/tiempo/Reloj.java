@@ -2,7 +2,7 @@ package io.github.tiempo;
 
 public class Reloj {
 
-    private static final float segsPorMinJuego = 0.1f; //SEGS_POR_MIN_JUEGO
+    private static final float SEGS_POR_MIN_JUEGO = 0.1f;
 	
     private int minutos;
     private int horas;
@@ -19,30 +19,35 @@ public class Reloj {
     }
 
     public int actualizar(float delta) {
+    	
         acumuladorSegundos += delta;
-
         int minutosPasados = 0;
 
-        while (acumuladorSegundos >= segsPorMinJuego) {
-            acumuladorSegundos -= segsPorMinJuego;
+        while (acumuladorSegundos >= SEGS_POR_MIN_JUEGO) {
+            acumuladorSegundos -= SEGS_POR_MIN_JUEGO;
 
             avanzarUnMinuto();
             minutosPasados++;
         }
-//        System.out.println("MP: " + minutosPasados + " / By: " + (horas*60+minutos));
+        
+      //  System.out.println("MinPasados: " + minutosPasados);
         return minutosPasados;
+        
     }
 
     private void avanzarUnMinuto() {
+    	
         minutos++;
-
         if (minutos >= 60) {
+        	
             minutos = 0;
             horas++;
 
             if (horas >= 24) {
+            	
                 horas = 0;
                 dias++;
+                
             }
         }
     }
