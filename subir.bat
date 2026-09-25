@@ -1,18 +1,11 @@
 @echo off
-echo 1. Guardando tus cambios locales...
+echo Trayendo cambios de GitHub...
+git pull origin main --rebase
+
+echo Guardando cambios locales...
 git add .
-git commit -m "Actualizacion automatica"
+git commit -m "Actualización automatica"
 
-echo.
-echo 2. Trayendo cambios nuevos de GitHub...
-git pull --rebase origin main
-
-echo.
-echo 3. Subiendo todo a GitHub...
+echo Subiendo a GitHub...
 git push origin main
-
-echo.
-echo ---------------------------------------
-echo ¡Listo! Codigo sincronizado y subido.
-echo ---------------------------------------
 pause
