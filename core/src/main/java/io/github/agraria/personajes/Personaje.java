@@ -10,94 +10,136 @@ import com.badlogic.gdx.utils.Array;
 
 public class Personaje {
     private float x, y;
-    private final float velocidad = 150f; //VELOCIDSD
-    private Texture textura;
+    private float velocidad = 150f;
     private Rectangle hitbox;
-    
-    // Buenas prácticas: Reutilizamos el objeto Polígono para no saturar la memoria (GC)
-    private Polygon hitboxPoly;
 
-    // Dirección del movimiento enviada por el Controlador (-1, 0, 1)
-    public float dirX = 0;
-    public float dirY = 0;
+    // Variables de dirección controladas por ControlJugador
+    public int dirX = 0;
+    public int dirY = 0;
+
+    // --- Carga de imágenes por dirección (2 por cada tecla) ---
+    private Texture texIzq1, texIzq2;  // Tecla A / LEFT
+    private Texture texDer1, texDer2;  // Tecla D / RIGHT
+    private Texture texArr1, texArr2;  // Tecla W / UP
+    private Texture texAba1, texAba2;  // Tecla S / DOWN
+
+    private Texture texturaActual;
+    private float stateTime = 0f; // Acumulador para la animación
 
     public Personaje(float xInicial, float yInicial) {
         this.x = xInicial;
         this.y = yInicial;
-        System.out.println(x);
-        
-        this.textura = new Texture("personaje/pjFrenteEstatico.png");
-        this.textura.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        
-        // Hitbox en la base/pies del personaje
-        this.hitbox = new Rectangle(x, y, textura.getWidth(), textura.getHeight() / 2f);
-        
-        // Inicializamos el polígono una sola vez
-        this.hitboxPoly = new Polygon(new float[]{
-            0, 0,
-            hitbox.width, 0,
-            hitbox.width, hitbox.height,
-            0, hitbox.height
-        });
+
+        // 1. Carga de las 2 imágenes para cada dirección
+        this.texIzq1 = new Texture("personaje/pjPerfilIzquierdoMovIzquierdo.png");
+        this.texIzq2 = new Texture("personaje/pjPerfilIzquierdoMovDerecho.png");
+
+        this.texDer1 = new Texture("personaje/pjPerfilDerechoMovIzquierdo.png");
+        this.texDer2 = new Texture("personaje/pjPerfilDerechoMovDerecho.png");
+
+        this.texArr1 = new Texture("personaje/pjEspaldaMovIzquierdo.png");
+        this.texArr2 = new Texture("personaje/pjEspaldaMovDerecho.png");
+
+        this.texAba1 = new Texture("personaje/pjFrenteMovIzquierdo.png");
+        this.texAba2 = new Texture("personaje/pjFrenteMovDerecho.png");
+
+        // Aplicar el filtro Nearest para mantener nítido el Pixel Art
+        aplicarFiltro(texIzq1, texIzq2, texDer1, texDer2, texArr1, texArr2, texAba1, texAba2);
+
+        // Textura por defecto (vista frontal estática)
+        this.texturaActual = texAba1;
+
+        // Hitbox basada en las dimensiones de las imágenes
+        this.hitbox = new Rectangle(x, y, texturaActual.getWidth(), texturaActual.getHeight() / 2f);
     }
 
-    /**
-     * Método invocado por el ControladorJugador para actualizar la intención de movimiento.
-     */
-    public void mover(float dirX, float dirY) {
-        this.dirX = dirX;
-        this.dirY = dirY;
+    private void aplicarFiltro(Texture... texturas) {
+        for (Texture t : texturas) {
+            t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        }
     }
 
     public void actualizar(float delta, Array<Polygon> colisiones, float limiteAncho, float limiteAlto) {
         float xAnterior = x;
         float yAnterior = y;
-        //nuevaX, nuevaY
+        boolean estaMoviendose = false;
 
-        // --- Movimiento y Colisión Horizontal ---
-        x += dirX * velocidad * delta;
+        // --- Movimiento basado en dirX y dirY provistos por ControlJugador ---
+        if (dirX != 0 || dirY != 0) {
+            estaMoviendose = true;
+            stateTime += delta;
 
-        hitboxPoly.setPosition(x, y);
+            // Desplazamiento
+            x += dirX * velocidad * delta;
+            y += dirY * velocidad * delta;
+
+            // Selección de textura según la dirección activa
+            if (dirX < 0) {
+                texturaActual = (stateTime % 0.3f < 0.15f) ? texIzq1 : texIzq2;
+            } else if (dirX > 0) {
+                texturaActual = (stateTime % 0.3f < 0.15f) ? texDer1 : texDer2;
+            } else if (dirY > 0) {
+                texturaActual = (stateTime % 0.3f < 0.15f) ? texArr1 : texArr2;
+            } else if (dirY < 0) {
+                texturaActual = (stateTime % 0.3f < 0.15f) ? texAba1 : texAba2;
+            }
+        }
+
+        // Si se detiene, se resetea el tiempo de animación
+        if (!estaMoviendose) {
+            stateTime = 0f;
+        }
+
+        // --- Sistema de Colisiones ---
+        Polygon hitboxPoly = new Polygon(new float[]{
+            0, 0,
+            hitbox.width, 0,
+            hitbox.width, hitbox.height,
+            0, hitbox.height
+        });
+
+        // Colisión X
+        hitboxPoly.setPosition(x, yAnterior);
         for (Polygon colision : colisiones) {
             if (Intersector.overlapConvexPolygons(hitboxPoly, colision)) {
-                x = xAnterior; // Cancela movimiento en X si choca
+                x = xAnterior;
                 break;
             }
         }
 
-        // --- Movimiento y Colisión Vertical ---
-        y += dirY * velocidad * delta;
-
+        // Colisión Y
         hitboxPoly.setPosition(x, y);
         for (Polygon colision : colisiones) {
             if (Intersector.overlapConvexPolygons(hitboxPoly, colision)) {
-                y = yAnterior; // Cancela movimiento en Y si choca
+                y = yAnterior;
                 break;
             }
         }
 
-        // Límites de los bordes del mapa
-        x = MathUtils.clamp(x, 0, limiteAncho - textura.getWidth());
-        y = MathUtils.clamp(y, 0, limiteAlto - textura.getHeight());
+        // Límites del mapa
+        x = MathUtils.clamp(x, 0, limiteAncho - texturaActual.getWidth());
+        y = MathUtils.clamp(y, 0, limiteAlto - texturaActual.getHeight());
 
         hitbox.setPosition(x, y);
     }
 
     public void renderizar(SpriteBatch batch) {
-        batch.draw(textura, x, y);
+        batch.draw(texturaActual, x, y);
     }
 
     public void liberarRecursos() {
-        textura.dispose();
+        texIzq1.dispose();
+        texIzq2.dispose();
+        texDer1.dispose();
+        texDer2.dispose();
+        texArr1.dispose();
+        texArr2.dispose();
+        texAba1.dispose();
+        texAba2.dispose();
     }
 
-    // --- GETTERS (Útiles para la cámara, la grilla y las interacciones) ---
+    // Getters
     public float getX() { return x; }
     public float getY() { return y; }
-    public float getAncho() { return textura.getWidth(); }
-    public float getAlto() { return textura.getHeight(); }
-    
-    // Punto de los pies del personaje (clave para saber qué celda de cultivo está mirando/pisando)
-    public float getCentroX() { return x + (textura.getWidth() / 2f); }
-    public float getPiesY() { return y + (hitbox.height / 2f); }
+    public Rectangle getHitbox() { return hitbox; }
 }
