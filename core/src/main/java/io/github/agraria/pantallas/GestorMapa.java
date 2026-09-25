@@ -1,4 +1,4 @@
-package io.github.agraria.control;
+package io.github.agraria.pantallas;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class ControlMapa implements Disposable{
+public class GestorMapa implements Disposable{
 
 		private TiledMap mapa;
 	    private OrthogonalTiledMapRenderer mapRenderer;
@@ -45,7 +45,7 @@ public class ControlMapa implements Disposable{
 	    private int idxAbajo = -1;
 	    private int idxArriba = -1;
 	
-	public ControlMapa(String rutaMapa){
+	public GestorMapa(String rutaMapa){
 		
         // =========================
         // MAPA
