@@ -1,11 +1,8 @@
 @echo off
-echo Trayendo cambios de GitHub...
-git pull origin main --rebase
-
 echo Guardando cambios locales...
 git add .
-git commit -m "Actualización automatica"
+git commit -m "Actualizacion automatica"
 
-echo Subiendo a GitHub...
-git push origin main
+echo Subiendo a GitHub (forzado)...
+git push origin main --force
 pause
