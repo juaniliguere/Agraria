@@ -147,16 +147,13 @@ public class PantallaMenu implements Screen {
 
     @Override public void pause() {}
     @Override public void resume() {}
-<<<<<<< HEAD
-    @Override public void hide() { dispose(); }
-=======
+
     @Override 
     public void hide() {
         // Quitar el procesador de entrada para evitar que el usuario interactúe durante el cambio
         Gdx.input.setInputProcessor(null);
     }
 
->>>>>>> f6ca868 (Actualizacion automatica)
 
     @Override
     public void dispose() {
@@ -170,11 +167,8 @@ public class PantallaMenu implements Screen {
             shapeRenderer.dispose(); // Liberar memoria del ShapeRenderer
         }
     }
-<<<<<<< HEAD
-}
-=======
+
 }
 
 
-   
->>>>>>> f6ca868 (Actualizacion automatica)
+

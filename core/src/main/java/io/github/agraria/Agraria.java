@@ -11,11 +11,8 @@ public class Agraria extends Game {
 
     @Override
     public void create() {
-<<<<<<< HEAD
-    	this.setScreen(new PantallaMenu());
-=======
+
         this.setScreen(new PantallaMenu());
->>>>>>> f6ca868 (Actualizacion automatica)
     }
     
 
