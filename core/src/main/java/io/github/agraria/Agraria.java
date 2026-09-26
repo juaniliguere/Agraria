@@ -11,7 +11,9 @@ public class Agraria extends Game {
 
     @Override
     public void create() {
-        this.setScreen(new PantallaMenu());
+        // Como PantallaMenu usa Gdx.app.getApplicationListener() internamente, 
+        // no le hace falta recibir 'this' en el constructor.
+        setScreen(new PantallaMenu());
     }
     
 

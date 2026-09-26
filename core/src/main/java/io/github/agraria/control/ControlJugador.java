@@ -37,7 +37,6 @@ import io.github.agraria.personajes.Personaje;
 	        if (keycode == Keys.S || keycode == Keys.DOWN)  jugador.dirY = 0;
 	        if (keycode == Keys.A || keycode == Keys.LEFT)  jugador.dirX = 0;
 	        if (keycode == Keys.D || keycode == Keys.RIGHT) jugador.dirX = 0;
-	        if (keycode == Keys.F) pantalla.procesarCosechar();
 	        if (keycode == Keys.Z) pantalla.procesarDormir();
 	        
 	        return true;
@@ -46,7 +45,7 @@ import io.github.agraria.personajes.Personaje;
 	    @Override
 	    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 	        if (button == com.badlogic.gdx.Input.Buttons.LEFT) {
-	            pantalla.procesarCultivar(screenX, screenY);
+	            pantalla.hacerClicEn(screenX, screenY);
 	            return true;
 	        }
 	        return false;

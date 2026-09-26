@@ -147,6 +147,7 @@ public class PantallaMenu implements Screen {
 
     @Override public void pause() {}
     @Override public void resume() {}
+
     @Override 
     public void hide() {
         // Quitar el procesador de entrada para evitar que el usuario interactúe durante el cambio
@@ -166,7 +167,5 @@ public class PantallaMenu implements Screen {
             shapeRenderer.dispose(); // Liberar memoria del ShapeRenderer
         }
     }
+
 }
-
-
-   

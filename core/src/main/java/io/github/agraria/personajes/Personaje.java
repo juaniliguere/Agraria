@@ -12,12 +12,14 @@ import com.badlogic.gdx.utils.Array;
 
 public class Personaje {
     private float x, y;
+
     private final float VELOCIDAD = 150f;
     private Rectangle hitbox;
     private Polygon hitboxPoly;
 
     public float dirX = 0;
     public float dirY = 0;
+
 
     // --- SPRITES Y ANIMACIONES ---
     private Texture spriteSheet;
@@ -117,6 +119,7 @@ public class Personaje {
         }
 
         y += dirY * VELOCIDAD * delta;
+
         hitboxPoly.setPosition(x, y);
         
         for (Polygon colision : colisiones) {
@@ -134,6 +137,7 @@ public class Personaje {
     }
 
     public void renderizar(SpriteBatch batch) {
+    	
         TextureRegion currentFrame = null;
 
         boolean enMovimiento = (dirX != 0 || dirY != 0);
