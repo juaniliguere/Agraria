@@ -35,7 +35,7 @@ public class Reloj {
         
     }
 
-    private void avanzarUnMinuto() {
+    public void avanzarUnMinuto() {
     	
         minutos++;
         if (minutos >= 60) {
@@ -83,6 +83,8 @@ public class Reloj {
     }
     
     public String getHoraFormateada() {
-        return String.format("%02d:%02d", horas, minutos);
+        String horaStr = horas < 10 ? "0" + horas : String.valueOf(horas);
+        String minStr = minutos < 10 ? "0" + minutos : String.valueOf(minutos);
+        return horaStr + ":" + minStr;
     }
 }

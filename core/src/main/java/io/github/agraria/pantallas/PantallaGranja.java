@@ -4,6 +4,7 @@ import io.github.agraria.cultivos.GestorCultivos;
 import io.github.agraria.cultivos.Cultivo;
 import io.github.agraria.cultivos.Parcela;
 import io.github.agraria.cultivos.TipoCultivo;
+import io.github.agraria.eventos.*;
 
 import io.github.agraria.control.ControlJugador;
 import io.github.agraria.personajes.Personaje;
@@ -14,8 +15,10 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.ScreenAdapter;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.math.MathUtils;
@@ -48,12 +51,20 @@ public class PantallaGranja extends ScreenAdapter {
     private ObjectMap<TipoCultivo, Texture> texturasCultivos;
 
     private Reloj reloj;
+    private ControlSueno controlSueno;
+    private ControlClima controlClima;
+    
+    // --- HUD Y TEXTO ---
+    private BitmapFont font;
+    private OrthographicCamera hudCamara;
+    private ShapeRenderer shapeRenderer;
     
 
     public PantallaGranja() {
 
         batch = new SpriteBatch();
         jugador = new Personaje(125, 125);
+        shapeRenderer = new ShapeRenderer();
 
         // =========================
         // CÁMARA Y VIEWPORT
@@ -64,6 +75,10 @@ public class PantallaGranja extends ScreenAdapter {
         vp.apply();
         // Zoom inicial
         camara.zoom = 0.5f;
+        
+        hudCamara = new OrthographicCamera();
+        hudCamara.setToOrtho(false, V_WIDTH, V_HEIGHT);
+        font = new BitmapFont();
 
         controlMapa = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
 
@@ -87,8 +102,13 @@ public class PantallaGranja extends ScreenAdapter {
                 );
 
         cargarTexturasCultivos();
-
+        
         reloj = new Reloj();
+        
+        controlClima = new ControlClima();
+        
+        controlSueno = new ControlSueno();
+
     }
 
     //Carga automáticamente las texturas de todos los tipos de cultivo existentes.
@@ -176,11 +196,7 @@ public class PantallaGranja extends ScreenAdapter {
     
     public void procesarDormir() {
     	
-    	int minutosDormidos = reloj.dormir(6);
-    	gestorCultivos.pasarTiempo(minutosDormidos);
-    	
-        System.out.println("-> durmio" + minutosDormidos + " minutos.");
-        System.out.println("-> Día: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada());
+        controlSueno.iniciarDormir(reloj);
     	
     }
 
@@ -207,14 +223,15 @@ public class PantallaGranja extends ScreenAdapter {
 //
 //        camara.zoom = MathUtils.clamp(camara.zoom, 0.2f, 1.5f);
 
-        int minutosPasados = reloj.actualizar(delta);
+        controlClima.actualizar(delta);
+        controlSueno.actualizar(delta, reloj, gestorCultivos);
 
-        if (minutosPasados > 0) {
-
-            gestorCultivos.pasarTiempo( minutosPasados);
-            
+        if (!controlSueno.estaDurmiendo()) {
+            int minutosPasados = reloj.actualizar(delta);
+            if (minutosPasados > 0) {
+                gestorCultivos.pasarTiempo(minutosPasados);
+            }
         }
-
         jugador.actualizar(delta, controlMapa.getColisionesMapa(), controlMapa.getAnchoMapaPixels(), controlMapa.getAltoMapaPixels());
 
 
@@ -242,6 +259,28 @@ public class PantallaGranja extends ScreenAdapter {
         batch.end();
 
         controlMapa.renderArriba();
+        
+
+        // =========================
+        // EFECTOS VISUALES (Clima)
+        // =========================
+        controlClima.renderizarOscurecimiento(shapeRenderer, camara, vp.getWorldWidth(), vp.getWorldHeight());
+        controlClima.renderizarEfectoVisual(batch, hudCamara, V_WIDTH, V_HEIGHT);
+
+        // =========================
+        // DIBUJAR HUD NORMAL
+        // =========================
+        batch.setProjectionMatrix(hudCamara.combined);
+        batch.begin();
+        font.getData().setScale(1.2f);
+        font.draw(batch, "Dia: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada() + " | [L] Lluvia: " + (controlClima.isLluviaActiva() ? "ON" : "OFF"), 20, V_HEIGHT - 20);
+        font.getData().setScale(1f);
+        batch.end();
+
+        // =========================
+        // TRANSICIÓN GRÁFICA DE SUEÑO
+        // =========================
+        controlSueno.renderizarEfectoVisual(shapeRenderer, batch, camara, hudCamara, vp, font, reloj, V_WIDTH, V_HEIGHT);
 
     }
 
@@ -316,6 +355,8 @@ public class PantallaGranja extends ScreenAdapter {
         jugador.liberarRecursos();
         
         controlMapa.dispose();
+
+        controlClima.dispose();
 
         // Liberamos todas las texturas cargadas automáticamente.
         for (Texture textura : texturasCultivos.values()) {
