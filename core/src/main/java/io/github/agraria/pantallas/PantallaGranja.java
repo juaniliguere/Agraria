@@ -22,7 +22,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.math.MathUtils;
-
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -154,7 +154,7 @@ public class PantallaGranja extends ScreenAdapter {
 
     public void procesarCultivar(int screenX, int screenY) {
 
-        com.badlogic.gdx.math.Vector3 posMundo = camara.unproject(new com.badlogic.gdx.math.Vector3(screenX, screenY, 0));
+        Vector3 posMundo = camara.unproject(new Vector3(screenX, screenY, 0));
 
         Parcela parcela = gestorCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
 
@@ -176,22 +176,26 @@ public class PantallaGranja extends ScreenAdapter {
         }
     }
     
-    public void procesarCosechar() {
-    	
+    public void procesarCosechar(int screenX, int screenY) {
 
-        // Posición de los pies/centro del personaje.
-        float x = jugador.getCentroX();
-        float y = jugador.getPiesY();
+        Vector3 posMundo = camara.unproject(new Vector3(screenX, screenY, 0));
 
-        // Intentamos cosechar en esa posición.
-        Cultivo cosechado = gestorCultivos.cosecharEn(x, y);
+        Parcela parcela = gestorCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
+
+        if (parcela == null) {
+        	
+        	System.out.println("-> No hay un cultivo cerca del clic.");
+            return;
+            
+        }
+
+        Cultivo cosechado = parcela.cosechar();
 
         if (cosechado != null) {
             System.out.println("-> Cultivo cosechado: " + cosechado.getTipo());
         } else {
-            System.out.println("-> No hay un cultivo cosechable delante.");
+            System.out.println("-> El cultivo todavía no está listo.");
         }
-    	
     }
     
     public void procesarDormir() {

@@ -66,9 +66,45 @@ public class GestorCultivos {
         return matriz;
     }
 
-    /**
-     * Crea una Parcela para cada posición de la matriz.
-     */
+    /*public Parcela getParcelaCercana(float xPixel, float yPixel, float distanciaMaxima) {
+
+    int columnaCentro = xPixelAColumna(xPixel);
+    int filaCentro = yPixelAFila(yPixel);
+
+    Parcela parcelaMasCercana = null;
+    float distanciaMasCercana = Float.MAX_VALUE;
+
+    // Revisamos las parcelas cercanas al lugar donde hizo clic
+    for (int f = filaCentro - 1; f <= filaCentro + 1; f++) {
+        for (int c = columnaCentro - 1; c <= columnaCentro + 1; c++) {
+
+            if (!esCoordenadaValida(c, f)) {
+                continue;
+            }
+
+            float centroX = c * tamanoTilePixels + tamanoTilePixels / 2f;
+            float centroY = f * tamanoTilePixels + tamanoTilePixels / 2f;
+
+            float dx = xPixel - centroX;
+            float dy = yPixel - centroY;
+
+            float distancia = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distancia <= distanciaMaxima &&
+                distancia < distanciaMasCercana) {
+
+                parcelaMasCercana = grilla[f][c];
+                distanciaMasCercana = distancia;
+            }
+        }
+    }
+
+    return parcelaMasCercana;
+}*/
+    
+    
+    // Crea una Parcela para cada posición de la matriz.
+    
     private void inicializarGrilla(boolean[][] matrizPlantable) {
 
         for (int f = 0; f < filas; f++) {
@@ -94,9 +130,8 @@ public class GestorCultivos {
         return grilla[fila][col].plantar(tipo);
     }
 
-    /**
-     * Intenta cosechar usando coordenadas del mundo en píxeles. Devuelve el Cultivo cosechado o null si no se pudo cosechar.
-     */
+    //Intenta cosechar usando coordenadas del mundo en píxeles. Devuelve el Cultivo cosechado o null si no se pudo cosechar.
+
     public Cultivo cosecharEn(float xPixel, float yPixel) {
 
         int col = xPixelAColumna(xPixel);
