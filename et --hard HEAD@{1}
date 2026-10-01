@@ -1,0 +1,29 @@
+[33mf6ca868[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: rebase (abort): returning to refs/heads/main
+[33mff61f69[m HEAD@{1}: commit: Actualizacion automatica
+[33madd389e[m HEAD@{2}: commit: Actualizacion automatica
+[33m281f5bb[m HEAD@{3}: commit: Actualizacion automatica
+[33m25612c3[m HEAD@{4}: commit: Actualizacion automatica
+[33m47f8a9a[m HEAD@{5}: commit: Actualizacion automatica
+[33m261575c[m HEAD@{6}: commit: Actualizaci├│n automatica
+[33m5e250b3[m HEAD@{7}: commit: Actualizacion automatica
+[33md170b61[m HEAD@{8}: commit: Actualizacion automatica
+[33m5c28347[m HEAD@{9}: pull --rebase origin main (start): checkout 5c28347282c145b885979017fa85f6a0580ef55d
+[33mf6ca868[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{10}: commit: Actualizacion automatica
+[33m8b18637[m HEAD@{11}: commit: Actualizacion automatica
+[33m72e8846[m HEAD@{12}: commit: Actualizacion automatica
+[33mefb4aff[m HEAD@{13}: commit: Actualizacion automatica
+[33m744e4cd[m HEAD@{14}: pull --rebase origin main (finish): returning to refs/heads/main
+[33m744e4cd[m HEAD@{15}: pull --rebase origin main (pick): Actualizacion automatica
+[33m41f352c[m HEAD@{16}: pull --rebase origin main (start): checkout 41f352c554ac9e6f4f38eb412e5e9a4ebc0daa60
+[33m5d5e761[m HEAD@{17}: commit: Actualizacion automatica
+[33mb915a4f[m HEAD@{18}: commit: Actualizacion automatica
+[33m51a469d[m HEAD@{19}: commit: Actualizacion automatica
+[33m3d94ae6[m HEAD@{20}: pull --rebase origin main (finish): returning to refs/heads/main
+[33m3d94ae6[m HEAD@{21}: pull --rebase origin main (pick): Actualizacion automatica
+[33m59bd8bc[m HEAD@{22}: pull --rebase origin main (pick): Actualizacion automatica
+[33m9b80b7f[m HEAD@{23}: pull --rebase origin main (pick): Actualizacion automatica
+[33mbe41cc6[m HEAD@{24}: pull --rebase origin main (start): checkout be41cc6b421e341aa6cd58e2cd2b0aee70976a0d
+[33m43e153c[m HEAD@{25}: commit: Actualizacion automatica
+[33m5466db1[m HEAD@{26}: commit: Actualizacion automatica
+[33mac963c2[m HEAD@{27}: commit: Actualizacion automatica
+[33me74204d[m HEAD@{28}: clone: from https://github.com/juaniliguere/Agraria.git
