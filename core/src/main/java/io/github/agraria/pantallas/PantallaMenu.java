@@ -119,7 +119,7 @@ public class PantallaMenu implements Screen {
                 fadeAlpha = 1f;
                 
                 // ACÁ CAMBIÁS A TU PANTALLA DE JUEGO CUANDO TERMINA EL NEGRO:
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PantallaGranja());
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PantallaCarga());
             }
         }
 
