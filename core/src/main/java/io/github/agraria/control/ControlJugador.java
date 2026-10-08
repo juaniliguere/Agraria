@@ -25,6 +25,7 @@ import io.github.agraria.personajes.Personaje;
 	        if (keycode == Keys.S || keycode == Keys.DOWN)  jugador.dirY =-1;
 	        if (keycode == Keys.A || keycode == Keys.LEFT)  jugador.dirX = -1;
 	        if (keycode == Keys.D || keycode == Keys.RIGHT) jugador.dirX = 1;
+	        if (keycode == Keys.Z) pantalla.procesarDormir();
 
 	        return true;
 	    }
@@ -37,18 +38,27 @@ import io.github.agraria.personajes.Personaje;
 	        if (keycode == Keys.S || keycode == Keys.DOWN)  jugador.dirY = 0;
 	        if (keycode == Keys.A || keycode == Keys.LEFT)  jugador.dirX = 0;
 	        if (keycode == Keys.D || keycode == Keys.RIGHT) jugador.dirX = 0;
-	        if (keycode == Keys.Z) pantalla.procesarDormir();
+
 	        
 	        return true;
 	    }
 	    
+	    
 	    @Override
 	    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 	        if (button == com.badlogic.gdx.Input.Buttons.LEFT) {
+	        	
 	            pantalla.procesarCultivar(screenX, screenY);
+	            return true;
+	        
+	        } else if(button == com.badlogic.gdx.Input.Buttons.RIGHT) {
+
 	            pantalla.procesarCosechar(screenX, screenY);
 	            return true;
-	        }
+	        	
+	        } 
+	        
+	        
 	        return false;
 	    }
 	    	    

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="48" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="58" nextobjectid="94">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="48" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="59" nextobjectid="96">
  <tileset firstgid="1" source="farm objects free.tsx"/>
  <tileset firstgid="100" source="spring farm tilemap.tsx"/>
  <tileset firstgid="280" source="House.tsx"/>
@@ -395,6 +395,9 @@
 </data>
   </layer>
  </group>
+ <objectgroup id="58" name="zonaDormir">
+  <object id="95" name="zonaDormir" x="15.5" y="32" width="112" height="96"/>
+ </objectgroup>
  <group id="24" name="arriba">
   <layer id="56" name="arbusto" width="48" height="34">
    <data encoding="csv">

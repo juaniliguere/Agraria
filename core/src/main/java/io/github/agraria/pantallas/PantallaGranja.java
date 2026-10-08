@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -59,6 +60,8 @@ public class PantallaGranja extends ScreenAdapter {
     private OrthographicCamera hudCamara;
     private ShapeRenderer shapeRenderer;
     
+    private Rectangle zonaDormir;
+    
 
     public PantallaGranja() {
 
@@ -81,6 +84,7 @@ public class PantallaGranja extends ScreenAdapter {
         font = new BitmapFont();
 
         controlMapa = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
+        zonaDormir = controlMapa.getZonaDormir();
 
         // =========================
         // CONTROL DE CULTIVOS
@@ -199,9 +203,23 @@ public class PantallaGranja extends ScreenAdapter {
     }
     
     public void procesarDormir() {
-    	
-        controlSueno.iniciarDormir(reloj);
-    	
+
+        if (estaCercaDeLaCasa()) {
+            controlSueno.iniciarDormir(reloj);
+        }
+
+    }
+    
+    public boolean estaCercaDeLaCasa() {
+
+        if (zonaDormir == null) {
+            return false;
+        }
+
+        return zonaDormir.contains(
+                jugador.getCentroX(),
+                jugador.getPiesY()
+        );
     }
 
     @Override
