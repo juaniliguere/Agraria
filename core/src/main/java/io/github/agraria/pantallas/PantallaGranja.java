@@ -4,8 +4,10 @@ import io.github.agraria.cultivos.GestorCultivos;
 import io.github.agraria.cultivos.Cultivo;
 import io.github.agraria.cultivos.Parcela;
 import io.github.agraria.cultivos.TipoCultivo;
+import io.github.agraria.elementos.Item;
 import io.github.agraria.eventos.*;
-
+import io.github.agraria.inventario.GestorInventario;
+import io.github.agraria.inventario.Inventario;
 import io.github.agraria.control.ControlJugador;
 import io.github.agraria.personajes.Personaje;
 import io.github.tiempo.Reloj;
@@ -62,6 +64,8 @@ public class PantallaGranja extends ScreenAdapter {
     
     private Rectangle zonaDormir;
     
+    private Inventario inventario;
+    private GestorInventario gestorInventario;
 
     public PantallaGranja() {
 
@@ -85,6 +89,8 @@ public class PantallaGranja extends ScreenAdapter {
 
         controlMapa = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
         zonaDormir = controlMapa.getZonaDormir();
+        this.inventario = new Inventario(10);
+        this.gestorInventario = new GestorInventario(inventario);
 
         // =========================
         // CONTROL DE CULTIVOS
@@ -197,6 +203,20 @@ public class PantallaGranja extends ScreenAdapter {
 
         if (cosechado != null) {
             System.out.println("-> Cultivo cosechado: " + cosechado.getTipo());
+            
+         // 1. Obtenemos el TipoCultivo y generamos su Item
+            TipoCultivo tipo = cosechado.getTipo();
+            Item itemCosecha = tipo.crearItemCosecha();
+
+            // 2. Se agrega automáticamente al inventario
+            boolean guardado = inventario.agregarItem(itemCosecha, 1);
+
+            if (guardado) {
+                System.out.println("-> Cosechado y guardado en inventario: " + tipo.getNombre());
+            } else {
+                System.out.println("-> Cosechado pero el inventario está lleno.");
+            }
+            
         } else {
             System.out.println("-> El cultivo todavía no está listo.");
         }
@@ -293,11 +313,18 @@ public class PantallaGranja extends ScreenAdapter {
         // DIBUJAR HUD NORMAL
         // =========================
         batch.setProjectionMatrix(hudCamara.combined);
+        
         batch.begin();
+        
         font.getData().setScale(1.2f);
         font.draw(batch, "Dia: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada() + " | [L] Lluvia: " + (controlClima.isLluviaActiva() ? "ON" : "OFF"), 20, V_HEIGHT - 20);
         font.getData().setScale(1f);
+        
+        gestorInventario.renderizar(batch, font, V_WIDTH, V_HEIGHT);
+        
         batch.end();
+        
+
 
         // =========================
         // TRANSICIÓN GRÁFICA DE SUEÑO
@@ -379,6 +406,8 @@ public class PantallaGranja extends ScreenAdapter {
         controlMapa.dispose();
 
         controlClima.dispose();
+        
+        gestorInventario.dispose();
 
         // Liberamos todas las texturas cargadas automáticamente.
         for (Texture textura : texturasCultivos.values()) {

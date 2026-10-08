@@ -114,4 +114,10 @@ public class Inventario {
     	    return false;
     	
     }
+    public CasillaInventario getCasilla(int indice) {
+        if (indice >= 0 && indice < capacidad) {
+            return casillas[indice];
+        }
+        return null;
+    }
 }

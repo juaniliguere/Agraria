@@ -6,7 +6,7 @@ import io.github.agraria.elementos.Item;
 public enum TipoCultivo {
 
 	    // Nombre, Precio Compra, Precio Venta, Minutos por Etapa (4 etapas), XP, Ruta de Textura
-	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", "zanahoriaItem.png", 4);
+	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", 4);
 
 	    private final String nombre;
 	    private final int precioCompra;
