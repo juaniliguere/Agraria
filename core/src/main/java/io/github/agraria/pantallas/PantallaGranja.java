@@ -8,6 +8,8 @@ import io.github.agraria.elementos.Item;
 import io.github.agraria.eventos.*;
 import io.github.agraria.inventario.GestorInventario;
 import io.github.agraria.inventario.Inventario;
+import io.github.agraria.economia.Billetera;
+import io.github.agraria.tienda.VentanaTienda;
 import io.github.agraria.control.ControlJugador;
 import io.github.agraria.personajes.Personaje;
 import io.github.tiempo.Reloj;
@@ -26,6 +28,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -67,6 +71,11 @@ public class PantallaGranja extends ScreenAdapter {
     private Inventario inventario;
     private GestorInventario gestorInventario;
 
+    // --- ECONOMÍA Y TIENDA ---
+    private Billetera billetera;
+    private Stage stageUi; // Stage independiente para manejar la UI de la tienda
+    private Skin skinUi;   // Skin por defecto o la que uses para la UI
+
     public PantallaGranja() {
 
         batch = new SpriteBatch();
@@ -80,7 +89,6 @@ public class PantallaGranja extends ScreenAdapter {
         camara = new OrthographicCamera();
         vp = new FitViewport(V_WIDTH, V_HEIGHT, camara);
         vp.apply();
-        // Zoom inicial
         camara.zoom = 0.5f;
         
         hudCamara = new OrthographicCamera();
@@ -89,65 +97,59 @@ public class PantallaGranja extends ScreenAdapter {
 
         controlMapa = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
         zonaDormir = controlMapa.getZonaDormir();
+        
         this.inventario = new Inventario(10);
         this.gestorInventario = new GestorInventario(inventario);
+
+        // Inicializamos la billetera con 100 monedas de base
+        this.billetera = new Billetera(100);
+        
+     // Stage con la cámara fija del HUD para que no se mueva con el zoom del mapa
+        stageUi = new Stage(new FitViewport(V_WIDTH, V_HEIGHT, hudCamara));
+        skinUi = new Skin(Gdx.files.internal("uiskin.json"));
 
         // =========================
         // CONTROL DE CULTIVOS
         // =========================
 
         boolean[][] matrizPlantable = GestorCultivos.generarMatrizPlantableDesdeMapa(
-        		
-                        controlMapa.getMapa(),
-                        controlMapa.getMapWidthTiles(),
-                        controlMapa.getMapHeightTiles()
-                );
+                controlMapa.getMapa(),
+                controlMapa.getMapWidthTiles(),
+                controlMapa.getMapHeightTiles()
+        );
 
         gestorCultivos = new GestorCultivos(
-                		
-                		controlMapa.getMapWidthTiles(),
-                		controlMapa.getMapHeightTiles(),
-                		controlMapa.getTileWidth(),	
-                        matrizPlantable
-                );
+                controlMapa.getMapWidthTiles(),
+                controlMapa.getMapHeightTiles(),
+                controlMapa.getTileWidth(),    
+                matrizPlantable
+        );
 
         cargarTexturasCultivos();
         
         reloj = new Reloj();
-        
         controlClima = new ControlClima();
-        
         controlSueno = new ControlSueno();
-
     }
 
-    //Carga automáticamente las texturas de todos los tipos de cultivo existentes.
+    // Carga automáticamente las texturas de todos los tipos de cultivo existentes.
     private void cargarTexturasCultivos() {
-
         etapasCultivos = new ObjectMap<>();
         texturasCultivos = new ObjectMap<>();
 
         for (TipoCultivo tipo : TipoCultivo.values()) {
-
             Texture textura = new Texture(tipo.getRutaTextura());
-
             textura.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-
             texturasCultivos.put(tipo, textura);
 
             int cantidadEtapas = tipo.getCantidadEtapas();
-
             int anchoEtapa = textura.getWidth() / cantidadEtapas;
-
             int altoEtapa = textura.getHeight();
 
             TextureRegion[] etapas = new TextureRegion[cantidadEtapas];
 
-            // Cortamos el spritesheet en regiones
             for (int i = 0; i < cantidadEtapas; i++) {
-
                 etapas[i] = new TextureRegion(textura, i * anchoEtapa, 0, anchoEtapa, altoEtapa);
-                
             }
 
             etapasCultivos.put(tipo, etapas);
@@ -157,58 +159,57 @@ public class PantallaGranja extends ScreenAdapter {
 
     @Override
     public void show() {
-
         ControlJugador controlador = new ControlJugador(jugador, this);
-        Gdx.input.setInputProcessor(controlador);
+        
+        // Combinamos la UI y el control del jugador para que ambos reciban eventos
+        com.badlogic.gdx.InputMultiplexer multiplexer = new com.badlogic.gdx.InputMultiplexer();
+        multiplexer.addProcessor(stageUi);   // Primero la UI (botones de la tienda)
+        multiplexer.addProcessor(controlador); // Después el juego
+        
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     public void procesarCultivar(int screenX, int screenY) {
-
         Vector3 posMundo = camara.unproject(new Vector3(screenX, screenY, 0));
-
         Parcela parcela = gestorCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
 
-        if (parcela == null) {
-
-            System.out.println("-> La parcela está fuera del mapa.");
-            return;
-            
-        }
-
-        System.out.println("-> Parcela encontrada. Plantable: " + parcela.isEsPlantable() + " | Cultivo: " + parcela.tieneCultivo());
+        if (parcela == null) return;
 
         if (!parcela.tieneCultivo() && parcela.isEsPlantable()) {
-
-            boolean exito = gestorCultivos.plantarEn(posMundo.x, posMundo.y, TipoCultivo.ZANAHORIA);
-
-            System.out.println("-> PlantarEn devolvió: " + exito);
             
+            // Obtenemos el tipo de cultivo que corresponde a la semilla seleccionada
+            TipoCultivo cultivoSeleccionado = inventario.getCultivoSeleccionado();
+
+            if (cultivoSeleccionado != null) {
+                // Plantamos en la parcela
+                boolean exito = gestorCultivos.plantarEn(posMundo.x, posMundo.y, cultivoSeleccionado);
+                
+                if (exito) {
+                    // Consumimos 1 unidad de la semilla de la mano
+                    inventario.consumirSeleccionado(1);
+                    System.out.println("-> ¡Semilla plantada con éxito!");
+                }
+            } else {
+                System.out.println("-> No tenés seleccionada ninguna semilla válida en la mano.");
+            }
         }
     }
     
     public void procesarCosechar(int screenX, int screenY) {
-
         Vector3 posMundo = camara.unproject(new Vector3(screenX, screenY, 0));
-
         Parcela parcela = gestorCultivos.getParcelaEnPx(posMundo.x, posMundo.y);
 
         if (parcela == null) {
-        	
-        	System.out.println("-> No hay un cultivo cerca del clic.");
+            System.out.println("-> No hay un cultivo cerca del clic.");
             return;
-            
         }
 
         Cultivo cosechado = parcela.cosechar();
 
         if (cosechado != null) {
-            System.out.println("-> Cultivo cosechado: " + cosechado.getTipo());
-            
-         // 1. Obtenemos el TipoCultivo y generamos su Item
             TipoCultivo tipo = cosechado.getTipo();
             Item itemCosecha = tipo.crearItemCosecha();
 
-            // 2. Se agrega automáticamente al inventario
             boolean guardado = inventario.agregarItem(itemCosecha, 1);
 
             if (guardado) {
@@ -216,26 +217,21 @@ public class PantallaGranja extends ScreenAdapter {
             } else {
                 System.out.println("-> Cosechado pero el inventario está lleno.");
             }
-            
         } else {
             System.out.println("-> El cultivo todavía no está listo.");
         }
     }
     
     public void procesarDormir() {
-
         if (estaCercaDeLaCasa()) {
             controlSueno.iniciarDormir(reloj);
         }
-
     }
     
     public boolean estaCercaDeLaCasa() {
-
         if (zonaDormir == null) {
             return false;
         }
-
         return zonaDormir.contains(
                 jugador.getCentroX(),
                 jugador.getPiesY()
@@ -245,25 +241,22 @@ public class PantallaGranja extends ScreenAdapter {
     @Override
     public void render(float delta) {
 
-        // =========================
-        // ZOOM
-        // =========================
-
-//        if (Gdx.input.isKeyPressed(Keys.M) || Gdx.input.isKeyPressed(Keys.EQUALS)) {
-//
-//            camara.zoom -= 0.5f * delta;
-//            System.out.println(camara.zoom);
-//            
-//        }
-//
-//        if (Gdx.input.isKeyPressed(Keys.MINUS)) {
-//        	
-//            camara.zoom += 0.5f * delta;
-//            System.out.println(camara.zoom);
-//            
-//        }
-//
-//        camara.zoom = MathUtils.clamp(camara.zoom, 0.2f, 1.5f);
+    	// Cambiar casilla seleccionada con los números del 1 al 9 y el 0 (para el slot 10)
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_1)) inventario.setCasillaSeleccionada(0);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_2)) inventario.setCasillaSeleccionada(1);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_3)) inventario.setCasillaSeleccionada(2);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_4)) inventario.setCasillaSeleccionada(3);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_5)) inventario.setCasillaSeleccionada(4);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_6)) inventario.setCasillaSeleccionada(5);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_7)) inventario.setCasillaSeleccionada(6);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) inventario.setCasillaSeleccionada(7);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) inventario.setCasillaSeleccionada(8);
+    	if (Gdx.input.isKeyJustPressed(Keys.NUM_0)) inventario.setCasillaSeleccionada(9);
+    	
+        // Abrir la tienda al presionar la tecla P
+        if (Gdx.input.isKeyJustPressed(Keys.P)) {
+            new VentanaTienda(stageUi, billetera, inventario, skinUi);
+        }
 
         controlClima.actualizar(delta);
         controlSueno.actualizar(delta, reloj, gestorCultivos);
@@ -274,68 +267,53 @@ public class PantallaGranja extends ScreenAdapter {
                 gestorCultivos.pasarTiempo(minutosPasados);
             }
         }
+        
         jugador.actualizar(delta, controlMapa.getColisionesMapa(), controlMapa.getAnchoMapaPixels(), controlMapa.getAltoMapaPixels());
-
-
         actualizarCamara();
-
-        // =========================
-        // DIBUJAR
-        // =========================
 
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
         controlMapa.setView(camara);
-        
         controlMapa.renderAbajo();
 
-
-        // Después cultivos y jugador
         batch.setProjectionMatrix(camara.combined);
-
         batch.begin();
-
         renderizarCultivos();
         jugador.renderizar(batch);
-
         batch.end();
 
         controlMapa.renderArriba();
-        
 
-        // =========================
-        // EFECTOS VISUALES (Clima)
-        // =========================
+        // Efectos visuales de clima
         controlClima.renderizarOscurecimiento(shapeRenderer, camara, vp.getWorldWidth(), vp.getWorldHeight());
         controlClima.renderizarEfectoVisual(batch, hudCamara, V_WIDTH, V_HEIGHT);
 
         // =========================
-        // DIBUJAR HUD NORMAL
+        // DIBUJAR HUD (Reloj, Lluvia, Monedas)
         // =========================
         batch.setProjectionMatrix(hudCamara.combined);
-        
         batch.begin();
         
         font.getData().setScale(1.2f);
-        font.draw(batch, "Dia: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada() + " | [L] Lluvia: " + (controlClima.isLluviaActiva() ? "ON" : "OFF"), 20, V_HEIGHT - 20);
+        String textoHud = "Dia: " + reloj.getDias() + " | Hora: " + reloj.getHoraFormateada() + " | Monedas: $" + billetera.getMonedas() + " | [L] Lluvia: " + (controlClima.isLluviaActiva() ? "ON" : "OFF");
+        font.draw(batch, textoHud, 20, V_HEIGHT - 20);
         font.getData().setScale(1f);
         
         gestorInventario.renderizar(batch, font, V_WIDTH, V_HEIGHT);
         
         batch.end();
-        
-
 
         // =========================
-        // TRANSICIÓN GRÁFICA DE SUEÑO
+        // RENDERIZAR STAGE DE UI (Tienda / Menús)
         // =========================
+        stageUi.act(delta);
+        stageUi.draw();
+
+        // Transición de sueño
         controlSueno.renderizarEfectoVisual(shapeRenderer, batch, camara, hudCamara, vp, font, reloj, V_WIDTH, V_HEIGHT);
-
     }
 
-    /*Actualiza la posición de la cámara siguiendo al jugador*/
     private void actualizarCamara() {
-
         float medioAnchoCamara = (camara.viewportWidth * camara.zoom) / 2f;
         float medioAltoCamara = (camara.viewportHeight * camara.zoom) / 2f;
 
@@ -346,74 +324,51 @@ public class PantallaGranja extends ScreenAdapter {
         camara.update();
     }
 
-
-    /*Dibuja todos los cultivos existentes en el mapa*/
     private void renderizarCultivos() {
-
         for (int fila = 0; fila < controlMapa.getMapHeightTiles(); fila++) {
-
             for (int col = 0; col < controlMapa.getMapWidthTiles(); col++) {
-
                 Parcela parcela = gestorCultivos.getParcela(col, fila);
 
                 if (parcela == null || !parcela.tieneCultivo()) {
-
                     continue;
-                    
                 }
 
                 Cultivo cultivo = parcela.getCultivoActual();
-
                 TipoCultivo tipo = cultivo.getTipo();
-
                 int etapa = cultivo.getEtapaActual();
 
                 TextureRegion[] etapas = etapasCultivos.get(tipo);
 
-                // Evita intentar acceder a una etapa que no exista.
                 if (etapas == null || etapa < 0 || etapa >= etapas.length) {
-
                     continue;
-                    
                 }
 
                 float xPx = col * controlMapa.getTileWidth();
-
                 float yPx = fila * controlMapa.getTileHeight();
 
                 batch.draw(etapas[etapa], xPx, yPx, controlMapa.getTileWidth(), controlMapa.getTileHeight());
-                
             }
         }
     }
 
-
     @Override
     public void resize(int width, int height) {
-
         vp.update(width, height);
-        
+        stageUi.getViewport().update(width, height, true);
     }
-
 
     @Override
     public void dispose() {
-
         batch.dispose();
-
         jugador.liberarRecursos();
-        
         controlMapa.dispose();
-
         controlClima.dispose();
-        
         gestorInventario.dispose();
+        stageUi.dispose();
+        skinUi.dispose();
 
-        // Liberamos todas las texturas cargadas automáticamente.
         for (Texture textura : texturasCultivos.values()) {
-
             textura.dispose();
-            
         }
     }
 }

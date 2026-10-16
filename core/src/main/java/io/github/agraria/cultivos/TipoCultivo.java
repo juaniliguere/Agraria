@@ -6,7 +6,8 @@ import io.github.agraria.elementos.Item;
 public enum TipoCultivo {
 
 	    // Nombre, Precio Compra, Precio Venta, Minutos por Etapa (4 etapas), XP, Ruta de Textura
-	    ZANAHORIA("Zanahoria", 10, 25, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", 4);
+	    ZANAHORIA("Zanahoria", 10, 12, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", 4),
+	    PAPA("Papa", 25, 30, 60, 15, "cultivos/papaEtapas.png", "cultivos/papaItem.png", 5);
 
 	    private final String nombre;
 	    private final int precioCompra;
@@ -29,10 +30,17 @@ public enum TipoCultivo {
 	        this.cantidadEtapas = cantidadEtapas;
 	        
 	    }
+	    public String getRutaTexturaItem() { return rutaTexturaItem; }
 	    
-	 // Crea el Item de cosecha listo para agregarse al inventario
+	    public Item crearItemSemilla() {
+	        String id = "semilla_" + this.name().toLowerCase();
+	        // Acá le pasás la ruta de la imagen del sobre de semillas
+	        return new Item(id, "Semilla de " + nombre, TipoItem.SEMILLA, this, "cultivos/sobre_" + this.name().toLowerCase() + ".png", 64);
+	    }
+
 	    public Item crearItemCosecha() {
 	        String id = "cosecha_" + this.name().toLowerCase();
+	        // Acá le pasás la ruta de la imagen del cultivo cosechado (la que ya usás)
 	        return new Item(id, nombre, TipoItem.COSECHA, this, rutaTexturaItem, 64);
 	    }
 
