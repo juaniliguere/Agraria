@@ -86,6 +86,26 @@ public class PantallaMenu implements Screen {
                 isTransitioning = true;
             }
         });
+        
+        
+        TextureRegion regionBtnControlesNormal = new TextureRegion(tilesetTexture, 128, 128, 126, 32); 
+        TextureRegion regionBtnControlesPress = new TextureRegion(tilesetTexture, 128, 160, 126, 30);
+        
+        ImageButton.ImageButtonStyle estiloControles = new ImageButton.ImageButtonStyle();
+        estiloControles.imageUp = new TextureRegionDrawable(regionBtnControlesNormal);
+        estiloControles.imageDown = new TextureRegionDrawable(regionBtnControlesPress);
+
+        ImageButton btnControles = new ImageButton(estiloControles);
+        
+     // Acción al hacer clic en "Controls"
+        btnControles.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Activamos la bandera para que comience el fundido a negro
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PantallaControles());
+            }
+        });
+        
 
         // Crear una tabla para organizar y posicionar los botones en pantalla
         Table table = new Table();
@@ -93,7 +113,9 @@ public class PantallaMenu implements Screen {
         stage.addActor(table);
 
         // Agregar los botones a la tabla con tamaño y separación (padding)
-        table.add(btnJugar).width(126).height(32).padBottom(95);
+        table.add(btnJugar).width(126).height(32).padBottom(65);
+        table.row();
+        table.add(btnControles).width(126).height(32).padBottom(0);
         table.row();
     }
 

@@ -7,7 +7,11 @@ public enum TipoCultivo {
 
 	    // Nombre, Precio Compra, Precio Venta, Minutos por Etapa (4 etapas), XP, Ruta de Textura
 	    ZANAHORIA("Zanahoria", 10, 12, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", 4),
-	    PAPA("Papa", 25, 30, 60, 15, "cultivos/papaEtapas.png", "cultivos/papaItem.png", 5);
+	    PAPA("Papa", 25, 30, 60, 15, "cultivos/papaEtapas.png", "cultivos/papaItem.png", 5),
+	    ARROZ("Arroz", 10, 12, 60, 15, "cultivos/arrozEtapas.png", "cultivos/zanahoriaItem.png", 4),
+	    BROCOLI("Brocoli", 25, 30, 60, 15, "cultivos/brocoliEtapas.png", "cultivos/papaItem.png", 5),
+	    COLRIZADO("Col rizado", 10, 12, 60, 15, "cultivos/colrizadoEtapas.png", "cultivos/zanahoriaItem.png", 4),
+	    CALABAZA("Calabaza", 25, 30, 60, 15, "cultivos/calabazaEtapas.png", "cultivos/papaItem.png", 5);
 
 	    private final String nombre;
 	    private final int precioCompra;
