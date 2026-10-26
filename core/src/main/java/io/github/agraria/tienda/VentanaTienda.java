@@ -33,6 +33,8 @@ public class VentanaTienda {
         
         actualizarContenidoVentana();
         stage.addActor(ventana);
+        
+        
     }
 
     public void actualizarContenidoVentana() {
@@ -121,5 +123,9 @@ public class VentanaTienda {
             }
         });
         ventana.add(btnCerrar).padTop(15).colspan(2);
+    }
+    
+    public boolean estaAbierta() {
+        return ventana.hasParent();
     }
 }

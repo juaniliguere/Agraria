@@ -11,6 +11,7 @@ import io.github.agraria.inventario.Inventario;
 import io.github.agraria.economia.Billetera;
 import io.github.agraria.tienda.VentanaTienda;
 import io.github.agraria.control.ControlJugador;
+import io.github.agraria.control.ControlTienda;
 import io.github.agraria.personajes.Personaje;
 import io.github.tiempo.Reloj;
 
@@ -75,6 +76,7 @@ public class PantallaGranja extends ScreenAdapter {
     private Billetera billetera;
     private Stage stageUi; // Stage independiente para manejar la UI de la tienda
     private Skin skinUi;   // Skin por defecto o la que uses para la UI
+    private ControlTienda controlTienda;
 
     public PantallaGranja() {
 
@@ -107,6 +109,8 @@ public class PantallaGranja extends ScreenAdapter {
      // Stage con la cámara fija del HUD para que no se mueva con el zoom del mapa
         stageUi = new Stage(new FitViewport(V_WIDTH, V_HEIGHT, hudCamara));
         skinUi = new Skin(Gdx.files.internal("uiskin.json"));
+        
+        this.controlTienda = new ControlTienda(stageUi, billetera, inventario, skinUi);
 
         // =========================
         // CONTROL DE CULTIVOS
@@ -159,7 +163,7 @@ public class PantallaGranja extends ScreenAdapter {
 
     @Override
     public void show() {
-        ControlJugador controlador = new ControlJugador(jugador, this);
+        ControlJugador controlador = new ControlJugador(jugador, this, inventario);
         
         // Combinamos la UI y el control del jugador para que ambos reciban eventos
         com.badlogic.gdx.InputMultiplexer multiplexer = new com.badlogic.gdx.InputMultiplexer();
@@ -237,26 +241,13 @@ public class PantallaGranja extends ScreenAdapter {
                 jugador.getPiesY()
         );
     }
+    
+    public void procesarAbrirTienda() {
+        controlTienda.abrir();
+    }
 
     @Override
     public void render(float delta) {
-
-    	// Cambiar casilla seleccionada con los números del 1 al 9 y el 0 (para el slot 10)
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_1)) inventario.setCasillaSeleccionada(0);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_2)) inventario.setCasillaSeleccionada(1);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_3)) inventario.setCasillaSeleccionada(2);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_4)) inventario.setCasillaSeleccionada(3);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_5)) inventario.setCasillaSeleccionada(4);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_6)) inventario.setCasillaSeleccionada(5);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_7)) inventario.setCasillaSeleccionada(6);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) inventario.setCasillaSeleccionada(7);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) inventario.setCasillaSeleccionada(8);
-    	if (Gdx.input.isKeyJustPressed(Keys.NUM_0)) inventario.setCasillaSeleccionada(9);
-    	
-        // Abrir la tienda al presionar la tecla P
-        if (Gdx.input.isKeyJustPressed(Keys.P)) {
-            new VentanaTienda(stageUi, billetera, inventario, skinUi);
-        }
 
         controlClima.actualizar(delta);
         controlSueno.actualizar(delta, reloj, gestorCultivos);
@@ -314,11 +305,21 @@ public class PantallaGranja extends ScreenAdapter {
     }
 
     private void actualizarCamara() {
+
         float medioAnchoCamara = (camara.viewportWidth * camara.zoom) / 2f;
         float medioAltoCamara = (camara.viewportHeight * camara.zoom) / 2f;
 
-        float camX = MathUtils.clamp(jugador.getX(), medioAnchoCamara, controlMapa.getAltoMapaPixels() - medioAnchoCamara);
-        float camY = MathUtils.clamp(jugador.getY(), medioAltoCamara, controlMapa.getAltoMapaPixels() - medioAltoCamara);
+        float camX = MathUtils.clamp(
+                jugador.getX(),
+                medioAnchoCamara,
+                controlMapa.getAnchoMapaPixels() - medioAnchoCamara
+        );
+
+        float camY = MathUtils.clamp(
+                jugador.getY(),
+                medioAltoCamara,
+                controlMapa.getAltoMapaPixels() - medioAltoCamara
+        );
 
         camara.position.set(camX, camY, 0);
         camara.update();

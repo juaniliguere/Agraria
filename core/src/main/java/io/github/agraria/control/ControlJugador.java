@@ -1,20 +1,25 @@
 package io.github.agraria.control;
 
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 
+import io.github.agraria.inventario.Inventario;
 import io.github.agraria.pantallas.PantallaGranja;
 import io.github.agraria.personajes.Personaje;
+import io.github.agraria.tienda.VentanaTienda;
 
 	public class ControlJugador extends InputAdapter {
 		
 		/*Esta clase lo que hace es escuchar el teclado y generar el movimiento del personaje*/
 	    private Personaje jugador;
 	    private PantallaGranja pantalla;
+	    private Inventario inventario;
 
-	    public ControlJugador(Personaje jugador, PantallaGranja pantalla) {
+	    public ControlJugador(Personaje jugador, PantallaGranja pantalla, Inventario inventario) {
 	        this.jugador = jugador;
 	        this.pantalla = pantalla;	        
+	        this.inventario = inventario;
 	    }
 
 	    // LibGDX ejecuta esto SOLO cuando APRETÁS una tecla
@@ -26,8 +31,24 @@ import io.github.agraria.personajes.Personaje;
 	        if (keycode == Keys.A || keycode == Keys.LEFT)  jugador.dirX = -1;
 	        if (keycode == Keys.D || keycode == Keys.RIGHT) jugador.dirX = 1;
 	        if (keycode == Keys.Z) pantalla.procesarDormir();
+	        
+	        // Selección del inventario
+	        if (keycode >= Keys.NUM_1 && keycode <= Keys.NUM_9) {
+	        	
+	            inventario.setCasillaSeleccionada(keycode - Keys.NUM_1);
+	            
+	        }
 
+	        if (keycode == Keys.NUM_0) {
+	            inventario.setCasillaSeleccionada(9);
+	        }
+	        
+	        if (keycode == Keys.P) {
+	            pantalla.procesarAbrirTienda();
+	        }
+	        
 	        return true;
+	        
 	    }
 
 	    // LibGDX ejecuta esto SOLO cuando SUELTAS una tecla

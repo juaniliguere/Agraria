@@ -5,8 +5,6 @@ import io.github.agraria.inventario.Inventario;
 
 public class Cultivo {
 
-    private static final int ETAPA_COSECHABLE = 3;
-
     private final TipoCultivo tipo;
 
     private int etapaActual;
