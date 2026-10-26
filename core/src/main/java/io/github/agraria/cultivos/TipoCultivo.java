@@ -11,7 +11,8 @@ public enum TipoCultivo {
 	    ARROZ("Arroz", 10, 12, 60, 15, "cultivos/arrozEtapas.png", "cultivos/arrozItem.png", 5),
 	    BROCOLI("Brocoli", 25, 30, 60, 15, "cultivos/brocoliEtapas.png", "cultivos/brocoliItem.png", 5),
 	    COLRIZADO("Col rizado", 10, 12, 60, 15, "cultivos/colrizadoEtapas.png", "cultivos/colrizadoItem.png", 5),
-	    CALABAZA("Calabaza", 25, 30, 60, 15, "cultivos/calabazaEtapas.png", "cultivos/calabazaItem.png", 6);
+	    CALABAZA("Calabaza", 25, 30, 60, 15, "cultivos/calabazaEtapas.png", "cultivos/calabazaItem.png", 6),
+	    MELON("Melon", 10, 12, 60, 15, "cultivos/melonEtapas.png", "cultivos/melonItem.png", 6);
 
 	    private final String nombre;
 	    private final int precioCompra;
