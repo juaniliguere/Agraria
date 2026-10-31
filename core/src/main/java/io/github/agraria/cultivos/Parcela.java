@@ -34,6 +34,14 @@ public class Parcela{
         return true;
         
     }
+    
+    // <-- NUEVO: Recibe la lluvia y afecta al cultivo
+    public void recibirLluvia() {
+        if (cultivoActual != null) {
+        	System.out.println("4. ¡Parcela con cultivo encontró lluvia! Pudriendo...");
+            cultivoActual.pudrir();
+        }
+    }
 
     public Cultivo cosechar() {
 
@@ -51,6 +59,15 @@ public class Parcela{
         
     }
 
+ // <-- NUEVO: Método para limpiar la parcela si está podrida (al hacerle clic)
+    public boolean limpiarSiEstaPodrido() {
+        if (cultivoActual != null && cultivoActual.isPodrido()) {
+            cultivoActual = null; // Borra el cultivo podrido y libera la tierra
+            return true;
+        }
+        return false;
+    }
+    
     public void pasarTiempo(int minutosPasados) {
 
         if (cultivoActual != null) {
@@ -69,6 +86,10 @@ public class Parcela{
     public Cultivo getCultivoActual() {
         return cultivoActual;
     }
+    
+
+    
+    
     
     
 }

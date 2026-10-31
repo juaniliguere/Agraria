@@ -9,16 +9,18 @@ public class Cultivo {
 
     private int etapaActual;
     private int minutosAcumulados;
+    private boolean podrido;
 
     public Cultivo(TipoCultivo tipo) {
         this.tipo = tipo;
         this.etapaActual = 0;
         this.minutosAcumulados = 0;
+        this.podrido = false;
     }
 
     public void hacerCrecer(int minutosPasados) {
 
-        if (minutosPasados <= 0 || isCosechable()) {
+        if (minutosPasados <= 0 || isCosechable() || podrido) {
             return;
         }
 
@@ -34,7 +36,7 @@ public class Cultivo {
     
     public boolean isCosechable() {
         // Cosechable cuando llega a la última etapa (ej: si tiene 4 etapas, las etapas van de 0 a 3)
-        return etapaActual >= tipo.getCantidadEtapas() - 1;
+    	return !podrido && (etapaActual >= tipo.getCantidadEtapas() - 1);
     }
 
     /**
@@ -42,6 +44,17 @@ public class Cultivo {
      * @param inventario El inventario del jugador
      * @return true si se cosechó con éxito (había espacio)
      */
+    
+    public void pudrir() {
+        if (!isCosechable()) { // Opcional: ¿solo se pudren si están creciendo?
+            this.podrido = true;
+        }
+    }
+
+    public boolean isPodrido() {
+        return podrido;
+    }
+    
     public boolean cosechar(Inventario inventario) {
         if (!isCosechable()) {
             return false;

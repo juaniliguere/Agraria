@@ -30,13 +30,16 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 public class PantallaGranja extends ScreenAdapter {
 
@@ -57,6 +60,8 @@ public class PantallaGranja extends ScreenAdapter {
     private ObjectMap<TipoCultivo, TextureRegion[]> etapasCultivos;
     // Texturas originales que debemos liberar al cerrar la pantalla
     private ObjectMap<TipoCultivo, Texture> texturasCultivos;
+    
+    private ObjectMap<TipoCultivo, Texture> texturasPodridas;
 
     private Reloj reloj;
     private ControlSueno controlSueno;
@@ -68,6 +73,7 @@ public class PantallaGranja extends ScreenAdapter {
     private ShapeRenderer shapeRenderer;
     
     private Rectangle zonaDormir;
+    private Rectangle zonaTienda;
     
     private Inventario inventario;
     private GestorInventario gestorInventario;
@@ -77,6 +83,10 @@ public class PantallaGranja extends ScreenAdapter {
     private Stage stageUi; // Stage independiente para manejar la UI de la tienda
     private Skin skinUi;   // Skin por defecto o la que uses para la UI
     private ControlTienda controlTienda;
+    
+    
+    private Window ventanaMensaje;
+    private Label textoMensaje;
 
     public PantallaGranja() {
 
@@ -99,6 +109,7 @@ public class PantallaGranja extends ScreenAdapter {
 
         controlMapa = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
         zonaDormir = controlMapa.getZonaDormir();
+        zonaTienda = controlMapa.getZonaTienda();
         
         this.inventario = new Inventario(10);
         this.gestorInventario = new GestorInventario(inventario);
@@ -132,7 +143,7 @@ public class PantallaGranja extends ScreenAdapter {
         cargarTexturasCultivos();
         
         reloj = new Reloj();
-        controlClima = new ControlClima();
+        controlClima = new ControlClima(gestorCultivos);
         controlSueno = new ControlSueno();
     }
 
@@ -140,6 +151,7 @@ public class PantallaGranja extends ScreenAdapter {
     private void cargarTexturasCultivos() {
         etapasCultivos = new ObjectMap<>();
         texturasCultivos = new ObjectMap<>();
+        texturasPodridas = new ObjectMap<>();
 
         for (TipoCultivo tipo : TipoCultivo.values()) {
             Texture textura = new Texture(tipo.getRutaTextura());
@@ -157,6 +169,15 @@ public class PantallaGranja extends ScreenAdapter {
             }
 
             etapasCultivos.put(tipo, etapas);
+            
+            Texture texturaPodrida = new Texture(tipo.getRutaTexturaPodrido());
+
+            texturaPodrida.setFilter(
+                Texture.TextureFilter.Nearest,
+                Texture.TextureFilter.Nearest
+            );
+
+            texturasPodridas.put(tipo, texturaPodrida);
         }
     }
 
@@ -226,10 +247,20 @@ public class PantallaGranja extends ScreenAdapter {
         }
     }
     
+    
+    
     public void procesarDormir() {
-        if (estaCercaDeLaCasa()) {
-            controlSueno.iniciarDormir(reloj);
+
+        if (!estaCercaDeLaCasa()) {
+            return;
         }
+
+        if (!controlSueno.puedeDormir(reloj)) {
+            System.out.println("Todavía es temprano para dormir.");
+            return;
+        }
+
+        controlSueno.iniciarDormir(reloj, 6);
     }
     
     public boolean estaCercaDeLaCasa() {
@@ -243,8 +274,24 @@ public class PantallaGranja extends ScreenAdapter {
     }
     
     public void procesarAbrirTienda() {
+    	
+        if (!estaCercaDeLaTienda()) {
+            return;
+        }
+       
         controlTienda.abrir();
     }
+    
+    public boolean estaCercaDeLaTienda() {
+        if (zonaTienda == null) {
+            return false;
+        }
+        return zonaTienda.contains(
+                jugador.getCentroX(),
+                jugador.getPiesY()
+        );
+    }
+    
 
     @Override
     public void render(float delta) {
@@ -326,8 +373,11 @@ public class PantallaGranja extends ScreenAdapter {
     }
 
     private void renderizarCultivos() {
+
         for (int fila = 0; fila < controlMapa.getMapHeightTiles(); fila++) {
+
             for (int col = 0; col < controlMapa.getMapWidthTiles(); col++) {
+
                 Parcela parcela = gestorCultivos.getParcela(col, fila);
 
                 if (parcela == null || !parcela.tieneCultivo()) {
@@ -336,18 +386,33 @@ public class PantallaGranja extends ScreenAdapter {
 
                 Cultivo cultivo = parcela.getCultivoActual();
                 TipoCultivo tipo = cultivo.getTipo();
-                int etapa = cultivo.getEtapaActual();
-
-                TextureRegion[] etapas = etapasCultivos.get(tipo);
-
-                if (etapas == null || etapa < 0 || etapa >= etapas.length) {
-                    continue;
-                }
 
                 float xPx = col * controlMapa.getTileWidth();
                 float yPx = fila * controlMapa.getTileHeight();
 
-                batch.draw(etapas[etapa], xPx, yPx, controlMapa.getTileWidth(), controlMapa.getTileHeight());
+                float ancho = controlMapa.getTileWidth();
+                float alto = controlMapa.getTileHeight();
+
+                // Si el cultivo está podrido
+                if (cultivo.isPodrido()) {
+
+                    Texture texturaPodrida = texturasPodridas.get(tipo);
+
+                    batch.draw(texturaPodrida, xPx, yPx, ancho, alto);
+
+                } else {
+
+                    // Si todavía está creciendo o está listo para cosechar
+                    int etapa = cultivo.getEtapaActual();
+
+                    TextureRegion[] etapas = etapasCultivos.get(tipo);
+
+                    if (etapas == null || etapa < 0 || etapa >= etapas.length) {
+                        continue;
+                    }
+
+                    batch.draw(etapas[etapa], xPx, yPx, ancho, alto);
+                }
             }
         }
     }

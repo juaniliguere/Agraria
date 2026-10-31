@@ -67,8 +67,8 @@ public class PantallaMenu implements Screen {
         tilesetTexture = new Texture(Gdx.files.internal("pantallas/menu/Wooden Pixel Art GUI 32x32.png"));
 
         // RECORTRAR LOS BOTONES
-        TextureRegion regionBtnJugarNormal = new TextureRegion(tilesetTexture, 128, 320, 126, 32);
-        TextureRegion regionBtnJugarPress = new TextureRegion(tilesetTexture, 128, 352, 126, 30); 
+        TextureRegion regionBtnJugarNormal = new TextureRegion(tilesetTexture, 130, 320, 126, 32);
+        TextureRegion regionBtnJugarPress = new TextureRegion(tilesetTexture, 130, 352, 126, 30); 
 
         // Crear los estilos de los ImageButton
         ImageButton.ImageButtonStyle estiloJugar = new ImageButton.ImageButtonStyle();
@@ -88,14 +88,46 @@ public class PantallaMenu implements Screen {
         });
         
         
-        TextureRegion regionBtnControlesNormal = new TextureRegion(tilesetTexture, 128, 128, 126, 32); 
-        TextureRegion regionBtnControlesPress = new TextureRegion(tilesetTexture, 128, 160, 126, 30);
+        
+        TextureRegion regionBtnConfiguracionNormal = new TextureRegion(tilesetTexture, 130, 64, 126, 32); 
+        TextureRegion regionBtnConfiguracionPress = new TextureRegion(tilesetTexture, 130, 97, 126, 30);
+        
+        ImageButton.ImageButtonStyle estiloConfiguracion = new ImageButton.ImageButtonStyle();
+        estiloConfiguracion.imageUp = new TextureRegionDrawable(regionBtnConfiguracionNormal);
+        estiloConfiguracion.imageDown = new TextureRegionDrawable(regionBtnConfiguracionPress);
+
+        ImageButton btnConfiguracion= new ImageButton(estiloConfiguracion);
+        
+       
+        btnConfiguracion.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Activamos la bandera para que comience el fundido a negro
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PantallaConfiguracion());
+            }
+        });
+        
+        
+        
+        TextureRegion regionBtnControlesNormal = new TextureRegion(tilesetTexture, 130, 128, 126, 32); 
+        TextureRegion regionBtnControlesPress = new TextureRegion(tilesetTexture, 130, 160, 126, 30);
         
         ImageButton.ImageButtonStyle estiloControles = new ImageButton.ImageButtonStyle();
         estiloControles.imageUp = new TextureRegionDrawable(regionBtnControlesNormal);
         estiloControles.imageDown = new TextureRegionDrawable(regionBtnControlesPress);
 
         ImageButton btnControles = new ImageButton(estiloControles);
+        
+        
+        
+        TextureRegion regionBtnSalirNormal = new TextureRegion(tilesetTexture, 130, 512, 126, 32); 
+        TextureRegion regionBtnSalirPress = new TextureRegion(tilesetTexture, 130, 545, 126, 30);
+        
+        ImageButton.ImageButtonStyle estiloSalir = new ImageButton.ImageButtonStyle();
+        estiloSalir.imageUp = new TextureRegionDrawable(regionBtnSalirNormal);
+        estiloSalir.imageDown = new TextureRegionDrawable(regionBtnSalirPress);
+
+        ImageButton btnSalir = new ImageButton(estiloSalir);
         
      // Acción al hacer clic en "Controls"
         btnControles.addListener(new ClickListener() {
@@ -113,9 +145,13 @@ public class PantallaMenu implements Screen {
         stage.addActor(table);
 
         // Agregar los botones a la tabla con tamaño y separación (padding)
-        table.add(btnJugar).width(126).height(32).padBottom(65);
+        table.add(btnJugar).width(126).height(32).padBottom(10);
         table.row();
-        table.add(btnControles).width(126).height(32).padBottom(0);
+        table.add(btnConfiguracion).width(126).height(32).padBottom(10);
+        table.row();
+        table.add(btnControles).width(126).height(32).padBottom(10);
+        table.row();
+        table.add(btnSalir).width(126).height(32).padBottom(10);
         table.row();
     }
 

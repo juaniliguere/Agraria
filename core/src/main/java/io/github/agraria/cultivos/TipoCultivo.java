@@ -6,13 +6,13 @@ import io.github.agraria.elementos.Item;
 public enum TipoCultivo {
 
 	    // Nombre, Precio Compra, Precio Venta, Minutos por Etapa (4 etapas), XP, Ruta de Textura
-	    ZANAHORIA("Zanahoria", 10, 12, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", 4),
-	    PAPA("Papa", 25, 30, 60, 15, "cultivos/papaEtapas.png", "cultivos/papaItem.png", 5),
-	    ARROZ("Arroz", 10, 12, 60, 15, "cultivos/arrozEtapas.png", "cultivos/arrozItem.png", 5),
-	    BROCOLI("Brocoli", 25, 30, 60, 15, "cultivos/brocoliEtapas.png", "cultivos/brocoliItem.png", 5),
-	    COLRIZADO("Col rizado", 10, 12, 60, 15, "cultivos/colrizadoEtapas.png", "cultivos/colrizadoItem.png", 5),
-	    CALABAZA("Calabaza", 25, 30, 60, 15, "cultivos/calabazaEtapas.png", "cultivos/calabazaItem.png", 6),
-	    MELON("Melon", 10, 12, 60, 15, "cultivos/melonEtapas.png", "cultivos/melonItem.png", 6);
+	    ZANAHORIA("Zanahoria", 10, 12, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png","cultivos/cultivoPodrido.png",  4),
+	    PAPA("Papa", 25, 30, 60, 15, "cultivos/papaEtapas.png", "cultivos/papaItem.png", "cultivos/cultivoPodrido.png",5),
+	    ARROZ("Arroz", 10, 12, 60, 15, "cultivos/arrozEtapas.png", "cultivos/arrozItem.png", "cultivos/cultivoPodrido.png",5),
+	    BROCOLI("Brocoli", 25, 30, 60, 15, "cultivos/brocoliEtapas.png", "cultivos/brocoliItem.png", "cultivos/cultivoPodrido.png", 5),
+	    COLRIZADO("Col rizado", 10, 12, 60, 15, "cultivos/colrizadoEtapas.png", "cultivos/colrizadoItem.png", "cultivos/cultivoPodrido.png", 5),
+	    CALABAZA("Calabaza", 25, 30, 60, 15, "cultivos/calabazaEtapas.png", "cultivos/calabazaItem.png", "cultivos/cultivoPodrido.png",6),
+	    MELON("Melon", 10, 12, 60, 15, "cultivos/melonEtapas.png", "cultivos/melonItem.png","cultivos/cultivoPodrido.png", 6);
 
 	    private final String nombre;
 	    private final int precioCompra;
@@ -21,9 +21,10 @@ public enum TipoCultivo {
 	    private final int xpRecompensa;
 	    private final String rutaTextura;
 		private String rutaTexturaItem;
+		private final String rutaTexturaPodrido;
 	    private final int cantidadEtapas;
 
-	    TipoCultivo(String nombre, int precioCompra, int precioVenta, int minutosPorEtapa, int xpRecompensa, String rutaTextura, String rutaTexturaItem, int cantidadEtapas) {
+	    TipoCultivo(String nombre, int precioCompra, int precioVenta, int minutosPorEtapa, int xpRecompensa, String rutaTextura, String rutaTexturaItem, String rutaTexturaPodrido,int cantidadEtapas) {
 	    	
 	        this.nombre = nombre;
 	        this.precioCompra = precioCompra;
@@ -32,6 +33,7 @@ public enum TipoCultivo {
 	        this.xpRecompensa = xpRecompensa;
 	        this.rutaTextura = rutaTextura;
 	        this.rutaTexturaItem = rutaTexturaItem;
+	        this.rutaTexturaPodrido = rutaTexturaPodrido;
 	        this.cantidadEtapas = cantidadEtapas;
 	        
 	    }
@@ -55,6 +57,7 @@ public enum TipoCultivo {
 	    public int getMinutosPorEtapa() { return minutosPorEtapa; }
 	    public int getXpRecompensa() { return xpRecompensa; }
 	    public String getRutaTextura() { return rutaTextura; }
+	    public String getRutaTexturaPodrido() { return rutaTexturaPodrido; }
 	    public int getCantidadEtapas() {return cantidadEtapas; }
 	    
 	}

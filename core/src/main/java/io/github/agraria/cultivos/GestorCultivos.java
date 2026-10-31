@@ -203,5 +203,15 @@ public class GestorCultivos {
     public int getTamanoTilePixels() {
         return tamanoTilePixels;
     }
+    
+ // <-- NUEVO: Hace llover en toda la grilla
+    public void hacerLlover() {
+    	System.out.println("3. Ejecutando hacerLlover() en el gestor.");
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                grilla[f][c].recibirLluvia();
+            }
+        }
+    }
 }
 

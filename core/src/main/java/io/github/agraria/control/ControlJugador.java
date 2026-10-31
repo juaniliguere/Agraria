@@ -30,7 +30,8 @@ import io.github.agraria.tienda.VentanaTienda;
 	        if (keycode == Keys.S || keycode == Keys.DOWN)  jugador.dirY =-1;
 	        if (keycode == Keys.A || keycode == Keys.LEFT)  jugador.dirX = -1;
 	        if (keycode == Keys.D || keycode == Keys.RIGHT) jugador.dirX = 1;
-	        if (keycode == Keys.Z) pantalla.procesarDormir();
+	        if (keycode == Keys.Z) pantalla.procesarDormir();        
+	        if (keycode == Keys.P) pantalla.procesarAbrirTienda();
 	        
 	        // Selección del inventario
 	        if (keycode >= Keys.NUM_1 && keycode <= Keys.NUM_9) {
@@ -41,10 +42,6 @@ import io.github.agraria.tienda.VentanaTienda;
 
 	        if (keycode == Keys.NUM_0) {
 	            inventario.setCasillaSeleccionada(9);
-	        }
-	        
-	        if (keycode == Keys.P) {
-	            pantalla.procesarAbrirTienda();
 	        }
 	        
 	        return true;

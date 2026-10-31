@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 
+import io.github.agraria.cultivos.GestorCultivos;
+
 public class ControlClima {
 
     private Texture[] texturasLluvia;
@@ -19,8 +21,10 @@ public class ControlClima {
     
     private boolean lluviaActiva = false;      
     private float intensidadLluvia = 0f;       // Va de 0.0 a 1.0 (Fade In/Out)
+	private GestorCultivos gestorCultivos;
 
-    public ControlClima() {
+    public ControlClima(GestorCultivos gestorCultivos) {
+    	   this.gestorCultivos = gestorCultivos;
         cargarAnimacionLluvia();
     }
 
@@ -46,6 +50,11 @@ public class ControlClima {
         if (Gdx.input.isKeyJustPressed(Keys.L)) {
             lluviaActiva = !lluviaActiva;
             System.out.println("-> Clima cambiando...");
+            if (lluviaActiva && gestorCultivos != null) {
+                gestorCultivos.hacerLlover();
+                System.out.println("2. Llamando a hacerLlover() en GestorCultivos.");
+            }
+            
         }
 
         float velocidadTransicion = 0.5f; 

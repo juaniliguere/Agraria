@@ -19,13 +19,33 @@ public class ControlSueno {
 
     private float fadeAlpha = 0f;
     private int targetDiaDormir = 0;
+    
+    private static final int HORA_DORMIR = 20;
+    private static final int HORA_LIMITE = 2;
+    private static final int HORA_DESPERTAR = 6;
+    private static final int HORA_DESPERTAR_TARDE = 10;
+    private int horaDespertar;
 
-    public void iniciarDormir(Reloj reloj) {
+    
+    public boolean puedeDormir(Reloj reloj) {
+        int hora = reloj.getHoras();
+
+        return hora >= HORA_DORMIR || hora < HORA_LIMITE;
+    }
+    
+    
+    
+    public void iniciarDormir(Reloj reloj, int horaDespertar) {
+
         if (estadoTransicion == EstadoTransicion.IDLE) {
             targetDiaDormir = reloj.getDias() + 1;
+            this.horaDespertar = horaDespertar;
+
             estadoTransicion = EstadoTransicion.FADE_OUT;
+
             System.out.println("-> Acostándose a dormir...");
         }
+    	
     }
 
     public void actualizar(float delta, Reloj reloj, GestorCultivos gestorCultivos) {
@@ -38,26 +58,36 @@ public class ControlSueno {
                 estadoTransicion = EstadoTransicion.FAST_FORWARD; 
             }
         } 
+        
+        
         else if (estadoTransicion == EstadoTransicion.FAST_FORWARD) {
+
             int minutosAvanzadosEsteFrame = 0;
-            
-            for (int i = 0; i < 25; i++) {
-                if (reloj.getDias() > targetDiaDormir || (reloj.getDias() == targetDiaDormir && reloj.getHoras() >= 12)) {
+
+            while (minutosAvanzadosEsteFrame < 25) {
+
+                if (reloj.getDias() == targetDiaDormir &&
+                    reloj.getHoras() >= horaDespertar) {
                     break;
                 }
+
                 reloj.avanzarUnMinuto();
                 minutosAvanzadosEsteFrame++;
             }
-            
+
             if (minutosAvanzadosEsteFrame > 0) {
                 gestorCultivos.pasarTiempo(minutosAvanzadosEsteFrame);
             }
 
-            if (reloj.getDias() > targetDiaDormir || (reloj.getDias() == targetDiaDormir && reloj.getHoras() >= 12)) {
-                System.out.println("-> ¡Despertando a mediodía!");
+            if (reloj.getDias() == targetDiaDormir &&
+                reloj.getHoras() >= horaDespertar) {
+
+                System.out.println("-> ¡Buenos días!");
                 estadoTransicion = EstadoTransicion.FADE_IN;
             }
-        } 
+        }
+        
+        
         else if (estadoTransicion == EstadoTransicion.FADE_IN) {
             fadeAlpha -= delta * 2f; 
             if (fadeAlpha <= 0f) {
