@@ -12,6 +12,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -58,7 +61,7 @@ public class PantallaPausa extends ScreenAdapter {
     
     @Override
     public void show() {
-    	
+
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
         stage = new Stage(new FitViewport(800, 600, camera));
@@ -151,7 +154,7 @@ public class PantallaPausa extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 ((Game) Gdx.app.getApplicationListener())
-                    .setScreen(new PantallaConfiguracion());
+                    .setScreen(new PantallaConfiguracion(PantallaPausa.this));
             }
         });
 
@@ -160,7 +163,7 @@ public class PantallaPausa extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 ((Game) Gdx.app.getApplicationListener())
-                    .setScreen(new PantallaControles());
+                    .setScreen(new PantallaControles(PantallaPausa.this));
             }
         });
         
@@ -203,17 +206,28 @@ public class PantallaPausa extends ScreenAdapter {
     
     @Override
     public void render(float delta) {
-        // Dibujamos una capa semitransparente oscura encima del juego para dar efecto de "pausa"
+
+        // Dibujar la partida congelada
+        pantallaGranja.renderizarPausada();
+
+        // Oscurecer el fondo
         Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        Gdx.gl.glBlendFunc(
+            GL20.GL_SRC_ALPHA,
+            GL20.GL_ONE_MINUS_SRC_ALPHA
+        );
+
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0, 0, 0, 0.6f); // Negro con 60% de opacidad
+
+        shapeRenderer.setColor(0, 0, 0, 0.55f);
         shapeRenderer.rect(0, 0, 800, 600);
+
         shapeRenderer.end();
+
         Gdx.gl.glDisable(GL20.GL_BLEND);
 
-        // Dibujamos la ventana de la UI encima
+        // Dibujar el menú de pausa
         stage.act(delta);
         stage.draw();
     }

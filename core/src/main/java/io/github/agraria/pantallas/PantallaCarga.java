@@ -3,8 +3,10 @@ package io.github.agraria.pantallas;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -12,6 +14,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import io.github.agraria.Agraria;
 
@@ -27,6 +30,12 @@ public class PantallaCarga extends ScreenAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
 
+    private Texture texturaMarco;
+    private Texture texturaRelleno;
+    
+    private static final float MAP_WIDTH = 480f;
+    private static final float MAP_HEIGHT = 320f;
+
     private float tiempoCargando = 0f;
     private final float TIEMPO_MINIMO_CARGA = 2.0f; // Tiempo en segundos que dura la pantalla
     private boolean cambioRealizado = false;
@@ -38,14 +47,33 @@ public class PantallaCarga extends ScreenAdapter {
     @Override
     public void show() {
     	
-//        map = new TmxMapLoader().load("pantallas/carga/pantallaCarga.tmx");
-        camera = new OrthographicCamera();
-        viewport = new FitViewport(800, 600, camera);
-        viewport.apply();
+    	map = new TmxMapLoader().load("pantallas/menu/pantallaMenu.tmx");
+    	renderer = new OrthogonalTiledMapRenderer(map);
+    	camera = new OrthographicCamera();
+    	viewport = new StretchViewport(MAP_WIDTH, MAP_HEIGHT, camera);
+    	viewport.apply();
 
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         font = juego.getGestorFuentes().getFuentePrincipal();
+        
+        texturaMarco = new Texture(
+        	    Gdx.files.internal("pantallas/menu/progress_frame_64x10.png")
+        	);
+
+        	texturaRelleno = new Texture(
+        	    Gdx.files.internal("pantallas/menu/progress_fill_60x6.png")
+        	);
+
+        	texturaMarco.setFilter(
+        	    Texture.TextureFilter.Nearest,
+        	    Texture.TextureFilter.Nearest
+        	);
+
+        	texturaRelleno.setFilter(
+        	    Texture.TextureFilter.Nearest,
+        	    Texture.TextureFilter.Nearest
+        	);
     }
 
 
@@ -60,24 +88,37 @@ public void render(float delta) {
 
     viewport.apply();
     camera.update();
-
+    renderer.setView(camera);
+    renderer.render();
     // Dimensiones y posición de la barra
-    float anchoBarraMax = 400f;
-    float altoBarra = 20f;
-    float xBarra = (800f - anchoBarraMax) / 2f;
-    float yBarra = 200f;
+    float anchoBarraMax = 240f;
+    float altoBarra = 12f;
 
-    // Dibujar barra de progreso
-    shapeRenderer.setProjectionMatrix(camera.combined);
-    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+    float xBarra = (MAP_WIDTH - anchoBarraMax) / 2f;
+    float yBarra = 80f;
 
-    shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 1f);
-    shapeRenderer.rect(xBarra, yBarra, anchoBarraMax, altoBarra);
+    batch.setProjectionMatrix(camera.combined);
+    batch.begin();
 
-    shapeRenderer.setColor(0.9f, 0.8f, 0.3f, 1f);
-    shapeRenderer.rect(xBarra, yBarra, anchoBarraMax * progreso, altoBarra);
+    // Primero dibujamos el marco
+    batch.draw(
+        texturaMarco,
+        xBarra,
+        yBarra,
+        240f,
+        20f
+    );
 
-    shapeRenderer.end();
+    // Después dibujamos el relleno verde
+    batch.draw(
+        texturaRelleno,
+        xBarra + 7f,
+        yBarra + 4f,
+        225f * progreso,
+        12f
+    );
+
+    batch.end();
 
     // Determinar texto
     String textoCarga = "Hola...";
@@ -94,13 +135,22 @@ public void render(float delta) {
     batch.setProjectionMatrix(camera.combined);
     batch.begin();
 
-    font.getData().setScale(1.5f);
+    
+    font.setColor(new Color(0.30f, 0.17f, 0.10f, 1f));
+    font.getData().setScale(1.1f);
 
-    font.draw(batch, textoCarga, xBarra, yBarra + 50);
-    font.draw(batch, (int) (progreso * 100) + "%",
-            xBarra + anchoBarraMax - 50, yBarra + 50);
+    font.draw(batch, textoCarga, xBarra, yBarra + 45);
+
+    font.draw(
+        batch,
+        (int)(progreso * 100) + "%",
+        xBarra + anchoBarraMax + 8,
+        yBarra + 21
+    );
 
     font.getData().setScale(1f);
+    
+    
 
     batch.end();
 

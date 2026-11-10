@@ -1,6 +1,10 @@
 package io.github.agraria.tienda;
 
 import io.github.agraria.economia.Billetera;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -46,6 +50,8 @@ public class VentanaTienda {
 
     private Texture texturaIconoComprar;
     private Texture texturaIconoVender;
+    
+    private Map<TipoCultivo, Texture> texturasProductos = new HashMap<>();
     
     private void cargarRecursos() {
 
@@ -104,6 +110,34 @@ public class VentanaTienda {
         texturaIconoComprar.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
         texturaIconoVender.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
     }
+    
+    
+    
+    
+    private Texture cargarImagenProducto(TipoCultivo tipo) {
+
+        Texture textura = new Texture(
+            Gdx.files.internal(tipo.getRutaTexturaItem())
+        );
+
+        textura.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+
+        return textura;
+    }
+    
+    
+    
+    
+    private Texture obtenerImagenProducto(TipoCultivo tipo) {
+
+        if (!texturasProductos.containsKey(tipo)) {
+            texturasProductos.put(tipo, cargarImagenProducto(tipo));
+        }
+
+        return texturasProductos.get(tipo);
+    }
+    
+    
 
     private ImageButton crearBotonImagen(
             Texture texturaActiva,
@@ -238,7 +272,7 @@ public class VentanaTienda {
             fila.setBackground(fondoFila);
 
             Label lblSemilla = new Label(
-                "Semilla de " + tipo.getNombre() + " - $" + costo,
+                "Semilla " + tipo.getNombre() + " - $" + costo,
                 skin
             );
             lblSemilla.setFontScale(0.75f);
@@ -282,21 +316,34 @@ public class VentanaTienda {
                 }
             });
 
-            fila.add(lblSemilla)
-            .left()
-            .expandX()
-            .padLeft(8)
-            .padRight(4);
+         // Imagen del producto
+            Image imagenProducto = new Image(obtenerImagenProducto(tipo));
 
+            fila.add(imagenProducto)
+                .size(28, 28)
+                .padLeft(5)
+                .padRight(6);
+
+            // Nombre del producto
+            fila.add(lblSemilla)
+                .width(135)
+                .left()
+                .padRight(4);
+            
+            lblSemilla.setFontScale(0.62f);
+            lblSemilla.setEllipsis(true);
+            
+            // Botón de compra
             fila.add(btnComprar)
-            .right()
-            .padRight(8)
-            .size(90, 40);
+                .size(63, 28)
+                .padLeft(12)
+                .padRight(2);
 
             listaComprar.add(fila)
-                .width(260)
-                .pad(5)
-                .row();
+            .width(270)
+            .height(45)
+            .padBottom(5)
+            .row();
         }
 
         // =========================
@@ -341,7 +388,7 @@ public class VentanaTienda {
                     item.getNombre() + " (x" + cantidad + ") - $" + precioTotal,
                     skin
                 );
-                lblItem.setFontScale(0.75f);
+                lblItem.setFontScale(0.62f);
                 ImageButton btnVender = crearBotonImagen(
                 	    texturaPestanaVender,
                 	    texturaPestanaVenderInactiva
@@ -367,14 +414,15 @@ public class VentanaTienda {
                 .padRight(4);
 
                 fila.add(btnVender)
-                .right()
-                .padRight(8)
-                .size(90, 40);
+                .size(63, 28)
+                .padLeft(12)
+                .padRight(2);
 
                 listaVender.add(fila)
-                    .width(260)
-                    .pad(5)
-                    .row();
+                .width(270)
+                .height(45)
+                .padBottom(5)
+                .row();
             }
         }
 
@@ -447,10 +495,10 @@ public class VentanaTienda {
      scrollVender.setFadeScrollBars(false);
 
         columnaComprar.add(scrollComprar)
-            .width(270)
-            .height(370)
-            .expand()
-            .fill();
+        .width(280)
+        .height(370)
+        .expand()
+        .fill();
 
         columnaVender.add(scrollVender)
             .width(270)
@@ -463,14 +511,13 @@ public class VentanaTienda {
         // =========================
 
         ventana.add(columnaComprar)
-            .width(285)
-            .height(410)
-            .top();
-
+        .width(295)
+        .height(410)
+        .top();
         ventana.add(columnaVender)
-            .width(285)
-            .height(410)
-            .top();
+        .width(295)
+        .height(410)
+        .top();
     }
     
     public void cerrarVentana() {

@@ -95,6 +95,10 @@ public class PantallaGranja extends ScreenAdapter {
     private ControlEntrada controlEntrada;
     
     private GestorHud gestorHud;
+    
+ // Transición de entrada
+    private float tiempoFadeEntrada = 0f;
+    private static final float DURACION_FADE_ENTRADA = 1.2f;
 
     public PantallaGranja(Agraria juego) {
 
@@ -233,6 +237,8 @@ public class PantallaGranja extends ScreenAdapter {
         Gdx.input.setInputProcessor(multiplexer);
     }
 
+    
+    
     public void procesarCultivar(int screenX, int screenY) {
 
         Vector3 posicionMundo = camara.unproject(
@@ -244,6 +250,8 @@ public class PantallaGranja extends ScreenAdapter {
             posicionMundo.y
         );
     }
+    
+    
     
     public void procesarCosechar(int screenX, int screenY) {
 
@@ -257,6 +265,8 @@ public class PantallaGranja extends ScreenAdapter {
         );
     }
      
+    
+    
     public void procesarDormir() {
     	
         if (!estaCercaDeLaCasa()) {
@@ -285,6 +295,7 @@ public class PantallaGranja extends ScreenAdapter {
     }
     
     
+    
     public void intentarEntrarSalirTienda() {
         if (!pantallaTienda.estaDentro()) {
 
@@ -298,6 +309,7 @@ public class PantallaGranja extends ScreenAdapter {
             entrarSalirTienda();
         }
     }
+    
     
     
     public void entrarSalirTienda() {
@@ -319,6 +331,8 @@ public class PantallaGranja extends ScreenAdapter {
         zonaComprar = controlMapa.getZonaComprar();
     }
     
+    
+    
     public void procesarAbrirTienda() {
     	
     	if (pantallaTienda.estaCercaDeComprar(jugador)) {
@@ -331,6 +345,8 @@ public class PantallaGranja extends ScreenAdapter {
         }
     	
     }
+    
+    
     
     @Override
     public void render(float delta) {
@@ -371,56 +387,53 @@ public class PantallaGranja extends ScreenAdapter {
         
         actualizarCamara();
 
-        // =========================
-        // DIBUJAR MAPA Y PERSONAJE
-        // =========================
-        controlMapa.setView(camara);
-        controlMapa.renderAbajo();
+        actualizarPromptsMundiales();
+        renderizarPartida(delta, true);
+        renderizarFadeEntrada(delta);
+    }
+    
+    
+    
+    
+    
+    private void renderizarFadeEntrada(float delta) {
 
-        batch.setProjectionMatrix(camara.combined);
-        batch.begin();
-
-        if (!pantallaTienda.estaDentro() && !enCasa) {
-        	gestorCultivos.renderizar(batch);
+        if (tiempoFadeEntrada >= DURACION_FADE_ENTRADA) {
+            return;
         }
 
-        jugador.renderizar(batch);
-        batch.end();
+        tiempoFadeEntrada += delta;
 
-        controlMapa.renderArriba();
-     
-//        controlClima.actualizar(delta);
-
-        boolean mostrarClima = !pantallaTienda.estaDentro() && !enCasa;
-
-        controlClima.renderizarOscurecimiento(
-            shapeRenderer, camara,
-            vp.getWorldWidth(), vp.getWorldHeight(),
-            mostrarClima
+        float progreso = Math.min(
+            tiempoFadeEntrada / DURACION_FADE_ENTRADA,
+            1f
         );
 
-        controlClima.renderizarEfectoVisual(
-            batch, hudCamara,
-            V_WIDTH, V_HEIGHT,
-            mostrarClima
+        // La opacidad pasa de 1 (negro) a 0 (transparente)
+        float alpha = 1f - progreso;
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(
+            GL20.GL_SRC_ALPHA,
+            GL20.GL_ONE_MINUS_SRC_ALPHA
         );
 
-        actualizarPromptsMundiales();
+        shapeRenderer.setProjectionMatrix(hudCamara.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        gestorHud.renderizar(batch, reloj, billetera, V_WIDTH, V_HEIGHT);
+        shapeRenderer.setColor(0, 0, 0, alpha);
+        shapeRenderer.rect(0, 0, V_WIDTH, V_HEIGHT);
 
-        // =========================
-        // RENDERIZAR STAGE DE UI (Tienda / Menús)
-        // =========================
-        stageUi.act(delta);
-        stageUi.draw();
+        shapeRenderer.end();
 
-        // Transición de sueño
-        controlSueno.renderizarEfectoVisual(shapeRenderer, batch, camara, hudCamara, vp, font, reloj, V_WIDTH, V_HEIGHT);
-
-
-        renderizarIluminacionNocturna();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
+    
+    
+    
+    
+    
+    
     
     private void verificarInteraccionesTiendaCasa() {
         if (enCasa && pantallaTienda.estaCercaDeSalir(jugador)) {
@@ -435,6 +448,12 @@ public class PantallaGranja extends ScreenAdapter {
         }
     }
 
+    
+    
+    
+    
+    
+    
     private void actualizarPromptsMundiales() {
         if (estaCercaDeLaCasa() && !controlSueno.estaDurmiendo()) {
             float casaX = zonaDormir.x + (zonaDormir.width / 2f);
@@ -449,6 +468,8 @@ public class PantallaGranja extends ScreenAdapter {
         }
     }
 
+    
+    
     private void renderizarIluminacionNocturna() {
         float horaActual = reloj.getHoras() + (reloj.getMinutos() / 60.0f);
         float alphaOscuridad = 0f;
@@ -474,6 +495,69 @@ public class PantallaGranja extends ScreenAdapter {
         }
     }
 
+    
+    
+    private void renderizarPartida(float delta, boolean actualizarInterfaz) {
+
+        // Dibujar mapa y personaje
+        controlMapa.setView(camara);
+        controlMapa.renderAbajo();
+
+        batch.setProjectionMatrix(camara.combined);
+        batch.begin();
+
+        if (!pantallaTienda.estaDentro() && !enCasa) {
+            gestorCultivos.renderizar(batch);
+        }
+
+        jugador.renderizar(batch);
+        batch.end();
+
+        controlMapa.renderArriba();
+
+        // Dibujar clima
+        boolean mostrarClima = !pantallaTienda.estaDentro() && !enCasa;
+
+        controlClima.renderizarOscurecimiento(
+            shapeRenderer, camara,
+            vp.getWorldWidth(), vp.getWorldHeight(),
+            mostrarClima
+        );
+
+        controlClima.renderizarEfectoVisual(
+            batch, hudCamara,
+            V_WIDTH, V_HEIGHT,
+            mostrarClima
+        );
+
+        // Dibujar HUD
+        gestorHud.renderizar(batch, reloj, billetera, V_WIDTH, V_HEIGHT);
+
+        // Dibujar interfaz
+        if (actualizarInterfaz) {
+            stageUi.act(delta);
+        }
+
+        stageUi.draw();
+
+        // Efecto visual del sueño
+        controlSueno.renderizarEfectoVisual(
+            shapeRenderer, batch, camara, hudCamara, vp,
+            font, reloj, V_WIDTH, V_HEIGHT
+        );
+
+        // Iluminación nocturna
+        renderizarIluminacionNocturna();
+    }
+    
+    
+    
+    public void renderizarPausada() {
+        renderizarPartida(0, false);
+    }
+    
+    
+    
     private void actualizarCamara() {
 
     	float medioAnchoCamara = (camara.viewportWidth * camara.zoom) / 2f;
@@ -512,6 +596,8 @@ public class PantallaGranja extends ScreenAdapter {
         stageUi.getViewport().update(width, height, true);
     }
 
+    
+    
     @Override
     public void dispose() {
         batch.dispose();

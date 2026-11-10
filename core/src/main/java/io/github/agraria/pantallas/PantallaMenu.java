@@ -191,7 +191,7 @@ public class PantallaMenu implements Screen {
         btnConfiguracion.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new PantallaConfiguracion());
+                juego.setScreen(new PantallaConfiguracion(PantallaMenu.this));
             }
         });
 
@@ -199,7 +199,7 @@ public class PantallaMenu implements Screen {
         btnControles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new PantallaControles());
+                juego.setScreen(new PantallaControles(PantallaMenu.this));
             }
         });
 
@@ -231,9 +231,9 @@ public class PantallaMenu implements Screen {
         );
 
         estilo.font = fuente;
-        estilo.fontColor = Color.WHITE;
-        estilo.downFontColor = Color.WHITE;
-        estilo.overFontColor = Color.WHITE;
+        estilo.fontColor = new Color(0.30f, 0.17f, 0.10f, 1f);
+        estilo.downFontColor = new Color(0.30f, 0.17f, 0.10f, 1f);
+        estilo.overFontColor = new Color(0.42f, 0.25f, 0.14f, 1f);
 
         return estilo;
     }
