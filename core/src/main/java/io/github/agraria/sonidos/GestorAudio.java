@@ -9,6 +9,9 @@ public class GestorAudio {
 
     private static Music musicaFondo;
 
+    private static float volumenMusica = 0.4f;
+    private static float volumenSonidos = 1.0f;
+    
     private Sound sonidoPlantar;
     private Sound apretarBoton;
 
@@ -35,13 +38,38 @@ public class GestorAudio {
             );
 
             musicaFondo.setLooping(true);
-            musicaFondo.setVolume(0.4f);
+            musicaFondo.setVolume(volumenMusica);
         }
 
         if (!musicaFondo.isPlaying()) {
             musicaFondo.play();
         }
     }
+    
+ // =========================
+ // CONFIGURACIÓN DE VOLUMEN
+ // =========================
+
+ public static void setVolumenMusica(float volumen) {
+     volumenMusica = Math.max(0f, Math.min(1f, volumen));
+
+     if (musicaFondo != null) {
+         musicaFondo.setVolume(volumenMusica);
+     }
+ }
+
+ public static float getVolumenMusica() {
+     return volumenMusica;
+ }
+
+ public static void setVolumenSonidos(float volumen) {
+     volumenSonidos = Math.max(0f, Math.min(1f, volumen));
+ }
+
+ public static float getVolumenSonidos() {
+     return volumenSonidos;
+ }
+    
 
     public static void apagarMusicaGlobal() {
         if (musicaFondo != null) {
@@ -51,19 +79,17 @@ public class GestorAudio {
         }
     }
 
-    // =========================
-    // EFECTOS DE SONIDO
-    // =========================
-
+    
+    
     public void reproducirPlantar() {
         if (sonidoPlantar != null) {
-            sonidoPlantar.play(1.0f);
+            sonidoPlantar.play(volumenSonidos);
         }
     }
 
     public void reproducirApretarBoton() {
         if (apretarBoton != null) {
-            apretarBoton.play(1.0f);
+            apretarBoton.play(volumenSonidos);
         }
     }
 

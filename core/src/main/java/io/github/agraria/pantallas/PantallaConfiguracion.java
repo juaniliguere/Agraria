@@ -1,6 +1,11 @@
 package io.github.agraria.pantallas;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -20,12 +25,16 @@ public class PantallaConfiguracion extends ScreenAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
 
+    private Texture texturaVolver;
+    private ImageButton btnVolver;
+    private Stage stage;
+    
     private static final float MAP_WIDTH = 480; 
     private static final float MAP_HEIGHT = 320;
 
     @Override
     public void show() {
-        map = new TmxMapLoader().load("pantallas/configuracion/pantallaConfiguracion.tmx");
+        map = new TmxMapLoader().load("pantallas/menu/pantallaMenu.tmx");
 
         camera = new OrthographicCamera();
         viewport = new StretchViewport(MAP_WIDTH, MAP_HEIGHT, camera);
@@ -36,6 +45,33 @@ public class PantallaConfiguracion extends ScreenAdapter {
         camera.update();
 
         renderer = new OrthogonalTiledMapRenderer(map);
+        
+        stage = new Stage(viewport);
+        Gdx.input.setInputProcessor(stage);
+        
+        texturaVolver = new Texture(
+        	    Gdx.files.internal("pantallas/menu/back_dark_12x12.png")
+        	);
+
+        	texturaVolver.setFilter(
+        	    Texture.TextureFilter.Nearest,
+        	    Texture.TextureFilter.Nearest
+        	);
+        	
+        	TextureRegionDrawable drawableVolver = new TextureRegionDrawable(
+        		    new TextureRegion(texturaVolver)
+        		);
+
+        		btnVolver = new ImageButton(drawableVolver);
+        		
+        		btnVolver.setSize(24, 24);
+
+        		btnVolver.setPosition(
+        		    15,
+        		    MAP_HEIGHT - 15 - btnVolver.getHeight()
+        		);
+
+        		stage.addActor(btnVolver);
     }
 
     @Override
@@ -51,6 +87,9 @@ public class PantallaConfiguracion extends ScreenAdapter {
         camera.update();
         renderer.setView(camera);
         renderer.render();
+        
+        stage.act(delta);
+        stage.draw();
     }
 
 

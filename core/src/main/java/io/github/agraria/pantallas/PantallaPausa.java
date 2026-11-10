@@ -4,26 +4,53 @@ import com.badlogic.gdx.Game;
 import io.github.agraria.Agraria;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import io.github.agraria.sonidos.GestorAudio;
+import io.github.agraria.ui.GestorFuentes;
 
 public class PantallaPausa extends ScreenAdapter {
 
     private Stage stage;
-    private Skin skin;
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
 	private PantallaGranja pantallaGranja;
+	
+	// Recursos de la interfaz
+	private Texture texturaPanel;
+	private Texture texturaBotonNormal;
+	private Texture texturaBotonPresionado;
+	private Texture texturaBotonHover;
+
+	private NinePatch panelPausa;
+
+	// Fuente
+	private GestorFuentes gestorFuentes;
+	private BitmapFont fuente;
+
+	// Interfaz
+	private Table panelPrincipal;
+	private Table tablaMenu;
+
+	private TextButton btnContinuar;
+	private TextButton btnConfiguracion;
+	private TextButton btnControles;
+	private TextButton btnSalir;
 
     public PantallaPausa(PantallaGranja pantallaGranja) {
         this.pantallaGranja = pantallaGranja;
@@ -35,18 +62,79 @@ public class PantallaPausa extends ScreenAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
         stage = new Stage(new FitViewport(800, 600, camera));
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
         shapeRenderer = new ShapeRenderer();
+        
+     // Cargar texturas
+        texturaPanel = new Texture(
+            Gdx.files.internal("pantallas/menu/panel_48x48.png")
+        );
+
+        texturaBotonNormal = new Texture(
+            Gdx.files.internal("pantallas/menu/button_L_normal.png")
+        );
+
+        texturaBotonPresionado = new Texture(
+            Gdx.files.internal("pantallas/menu/button_L_pressed.png")
+        );
+
+        texturaBotonHover = new Texture(
+            Gdx.files.internal("pantallas/menu/button_L_hover.png")
+        );
+
+        // Mantener estética pixel art
+        texturaPanel.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaBotonNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        // Crear marco decorativo
+        panelPausa = new NinePatch(texturaPanel, 12, 12, 12, 12);
+
+        // Cargar fuente
+        gestorFuentes = new GestorFuentes();
+        gestorFuentes.cargar();
+        fuente = gestorFuentes.getFuentePrincipal();
 
         Gdx.input.setInputProcessor(stage);
 
-        // Crear una ventana flotante centrada
-        Table tabla = new Table();
-        tabla.center();
-        tabla.setFillParent(true);
+     // Crear panel principal
+        panelPrincipal = new Table();
+        panelPrincipal.setBackground(new NinePatchDrawable(panelPausa));
 
-        TextButton btnContinuar = new TextButton("Continuar", skin);
-        TextButton btnSalir = new TextButton("Salir al Menu", skin);
+        // Tamaño del panel
+        panelPrincipal.setSize(240, 280);
+
+        // Centrarlo en pantalla
+        panelPrincipal.setPosition(
+            800 / 2f - panelPrincipal.getWidth() / 2f,
+            600 / 2f - panelPrincipal.getHeight() / 2f
+        );
+
+        // Tabla interna
+        tablaMenu = new Table();
+        tablaMenu.defaults().padBottom(10);
+
+        // Agregar tabla al panel
+        panelPrincipal.add(tablaMenu).expand().fill();
+
+        // Agregar panel al Stage
+        stage.addActor(panelPrincipal);
+        
+     // Crear estilo compartido
+        TextButton.TextButtonStyle estiloBoton = crearEstiloBoton();
+
+        // Crear botones
+        btnContinuar = new TextButton("CONTINUAR", estiloBoton);
+        btnConfiguracion = new TextButton("CONFIGURACIÓN", estiloBoton);
+        btnControles = new TextButton("CONTROLES", estiloBoton);
+        btnSalir = new TextButton("SALIR AL MENÚ", estiloBoton);
+
+        // Agregar botones al panel
+        tablaMenu.add(btnContinuar).width(160).height(40).row();
+        tablaMenu.add(btnConfiguracion).width(160).height(40).row();
+        tablaMenu.add(btnControles).width(160).height(40).row();
+        tablaMenu.add(btnSalir).width(160).height(40).row();
+        
 
         // --- ACCIÓN DEL BOTÓN CONTINUAR ---
         btnContinuar.addListener(new ClickListener() {
@@ -57,6 +145,25 @@ public class PantallaPausa extends ScreenAdapter {
             }
         });
 
+        
+     // --- ACCIÓN DEL BOTÓN CONFIGURACIÓN ---
+        btnConfiguracion.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ((Game) Gdx.app.getApplicationListener())
+                    .setScreen(new PantallaConfiguracion());
+            }
+        });
+
+        // --- ACCIÓN DEL BOTÓN CONTROLES ---
+        btnControles.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ((Game) Gdx.app.getApplicationListener())
+                    .setScreen(new PantallaControles());
+            }
+        });
+        
         // --- ACCIÓN DEL BOTÓN SALIR AL MENÚ ---
         btnSalir.addListener(new ClickListener() {
             @Override
@@ -68,14 +175,32 @@ public class PantallaPausa extends ScreenAdapter {
             }
         });
         
-
-
-        tabla.add(btnContinuar).width(200).height(50).padBottom(20).row();
-        tabla.add(btnSalir).width(200).height(50);
-
-        stage.addActor(tabla);
     }
 
+    private TextButton.TextButtonStyle crearEstiloBoton() {
+
+        TextButton.TextButtonStyle estilo = new TextButton.TextButtonStyle();
+
+        estilo.up = new TextureRegionDrawable(
+            new TextureRegion(texturaBotonNormal)
+        );
+
+        estilo.down = new TextureRegionDrawable(
+            new TextureRegion(texturaBotonPresionado)
+        );
+
+        estilo.over = new TextureRegionDrawable(
+            new TextureRegion(texturaBotonHover)
+        );
+
+        estilo.font = fuente;
+        estilo.fontColor = Color.WHITE;
+        estilo.downFontColor = Color.WHITE;
+        estilo.overFontColor = Color.WHITE;
+
+        return estilo;
+    }
+    
     @Override
     public void render(float delta) {
         // Dibujamos una capa semitransparente oscura encima del juego para dar efecto de "pausa"
@@ -100,8 +225,17 @@ public class PantallaPausa extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        skin.dispose();
-        shapeRenderer.dispose();
+
+        if (stage != null) stage.dispose();
+
+        if (texturaPanel != null) texturaPanel.dispose();
+        if (texturaBotonNormal != null) texturaBotonNormal.dispose();
+        if (texturaBotonPresionado != null) texturaBotonPresionado.dispose();
+        if (texturaBotonHover != null) texturaBotonHover.dispose();
+
+        if (gestorFuentes != null) gestorFuentes.dispose();
+
+        if (shapeRenderer != null) shapeRenderer.dispose();
     }
+    
 }

@@ -23,7 +23,7 @@ public class PantallaControles extends ScreenAdapter {
 
     @Override
     public void show() {
-        map = new TmxMapLoader().load("pantallas/controles/pantallaControles.tmx");
+        map = new TmxMapLoader().load("pantallas/menu/pantallaMenu.tmx");
 
         camera = new OrthographicCamera();
         viewport = new StretchViewport(MAP_WIDTH, MAP_HEIGHT, camera);
