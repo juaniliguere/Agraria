@@ -14,10 +14,11 @@ public class GestorAudio {
     
     private Sound sonidoPlantar;
     private Sound apretarBoton;
-
+    private Sound abrirTienda;
+    
     public GestorAudio() {
 
-        // Recuperamos la carga de los efectos de sonido
+
         sonidoPlantar = Gdx.audio.newSound(
             Gdx.files.internal("sonidos/plantar.wav")
         );
@@ -26,8 +27,8 @@ public class GestorAudio {
             Gdx.files.internal("sonidos/apretarBoton.wav")
         );
 
-        // Recuperamos el comportamiento original:
-        // la música de fondo comienza al crear el gestor.
+        abrirTienda = Gdx.audio.newSound(Gdx.files.internal("sonidos/abrirTienda.wav"));
+        
         reproducirMusicaFondo();
     }
 
@@ -93,6 +94,16 @@ public class GestorAudio {
         }
     }
 
+    public void reproducirAbrirTienda() {
+    	
+    	if(abrirTienda != null) {
+    		
+    		abrirTienda.play(volumenSonidos);
+    		
+    	}
+    	
+    }
+    
     // =========================
     // LIBERAR RECURSOS
     // =========================

@@ -455,17 +455,23 @@ public class PantallaGranja extends ScreenAdapter {
     
     
     private void actualizarPromptsMundiales() {
+    	
         if (estaCercaDeLaCasa() && !controlSueno.estaDurmiendo()) {
-            float casaX = zonaDormir.x + (zonaDormir.width / 2f);
-            float casaY = zonaDormir.y + zonaDormir.height;
+        	
+        	float casaX = zonaDormir.x + (zonaDormir.width / 2f);
+        	float casaY = zonaDormir.y + zonaDormir.height;
             gestorPrompt.mostrarPromptMundial("Z", "Dormir", casaX, casaY, camara);
+            
         } else if (pantallaTienda.estaDentro() && pantallaTienda.estaCercaDeComprar(jugador)) {
-            float comprarX = zonaComprar.x + (zonaComprar.width / 2f);
+        	
+            float comprarX = zonaComprar.x + (zonaComprar.width / 2f) + 10f;
             float comprarY = zonaComprar.y + zonaComprar.height;
             gestorPrompt.mostrarPromptMundial("T", "Tienda", comprarX, comprarY, camara);
+            
         } else {
             gestorPrompt.ocultarPrompt();
         }
+        
     }
 
     

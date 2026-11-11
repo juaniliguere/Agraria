@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import io.github.agraria.economia.Billetera;
 import io.github.agraria.inventario.Inventario;
+import io.github.agraria.sonidos.GestorAudio;
 import io.github.agraria.tienda.VentanaTienda;
 
 public class ControlTienda {
@@ -16,6 +17,7 @@ public class ControlTienda {
 
     private VentanaTienda ventana;
     private ControlJugador controlJugador;
+	private GestorAudio gestorAudio;
 
     public ControlTienda(Stage stage, Billetera billetera,
                          Inventario inventario, Skin skin, ControlJugador controlJugador) {
@@ -25,6 +27,8 @@ public class ControlTienda {
         this.inventario = inventario;
         this.skin = skin;
         this.controlJugador = controlJugador;
+        this.gestorAudio = new GestorAudio();
+        
     }
 
     public void abrir() {
@@ -37,6 +41,8 @@ public class ControlTienda {
 
         ventana = new VentanaTienda(stage, billetera, inventario, skin);
         
+        gestorAudio.reproducirAbrirTienda();
+        
         
         if (controlJugador != null) {
             controlJugador.setMovimientoBloqueado(true);
@@ -45,7 +51,8 @@ public class ControlTienda {
     
     public void cerrar() {
         if (ventana != null) {
-            ventana.cerrarVentana(); // Llama al método que limpia la ventana del Stage
+            ventana.cerrarVentana(); 
+            gestorAudio.reproducirAbrirTienda();// Llama al método que limpia la ventana del Stage
             ventana = null;          // Limpiamos la referencia para poder abrirla de cero después
         }
 

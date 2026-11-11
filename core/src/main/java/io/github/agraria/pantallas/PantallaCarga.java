@@ -37,8 +37,16 @@ public class PantallaCarga extends ScreenAdapter {
     private static final float MAP_HEIGHT = 320f;
 
     private float tiempoCargando = 0f;
-    private final float TIEMPO_MINIMO_CARGA = 2.0f; // Tiempo en segundos que dura la pantalla
+    private final float TIEMPO_MINIMO_CARGA = 3.0f; // Tiempo en segundos que dura la pantalla
     private boolean cambioRealizado = false;
+    
+    private float alphaFadeIn = 1f;
+    private float alphaFadeOut = 0f;
+
+    private static final float DURACION_FADE_IN = 0.8f;
+    private static final float DURACION_FADE_OUT = 0.8f;
+    private boolean iniciandoFadeOut = false;
+    
 
     public PantallaCarga(Agraria juego) {
         this.juego = juego;
@@ -85,6 +93,29 @@ public void render(float delta) {
 
     tiempoCargando += delta;
     float progreso = Math.min(1f, tiempoCargando / TIEMPO_MINIMO_CARGA);
+    
+
+    // Fade in: quitar gradualmente la pantalla negra
+    if (alphaFadeIn > 0f) {
+        alphaFadeIn = Math.max(
+            0f,
+            alphaFadeIn - delta / DURACION_FADE_IN
+        );
+    }
+
+    // Comenzar el fade out cuando termina el tiempo de carga
+    if (tiempoCargando >= TIEMPO_MINIMO_CARGA) {
+        iniciandoFadeOut = true;
+    }
+
+    // Fade out: oscurecer gradualmente
+    if (iniciandoFadeOut) {
+        alphaFadeOut = Math.min(
+            1f,
+            alphaFadeOut + delta / DURACION_FADE_OUT
+        );
+    }
+    
 
     viewport.apply();
     camera.update();
@@ -154,11 +185,34 @@ public void render(float delta) {
 
     batch.end();
 
-    // Cambiar a la pantalla de granja
-    if (tiempoCargando >= TIEMPO_MINIMO_CARGA && !cambioRealizado) {
+    
+    
+ // Dibujar transición negra
+    float alpha = Math.max(alphaFadeIn, alphaFadeOut);
+
+    if (alpha > 0f) {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(
+            GL20.GL_SRC_ALPHA,
+            GL20.GL_ONE_MINUS_SRC_ALPHA
+        );
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, alpha);
+        shapeRenderer.rect(0, 0, MAP_WIDTH, MAP_HEIGHT);
+        shapeRenderer.end();
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+    
+
+    
+    if (alphaFadeOut >= 1f && !cambioRealizado) {
         cambioRealizado = true;
         juego.setScreen(new PantallaGranja(juego));
     }
+    
 }
 
 

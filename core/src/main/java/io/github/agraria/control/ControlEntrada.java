@@ -15,12 +15,9 @@ public class ControlEntrada extends InputAdapter {
 	
 
     private boolean solicitioSalirMenu = false;
-
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
         	
-        	
-        	System.out.println("se apreto esc");
             solicitioSalirMenu = true;
             return true;
         }

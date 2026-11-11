@@ -3,6 +3,7 @@ package io.github.agraria;
 
 import com.badlogic.gdx.Game;
 
+import io.github.agraria.pantallas.PantallaInicio;
 import io.github.agraria.pantallas.PantallaMenu;
 import io.github.agraria.ui.GestorFuentes;
 
@@ -16,7 +17,7 @@ public class Agraria extends Game {
         gestorFuentes = new GestorFuentes();
         gestorFuentes.cargar();
 
-        setScreen(new PantallaMenu(this));
+        setScreen(new PantallaInicio(this));
     }
 
     public GestorFuentes getGestorFuentes() {

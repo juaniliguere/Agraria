@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import io.github.agraria.inventario.Inventario;
@@ -332,6 +333,7 @@ public class VentanaTienda {
             
             lblSemilla.setFontScale(0.62f);
             lblSemilla.setEllipsis(true);
+            lblSemilla.setColor(new Color(0.30f, 0.17f, 0.10f, 1f));
             
             // Botón de compra
             fila.add(btnComprar)

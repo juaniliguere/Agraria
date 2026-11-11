@@ -54,9 +54,12 @@ public class PantallaPausa extends ScreenAdapter {
 	private TextButton btnConfiguracion;
 	private TextButton btnControles;
 	private TextButton btnSalir;
-
+	private GestorAudio gestorAudio;
+	
+	
     public PantallaPausa(PantallaGranja pantallaGranja) {
         this.pantallaGranja = pantallaGranja;
+        this.gestorAudio = new GestorAudio();
     }
     
     @Override
@@ -139,20 +142,24 @@ public class PantallaPausa extends ScreenAdapter {
         tablaMenu.add(btnSalir).width(160).height(40).row();
         
 
-        // --- ACCIÓN DEL BOTÓN CONTINUAR ---
+     // --- ACCIÓN DEL BOTÓN CONTINUAR ---
         btnContinuar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
 
                 ((Game) Gdx.app.getApplicationListener()).setScreen(pantallaGranja);
             }
         });
 
-        
-     // --- ACCIÓN DEL BOTÓN CONFIGURACIÓN ---
+        // --- ACCIÓN DEL BOTÓN CONFIGURACIÓN ---
         btnConfiguracion.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
+
                 ((Game) Gdx.app.getApplicationListener())
                     .setScreen(new PantallaConfiguracion(PantallaPausa.this));
             }
@@ -162,19 +169,25 @@ public class PantallaPausa extends ScreenAdapter {
         btnControles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
+
                 ((Game) Gdx.app.getApplicationListener())
                     .setScreen(new PantallaControles(PantallaPausa.this));
             }
         });
-        
+
         // --- ACCIÓN DEL BOTÓN SALIR AL MENÚ ---
         btnSalir.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-            	
+
+                gestorAudio.reproducirApretarBoton();
+
                 GestorAudio.apagarMusicaGlobal();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PantallaMenu((Agraria) Gdx.app.getApplicationListener()));
-                
+
+                ((Game) Gdx.app.getApplicationListener())
+                    .setScreen(new PantallaMenu((Agraria) Gdx.app.getApplicationListener()));
             }
         });
         
@@ -250,6 +263,10 @@ public class PantallaPausa extends ScreenAdapter {
         if (gestorFuentes != null) gestorFuentes.dispose();
 
         if (shapeRenderer != null) shapeRenderer.dispose();
+        
+        if (gestorAudio != null) {
+            gestorAudio.dispose();
+        }
     }
     
 }

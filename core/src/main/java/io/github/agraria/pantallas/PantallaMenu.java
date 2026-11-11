@@ -183,6 +183,9 @@ public class PantallaMenu implements Screen {
         btnJugar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
+
                 isTransitioning = true;
             }
         });
@@ -191,6 +194,9 @@ public class PantallaMenu implements Screen {
         btnConfiguracion.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
+
                 juego.setScreen(new PantallaConfiguracion(PantallaMenu.this));
             }
         });
@@ -199,6 +205,9 @@ public class PantallaMenu implements Screen {
         btnControles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
+
                 juego.setScreen(new PantallaControles(PantallaMenu.this));
             }
         });
@@ -207,6 +216,9 @@ public class PantallaMenu implements Screen {
         btnSalir.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                gestorAudio.reproducirApretarBoton();
+
                 Gdx.app.exit();
             }
         });
