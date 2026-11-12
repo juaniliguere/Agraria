@@ -69,7 +69,7 @@ public class PantallaGranja extends ScreenAdapter {
     private ControlClima controlClima;
     private ControlCultivos controlCultivos;
     
-    // --- HUD Y TEXTO ---
+
     private BitmapFont font;
     private OrthographicCamera hudCamara;
     private ShapeRenderer shapeRenderer;
@@ -81,9 +81,9 @@ public class PantallaGranja extends ScreenAdapter {
     private GestorInventario gestorInventario;
 
     private Billetera billetera;
-    private Stage stageUi; // Stage independiente para manejar la UI de la tienda
+    private Stage stageUi; 
     private Skin skinUi;  
-    private ControlJugador controlJugador;// Skin por defecto o la que uses para la UI
+    private ControlJugador controlJugador;
     private ControlTienda controlTienda;
     
     private GestorAudio gestorAudio;
@@ -96,10 +96,11 @@ public class PantallaGranja extends ScreenAdapter {
     
     private GestorHud gestorHud;
     
- // Transición de entrada
     private float tiempoFadeEntrada = 0f;
     private static final float DURACION_FADE_ENTRADA = 1.2f;
 
+    
+    
     public PantallaGranja(Agraria juego) {
 
         	this.juego = juego;
@@ -119,9 +120,7 @@ public class PantallaGranja extends ScreenAdapter {
             hudCamara = new OrthographicCamera();
             hudCamara.setToOrtho(false, V_WIDTH, V_HEIGHT);
 
-            FreeTypeFontGenerator generador = new FreeTypeFontGenerator(
-                Gdx.files.internal("fuentes/VT323-Regular.ttf")
-            );
+            FreeTypeFontGenerator generador = new FreeTypeFontGenerator(Gdx.files.internal("fuentes/VT323-Regular.ttf"));
 
             FreeTypeFontGenerator.FreeTypeFontParameter parametros =
                 new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -146,7 +145,7 @@ public class PantallaGranja extends ScreenAdapter {
         this.inventario = new Inventario(10);
         this.gestorInventario = new GestorInventario(inventario);
 
-        // Inicializamos la billetera con 100 monedas de base
+
         this.billetera = new Billetera(100);
         
      // Stage con la cámara fija del HUD para que no se mueva con el zoom del mapa
@@ -154,7 +153,7 @@ public class PantallaGranja extends ScreenAdapter {
         skinUi = new Skin(Gdx.files.internal("uiskin.json"));
         skinUi.get("default", Label.LabelStyle.class).font = font;
 
-        // Inicializar el gestor de mensajes flotantes
+
         this.gestorPrompt = new GestorPrompt(stageUi, skinUi);
 
         // =========================
@@ -178,11 +177,9 @@ public class PantallaGranja extends ScreenAdapter {
         gestorHud = new GestorHud(inventario, V_WIDTH, V_HEIGHT, font);
         controlSueno = new ControlSueno(gestorHud);
         
-
-        
-        controlCultivos = new ControlCultivos(gestorCultivos, inventario, gestorAudio);
-        
+        controlCultivos = new ControlCultivos(gestorCultivos, inventario, gestorAudio);   
     }
+    
 
     @Override
     public void show() {
@@ -217,17 +214,12 @@ public class PantallaGranja extends ScreenAdapter {
 
     	controlJugador.setAccionTienda(() -> procesarAbrirTienda());
 
-    	controlJugador.setAccionCultivar(
-    	    (screenX, screenY) -> procesarCultivar(screenX, screenY)
-    	);
+    	controlJugador.setAccionCultivar((screenX, screenY) -> procesarCultivar(screenX, screenY));
 
-    	controlJugador.setAccionCosechar(
-    	    (screenX, screenY) -> procesarCosechar(screenX, screenY)
-    	);
+    	controlJugador.setAccionCosechar((screenX, screenY) -> procesarCosechar(screenX, screenY));
 
 
         
-        // Combinamos la UI y el control del jugador para que ambos reciban eventos
         com.badlogic.gdx.InputMultiplexer multiplexer = new com.badlogic.gdx.InputMultiplexer();
         multiplexer.addProcessor(stageUi);   
         multiplexer.addProcessor(controlEntrada);
@@ -254,9 +246,7 @@ public class PantallaGranja extends ScreenAdapter {
     
     public void procesarCosechar(int screenX, int screenY) {
 
-        Vector3 posicionMundo = camara.unproject(
-            new Vector3(screenX, screenY, 0)
-        );
+        Vector3 posicionMundo = camara.unproject(new Vector3(screenX, screenY, 0));
 
         controlCultivos.procesarCosechar(
             posicionMundo.x,
@@ -271,12 +261,10 @@ public class PantallaGranja extends ScreenAdapter {
         if (!estaCercaDeLaCasa()) {
             return;
         }
-
         if (!controlSueno.puedeDormir(reloj)) {
         	gestorHud.mostrarMensaje("Todavía es muy temprano para dormir.");
             return;
         }
-
         controlSueno.iniciarDormir(reloj, 6);
         controlClima.sortearClimaDiario();
         
@@ -284,28 +272,25 @@ public class PantallaGranja extends ScreenAdapter {
     
 
     
+    
+    
     public boolean estaCercaDeLaCasa() {
         if (zonaDormir == null) {
             return false;
         }
-        return zonaDormir.contains(
-                jugador.getCentroX(),
-                jugador.getPiesY()
-        );
+        return zonaDormir.contains(jugador.getCentroX(), jugador.getPiesY());
     }
     
     
     
+    
     public void intentarEntrarSalirTienda() {
+    	
         if (!pantallaTienda.estaDentro()) {
-
             if (pantallaTienda.estaCercaDeLaTienda(jugador, mapaGranja)) {
-            	
-                entrarSalirTienda();
-                
+                entrarSalirTienda();  
             } 
         } else {
-            // Si ya estamos adentro, podemos salir directamente
             entrarSalirTienda();
         }
     }
@@ -333,10 +318,11 @@ public class PantallaGranja extends ScreenAdapter {
     
     
     
+    
+    
     public void procesarAbrirTienda() {
     	
     	if (pantallaTienda.estaCercaDeComprar(jugador)) {
-    		
             if (controlTienda.estaAbierta()) {
                 controlTienda.cerrar();
             } else {
@@ -345,6 +331,8 @@ public class PantallaGranja extends ScreenAdapter {
         }
     	
     }
+    
+    
     
     
     
@@ -357,18 +345,15 @@ public class PantallaGranja extends ScreenAdapter {
         }
 
         if (controlEntrada != null && controlEntrada.isSolicitioSalirMenu() && !isSaliendoAlMenu) {
-
             isSaliendoAlMenu = true;
         }
     
         if (isSaliendoAlMenu) {
             isSaliendoAlMenu = false;
-
-            ((Game) Gdx.app.getApplicationListener())
-                .setScreen(new PantallaPausa(this));
-
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new PantallaPausa(this));
             return;
         }
+        
         controlClima.actualizar(delta);
         controlSueno.actualizar(delta, reloj, gestorCultivos);
         gestorHud.actualizar(delta);
@@ -396,11 +381,16 @@ public class PantallaGranja extends ScreenAdapter {
     }
     
     
+    
+    
     public void detenerClima() {
         if (controlClima != null) {
             controlClima.detenerLluvia();
         }
     }
+    
+    
+    
     
     
     private void renderizarFadeEntrada(float delta) {
@@ -416,23 +406,17 @@ public class PantallaGranja extends ScreenAdapter {
             1f
         );
 
-        // La opacidad pasa de 1 (negro) a 0 (transparente)
+        
         float alpha = 1f - progreso;
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(
-            GL20.GL_SRC_ALPHA,
-            GL20.GL_ONE_MINUS_SRC_ALPHA
-        );
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         shapeRenderer.setProjectionMatrix(hudCamara.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
         shapeRenderer.setColor(0, 0, 0, alpha);
         shapeRenderer.rect(0, 0, V_WIDTH, V_HEIGHT);
-
         shapeRenderer.end();
-
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
     
@@ -483,7 +467,10 @@ public class PantallaGranja extends ScreenAdapter {
 
     
     
+    
+    
     private void renderizarIluminacionNocturna() {
+    	
         float horaActual = reloj.getHoras() + (reloj.getMinutos() / 60.0f);
         float alphaOscuridad = 0f;
         
@@ -496,6 +483,7 @@ public class PantallaGranja extends ScreenAdapter {
         }
 
         if (alphaOscuridad > 0f) {
+        	
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
             
@@ -505,14 +493,18 @@ public class PantallaGranja extends ScreenAdapter {
             shapeRenderer.rect(0, 0, V_WIDTH, V_HEIGHT);
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
+            
         }
+        
     }
 
     
     
+    
+    
     private void renderizarPartida(float delta, boolean actualizarInterfaz) {
 
-        // Dibujar mapa y personaje
+
         controlMapa.setView(camara);
         controlMapa.renderAbajo();
 
@@ -528,7 +520,7 @@ public class PantallaGranja extends ScreenAdapter {
 
         controlMapa.renderArriba();
 
-        // Dibujar clima
+
         boolean mostrarClima = !pantallaTienda.estaDentro() && !enCasa;
 
         controlClima.renderizarOscurecimiento(
@@ -543,36 +535,36 @@ public class PantallaGranja extends ScreenAdapter {
             mostrarClima
         );
 
-     // Dibujar HUD
         gestorHud.renderizar(batch, reloj, billetera, V_WIDTH, V_HEIGHT);
 
-        // Dibujar interfaz
+        
         if (actualizarInterfaz) {
             stageUi.act(delta);
         }
 
         stageUi.draw();
 
-        // Dibujar mensaje por encima de la tienda
+
         gestorHud.renderizarMensaje(batch, V_WIDTH, V_HEIGHT);
         
         
-
-        // Efecto visual del sueño
         controlSueno.renderizarEfectoVisual(
             shapeRenderer, batch, camara, hudCamara, vp,
             font, reloj, V_WIDTH, V_HEIGHT
         );
 
-        // Iluminación nocturna
         renderizarIluminacionNocturna();
     }
+    
+    
     
     
     
     public void renderizarPausada() {
         renderizarPartida(0, false);
     }
+    
+    
     
     
     
@@ -608,12 +600,16 @@ public class PantallaGranja extends ScreenAdapter {
 
 
     
+    
+    
     @Override
     public void resize(int width, int height) {
         vp.update(width, height);
         stageUi.getViewport().update(width, height, true);
     }
 
+    
+    
     
     
     @Override
