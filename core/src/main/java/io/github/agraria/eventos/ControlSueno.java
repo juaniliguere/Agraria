@@ -146,12 +146,16 @@ public class ControlSueno {
         batch.end();
     }
 
-    public void verificarDesmayoPorHorario(Reloj reloj) {
+    public boolean verificarDesmayoPorHorario(Reloj reloj) {
         if (reloj.getHoras() == 2 && !estaDurmiendo()) {
             System.out.println("¡Te dieron las 2:00 AM! Te desmayás y te vas a dormir hasta más tarde.");
-            iniciarDormir(reloj, HORA_DESPERTAR_TARDE); 
+            iniciarDormir(reloj, HORA_DESPERTAR_TARDE);
+            return true;
         }
+
+        return false;
     }
+    
     
     public boolean estaDurmiendo() {
         return estadoTransicion != EstadoTransicion.IDLE;

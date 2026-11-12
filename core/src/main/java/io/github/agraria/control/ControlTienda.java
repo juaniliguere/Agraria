@@ -39,7 +39,7 @@ public class ControlTienda {
             
         }
 
-        ventana = new VentanaTienda(stage, billetera, inventario, skin);
+        ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio);
         
         gestorAudio.reproducirAbrirTienda();
         

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import io.github.agraria.inventario.Inventario;
+import io.github.agraria.sonidos.GestorAudio;
 import io.github.agraria.inventario.CasillaInventario;
 import io.github.agraria.elementos.Item;
 import io.github.agraria.cultivos.TipoCultivo;
@@ -51,6 +52,8 @@ public class VentanaTienda {
 
     private Texture texturaIconoComprar;
     private Texture texturaIconoVender;
+    
+    private GestorAudio gestorAudio;
     
     private Map<TipoCultivo, Texture> texturasProductos = new HashMap<>();
     
@@ -162,11 +165,12 @@ public class VentanaTienda {
         return new ImageButton(estilo);
     }
     
-    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin) {
+    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin, GestorAudio gestorAudio) {
 
 		this.billetera = billetera;
 		this.inventario = inventario;
 		this.skin = skin;
+		this.gestorAudio = gestorAudio;
 		
 		// Primero cargamos las texturas
 		cargarRecursos();
@@ -306,6 +310,8 @@ public class VentanaTienda {
                             System.out.println(
                                 "¡Compraste semilla de " + tipo.getNombre() + "!"
                             );
+                            
+                            gestorAudio.reproducirComprar();
                         }
 
                         actualizarContenidoVentana();
@@ -404,6 +410,8 @@ public class VentanaTienda {
                         casilla.limpiar();
 
                         billetera.ganar(precioTotal);
+                        
+                        gestorAudio.reproducirVender();
 
                         actualizarContenidoVentana();
                     }

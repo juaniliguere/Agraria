@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 
 import io.github.agraria.cultivos.GestorCultivos;
+import io.github.agraria.sonidos.GestorAudio;
 
 public class ControlClima {
 
@@ -21,10 +22,13 @@ public class ControlClima {
     
     private boolean lluviaActiva = false;      
     private float intensidadLluvia = 0f;     
+    private GestorAudio gestorAudio;
+    
 	private GestorCultivos gestorCultivos;
 
-    public ControlClima(GestorCultivos gestorCultivos) {
-    	   this.gestorCultivos = gestorCultivos;
+    public ControlClima(GestorCultivos gestorCultivos, GestorAudio gestorAudio) {
+    	this.gestorCultivos = gestorCultivos;
+    	this.gestorAudio = gestorAudio;
         cargarAnimacionLluvia();
     }
 
@@ -45,10 +49,10 @@ public class ControlClima {
         animacionLluvia = new Animation<>(0.02f, regionFrames);
         animacionLluvia.setPlayMode(Animation.PlayMode.LOOP);
     }
-
+    
     public void sortearClimaDiario() {
 
-        float probabilidadLluvia = 0.99f; 
+        float probabilidadLluvia = 0.99f;
         lluviaActiva = MathUtils.random() < probabilidadLluvia;
 
         if (lluviaActiva) {
@@ -56,13 +60,34 @@ public class ControlClima {
             if (gestorCultivos != null) {
                 gestorCultivos.hacerLlover();
             }
-            
+
+            if (gestorAudio != null) {
+                gestorAudio.reproducirLluvia();
+            }
+
+        } else {
+
+            if (gestorAudio != null) {
+                gestorAudio.detenerLluvia();
+            }
+        }
+    }
+    
+    public void detenerLluvia() {
+        lluviaActiva = false;
+
+        if (gestorAudio != null) {
+            gestorAudio.detenerLluvia();
         }
     }
     
     public void actualizar(float delta) {
         
 
+    	if (!lluviaActiva && gestorAudio != null) {
+    	    gestorAudio.detenerLluvia();
+    	}
+    	
         float velocidadTransicion = 0.5f; 
         if (lluviaActiva) {
             intensidadLluvia = Math.min(1f, intensidadLluvia + delta * velocidadTransicion);

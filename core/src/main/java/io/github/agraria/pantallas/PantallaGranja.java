@@ -170,14 +170,14 @@ public class PantallaGranja extends ScreenAdapter {
         gestorCultivos = new GestorCultivos(controlMapa.getMapWidthTiles(), controlMapa.getMapHeightTiles(), controlMapa.getTileWidth(),  matrizPlantable);
         gestorCultivos.cargarTexturas();
 
-
+        gestorAudio = new GestorAudio();
         
         reloj = new Reloj();
-        controlClima = new ControlClima(gestorCultivos);
+        controlClima = new ControlClima(gestorCultivos, gestorAudio);
         controlSueno = new ControlSueno();
         gestorHud = new GestorHud(inventario, V_WIDTH, V_HEIGHT, font);
         
-        gestorAudio = new GestorAudio();
+
         
         controlCultivos = new ControlCultivos(gestorCultivos, inventario, gestorAudio);
         
@@ -372,7 +372,9 @@ public class PantallaGranja extends ScreenAdapter {
         controlClima.actualizar(delta);
         controlSueno.actualizar(delta, reloj, gestorCultivos);
 
-        controlSueno.verificarDesmayoPorHorario(reloj);
+        if (controlSueno.verificarDesmayoPorHorario(reloj)) {
+            controlClima.sortearClimaDiario();
+        }
         
         if (!controlSueno.estaDurmiendo()) {
             int minutosPasados = reloj.actualizar(delta);
@@ -393,7 +395,11 @@ public class PantallaGranja extends ScreenAdapter {
     }
     
     
-    
+    public void detenerClima() {
+        if (controlClima != null) {
+            controlClima.detenerLluvia();
+        }
+    }
     
     
     private void renderizarFadeEntrada(float delta) {

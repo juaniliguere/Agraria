@@ -184,6 +184,8 @@ public class PantallaPausa extends ScreenAdapter {
 
                 gestorAudio.reproducirApretarBoton();
 
+                pantallaGranja.detenerClima();
+                
                 GestorAudio.apagarMusicaGlobal();
 
                 ((Game) Gdx.app.getApplicationListener())
