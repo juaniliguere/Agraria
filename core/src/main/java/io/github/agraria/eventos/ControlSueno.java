@@ -1,6 +1,7 @@
 package io.github.agraria.eventos;
 
 import io.github.agraria.cultivos.GestorCultivos;
+import io.github.agraria.ui.GestorHud;
 import io.github.tiempo.Reloj;
 
 import com.badlogic.gdx.Gdx;
@@ -26,7 +27,16 @@ public class ControlSueno {
     private static final int HORA_DESPERTAR_TARDE = 10;
     private int horaDespertar;
 
+	private GestorHud gestorHud;
+
     
+	public ControlSueno(GestorHud gestorHud) {
+		
+		this.gestorHud = gestorHud;
+		
+		
+	}
+	
     public boolean puedeDormir(Reloj reloj) {
         int hora = reloj.getHoras();
 
@@ -43,7 +53,6 @@ public class ControlSueno {
 
             estadoTransicion = EstadoTransicion.FADE_OUT;
 
-            System.out.println("-> Acostándose a dormir...");
         }
     	
     }
@@ -83,7 +92,6 @@ public class ControlSueno {
                 reloj.getHoras() >= horaDespertar) {
 
                 gestorCultivos.procesarPudrir();
-                System.out.println("-> ¡Buenos días!");
                 estadoTransicion = EstadoTransicion.FADE_IN;
             }
         }
@@ -148,7 +156,7 @@ public class ControlSueno {
 
     public boolean verificarDesmayoPorHorario(Reloj reloj) {
         if (reloj.getHoras() == 2 && !estaDurmiendo()) {
-            System.out.println("¡Te dieron las 2:00 AM! Te desmayás y te vas a dormir hasta más tarde.");
+        //	gestorHud.mostrarMensaje("¡Te dieron las 2:00 AM! Te desmayás y te vas a dormir hasta más tarde.");
             iniciarDormir(reloj, HORA_DESPERTAR_TARDE);
             return true;
         }

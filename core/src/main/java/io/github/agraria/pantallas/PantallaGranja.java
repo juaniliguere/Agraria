@@ -174,8 +174,9 @@ public class PantallaGranja extends ScreenAdapter {
         
         reloj = new Reloj();
         controlClima = new ControlClima(gestorCultivos, gestorAudio);
-        controlSueno = new ControlSueno();
+
         gestorHud = new GestorHud(inventario, V_WIDTH, V_HEIGHT, font);
+        controlSueno = new ControlSueno(gestorHud);
         
 
         

@@ -152,11 +152,8 @@ public void render(float delta) {
     batch.end();
 
     // Determinar texto
-    String textoCarga = "Hola...";
+    String textoCarga = "Cargando...";
 
-    if (progreso > 0.6f) {
-        textoCarga = "Klk gente...";
-    }
 
     if (progreso >= 1f) {
         textoCarga = "Listo";

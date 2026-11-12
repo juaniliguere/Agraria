@@ -53,8 +53,6 @@ public class ControlCultivos {
         if (exito) {
             gestorAudio.reproducirPlantar();
             inventario.consumirSeleccionado(1);
-
-            System.out.println("-> ¡Semilla plantada con éxito!");
         }
     }
 
@@ -87,11 +85,11 @@ public class ControlCultivos {
 
         boolean guardado = inventario.agregarItem(itemCosecha, 1);
 
-        if (guardado) {
-            System.out.println(
-                    "-> Cosechado y guardado en inventario: " + tipo.getNombre());
-        } else {
-            System.out.println("-> Cosechado pero el inventario está lleno.");
-        }
+//        if (guardado) {
+//            System.out.println(
+//                    "-> Cosechado y guardado en inventario: " + tipo.getNombre());
+//        } else {
+//            System.out.println("-> Cosechado pero el inventario está lleno.");
+//        }
     }
 }
