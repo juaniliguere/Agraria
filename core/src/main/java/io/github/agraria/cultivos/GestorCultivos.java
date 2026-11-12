@@ -27,8 +27,6 @@ public class GestorCultivos {
         this.columnas = columnas;
         this.filas = filas;
         this.tamanoTilePixels = tamanoTilePixels;
-
-        // [fila][columna]
         this.grilla = new Parcela[filas][columnas];
 
         inicializarGrilla(matrizPlantable);
@@ -49,24 +47,20 @@ public class GestorCultivos {
         TiledMapTileLayer capaPlantable = null;
 
         if (capaAbajo instanceof MapGroupLayer) {
-
         	MapGroupLayer grupoAbajo = (MapGroupLayer) capaAbajo;
             MapLayer capa = grupoAbajo.getLayers().get("plantable");
 
             if (capa instanceof TiledMapTileLayer) {
                 capaPlantable = (TiledMapTileLayer) capa;
             }
-            
         }
 
         // Recorremos todas las posiciones de la grilla
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
-
                 // Si existe una celda con un tile, esa posición es plantable
-                matriz[f][c] =
-                        capaPlantable != null
-                        && capaPlantable.getCell(c, f) != null;
+                matriz[f][c] = capaPlantable != null && capaPlantable.getCell(c, f) != null;
+                
             }
         }
 
@@ -82,11 +76,12 @@ public class GestorCultivos {
 
                 boolean esPlantable = matrizPlantable[f][c];
 
-                // Cada posición del mapa tiene su propia Parcela
                 grilla[f][c] = new Parcela(c, f, esPlantable);
             }
         }
     }
+    
+    
 
     public boolean plantarEn(float xPixel, float yPixel, TipoCultivo tipo) {
 
@@ -145,17 +140,17 @@ public class GestorCultivos {
         return grilla[fila][col];
     }
 
-    // Convierte una coordenada X del mundo en una columna de la grilla
+
     private int xPixelAColumna(float xPixel) {
         return (int) (xPixel / tamanoTilePixels);
     }
 
-    // Convierte una coordenada Y del mundo en una fila de la grilla
+
     private int yPixelAFila(float yPixel) {
         return (int) (yPixel / tamanoTilePixels);
     }
 
-    // Comprueba que la posición esté dentro de los límites de la matriz
+
     private boolean esCoordenadaValida(int col, int fila) {
     	
         return col >= 0 && col < columnas && fila >= 0 && fila < filas;
@@ -174,15 +169,21 @@ public class GestorCultivos {
         return tamanoTilePixels;
     }
     
- // <-- NUEVO: Hace llover en toda la grilla
+    
+    
+    
+
     public void hacerLlover() {
-    	System.out.println("3. Ejecutando hacerLlover() en el gestor.");
+//    	System.out.println("3. Ejecutando hacerLlover() en el gestor.");
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 grilla[f][c].recibirLluvia();
             }
         }
     }
+    
+    
+    
     
     public void cargarTexturas() {
         etapasCultivos = new ObjectMap<>();
@@ -210,6 +211,8 @@ public class GestorCultivos {
         }
     }
     
+    
+    
     public void procesarPudrir() {
 
         for (int f = 0; f < filas; f++) {
@@ -218,6 +221,8 @@ public class GestorCultivos {
             }
         }
     }
+    
+    
     
     
     public void renderizar(SpriteBatch batch) {
@@ -253,16 +258,16 @@ public class GestorCultivos {
     }
 
 
+    
 	public void dispose() {
-
         for (Texture textura : texturasCultivos.values()) {
             textura.dispose();
         }
         for (Texture textura : texturasPodridas.values()) {
             textura.dispose();
         }
-		
 	}
+	
 }
 
 

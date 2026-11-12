@@ -35,15 +35,10 @@ public class Cultivo {
     }
     
     public boolean isCosechable() {
-        // Cosechable cuando llega a la última etapa (ej: si tiene 4 etapas, las etapas van de 0 a 3)
+        // cosechable cuando llega a la ultima etapa (ej: si tiene 4 etapas van a ir d 0 a 3)
     	return !podrido && (etapaActual >= tipo.getCantidadEtapas() - 1);
     }
 
-    /**
-     * Intenta cosechar el cultivo agregando el item al inventario.
-     * @param inventario El inventario del jugador
-     * @return true si se cosechó con éxito (había espacio)
-     */
     
     public void pudrir() {
         this.podrido = true;
@@ -58,14 +53,14 @@ public class Cultivo {
             return false;
         }
 
-        // 1. Generamos el item de la cosecha
+        // 1. Generamos el item d la cosecha
         Item producto = tipo.crearItemCosecha();
-        int cantidadObtenida = 1; // Podés hacer un Math.random() acá si querés dar entre 1 y 3 frutos
+        int cantidadObtenida = 1; 
 
         // 2. Intentamos guardar en el inventario
         boolean guardado = inventario.agregarItem(producto, cantidadObtenida);
 
-        return guardado; // Si devuelve true, la lógica del mapa/tierra borra esta planta
+        return guardado;
     }
 
     public TipoCultivo getTipo() {

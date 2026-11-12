@@ -1,8 +1,6 @@
 
 package io.github.agraria.control;
 
-import com.badlogic.gdx.math.Vector2;
-
 import io.github.agraria.cultivos.Cultivo;
 import io.github.agraria.cultivos.GestorCultivos;
 import io.github.agraria.cultivos.Parcela;
@@ -62,14 +60,14 @@ public class ControlCultivos {
         Parcela parcela = gestorCultivos.getParcelaEnPx(mundoX, mundoY);
 
         if (parcela == null) {
-            System.out.println("-> No hay un cultivo cerca del clic.");
+//            System.out.println("-> No hay un cultivo cerca del clic.");
             return;
         }
 
         Cultivo cosechado = parcela.cosechar();
 
         if (cosechado == null) {
-            System.out.println("-> El cultivo todavía no está listo.");
+//            System.out.println("-> El cultivo todavía no está listo.");
             return;
         }
 

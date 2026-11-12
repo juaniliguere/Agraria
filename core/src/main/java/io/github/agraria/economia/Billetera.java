@@ -20,7 +20,7 @@ public class Billetera {
         return false;
     }
 
-    // Suma dinero cuando vendés algo
+    // Suma plata cuando vendés algo
     public void ganar(int cantidad) {
         if (cantidad > 0) {
             monedas += cantidad;

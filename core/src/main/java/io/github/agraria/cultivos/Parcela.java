@@ -3,10 +3,6 @@ package io.github.agraria.cultivos;
 
 public class Parcela{
 
-    // Posición de esta parcela dentro de la grilla
-//    private final int x;
-//    private final int y;
-
     private final boolean esPlantable;
 
     private Cultivo cultivoActual;
@@ -14,8 +10,7 @@ public class Parcela{
     private boolean pendienteDePudrirse = false;
 
     public Parcela(int x, int y, boolean esPlantable) {
-//        this.x = x;
-//        this.y = y;
+
         this.esPlantable = esPlantable;
 
         this.cultivoActual = null;
@@ -51,7 +46,7 @@ public class Parcela{
 
         if (lluviasRecibidas >= 2) {
             pendienteDePudrirse = true;
-            System.out.println("¡El cultivo se pudrió por recibir dos lluvias!");
+            System.out.println("Recibio 2 lluvias cultivo podrido");
         }
     }
     
@@ -61,7 +56,7 @@ public class Parcela{
             cultivoActual.pudrir();
             pendienteDePudrirse = false;
 
-            System.out.println("¡El cultivo se pudrió al comenzar el nuevo día!");
+            System.out.println("cultivo podrido al comenzar nuevo día");
         }
     }
 
@@ -69,7 +64,7 @@ public class Parcela{
 
         if (cultivoActual != null && (cultivoActual.isCosechable() || cultivoActual.isPodrido())) {
 
-            // Guardamos el cultivo antes de vaciar la parcela
+            // guardamos cultivo antes d vaciar la parcela
             Cultivo cosechado = cultivoActual;
 
             cultivoActual = null;
@@ -81,10 +76,10 @@ public class Parcela{
         
     }
 
- // <-- NUEVO: Método para limpiar la parcela si está podrida (al hacerle clic)
+    
     public boolean limpiarSiEstaPodrido() {
         if (cultivoActual != null && cultivoActual.isPodrido()) {
-            cultivoActual = null; // Borra el cultivo podrido y libera la tierra
+            cultivoActual = null; 
             return true;
         }
         return false;
@@ -108,10 +103,5 @@ public class Parcela{
     public Cultivo getCultivoActual() {
         return cultivoActual;
     }
-    
-
-    
-    
-    
     
 }

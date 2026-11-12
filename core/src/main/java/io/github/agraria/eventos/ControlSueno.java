@@ -34,7 +34,6 @@ public class ControlSueno {
 		
 		this.gestorHud = gestorHud;
 		
-		
 	}
 	
     public boolean puedeDormir(Reloj reloj) {
@@ -156,7 +155,7 @@ public class ControlSueno {
 
     public boolean verificarDesmayoPorHorario(Reloj reloj) {
         if (reloj.getHoras() == 2 && !estaDurmiendo()) {
-        //	gestorHud.mostrarMensaje("¡Te dieron las 2:00 AM! Te desmayás y te vas a dormir hasta más tarde.");
+        //	gestorHud.mostrarMensaje("Son las 2am Te desmayás y te vas a dormir hasta más tarde.");
             iniciarDormir(reloj, HORA_DESPERTAR_TARDE);
             return true;
         }
