@@ -207,9 +207,7 @@ public class PantallaGranja extends ScreenAdapter {
         controlEntrada = new ControlEntrada();
 
         if (controlTienda == null) {
-            controlTienda = new ControlTienda(
-                stageUi, billetera, inventario, skinUi, controlJugador
-            );
+            controlTienda = new ControlTienda(stageUi, billetera, inventario, skinUi, controlJugador, gestorHud);
         }
         
         
@@ -274,6 +272,7 @@ public class PantallaGranja extends ScreenAdapter {
         }
 
         if (!controlSueno.puedeDormir(reloj)) {
+        	gestorHud.mostrarMensaje("Todavía es muy temprano para dormir.");
             return;
         }
 
@@ -371,6 +370,7 @@ public class PantallaGranja extends ScreenAdapter {
         }
         controlClima.actualizar(delta);
         controlSueno.actualizar(delta, reloj, gestorCultivos);
+        gestorHud.actualizar(delta);
 
         if (controlSueno.verificarDesmayoPorHorario(reloj)) {
             controlClima.sortearClimaDiario();
@@ -542,7 +542,7 @@ public class PantallaGranja extends ScreenAdapter {
             mostrarClima
         );
 
-        // Dibujar HUD
+     // Dibujar HUD
         gestorHud.renderizar(batch, reloj, billetera, V_WIDTH, V_HEIGHT);
 
         // Dibujar interfaz
@@ -551,6 +551,11 @@ public class PantallaGranja extends ScreenAdapter {
         }
 
         stageUi.draw();
+
+        // Dibujar mensaje por encima de la tienda
+        gestorHud.renderizarMensaje(batch, V_WIDTH, V_HEIGHT);
+        
+        
 
         // Efecto visual del sueño
         controlSueno.renderizarEfectoVisual(

@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import io.github.agraria.inventario.Inventario;
 import io.github.agraria.sonidos.GestorAudio;
+import io.github.agraria.ui.GestorHud;
 import io.github.agraria.inventario.CasillaInventario;
 import io.github.agraria.elementos.Item;
 import io.github.agraria.cultivos.TipoCultivo;
@@ -54,6 +55,7 @@ public class VentanaTienda {
     private Texture texturaIconoVender;
     
     private GestorAudio gestorAudio;
+    private GestorHud gestorHud;
     
     private Map<TipoCultivo, Texture> texturasProductos = new HashMap<>();
     
@@ -165,12 +167,13 @@ public class VentanaTienda {
         return new ImageButton(estilo);
     }
     
-    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin, GestorAudio gestorAudio) {
+    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin, GestorAudio gestorAudio, GestorHud gestorHud) {
 
 		this.billetera = billetera;
 		this.inventario = inventario;
 		this.skin = skin;
 		this.gestorAudio = gestorAudio;
+		this.gestorHud = gestorHud;
 		
 		// Primero cargamos las texturas
 		cargarRecursos();
@@ -303,13 +306,7 @@ public class VentanaTienda {
 
                             billetera.ganar(costo);
 
-                            System.out.println("¡Inventario lleno!");
-
                         } else {
-
-                            System.out.println(
-                                "¡Compraste semilla de " + tipo.getNombre() + "!"
-                            );
                             
                             gestorAudio.reproducirComprar();
                         }
@@ -318,7 +315,8 @@ public class VentanaTienda {
 
                     } else {
 
-                        System.out.println("¡No te alcanza el dinero!");
+                    	gestorHud.mostrarMensaje("No tenés suficientes monedas.");
+                    	
                     }
                 }
             });
@@ -438,9 +436,7 @@ public class VentanaTienda {
 
         if (!hayItems) {
 
-            listaVender.add(
-                new Label("No tenés cultivos para vender.", skin)
-            ).pad(10);
+            listaVender.add(new Label("No tenés cultivos para vender.", skin)).pad(10);
         }
 
      // =========================

@@ -7,6 +7,7 @@ import io.github.agraria.economia.Billetera;
 import io.github.agraria.inventario.Inventario;
 import io.github.agraria.sonidos.GestorAudio;
 import io.github.agraria.tienda.VentanaTienda;
+import io.github.agraria.ui.GestorHud;
 
 public class ControlTienda {
 
@@ -18,9 +19,10 @@ public class ControlTienda {
     private VentanaTienda ventana;
     private ControlJugador controlJugador;
 	private GestorAudio gestorAudio;
-
+	private GestorHud gestorHud;
+	
     public ControlTienda(Stage stage, Billetera billetera,
-                         Inventario inventario, Skin skin, ControlJugador controlJugador) {
+                         Inventario inventario, Skin skin, ControlJugador controlJugador, GestorHud gestorHud) {
 
         this.stage = stage;
         this.billetera = billetera;
@@ -28,6 +30,7 @@ public class ControlTienda {
         this.skin = skin;
         this.controlJugador = controlJugador;
         this.gestorAudio = new GestorAudio();
+        this.gestorHud = gestorHud;
         
     }
 
@@ -39,7 +42,7 @@ public class ControlTienda {
             
         }
 
-        ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio);
+        ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio, gestorHud);
         
         gestorAudio.reproducirAbrirTienda();
         

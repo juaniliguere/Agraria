@@ -4,8 +4,10 @@ package io.github.agraria.pantallas;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import io.github.agraria.Agraria;
 
@@ -25,6 +27,12 @@ public class PantallaInicio extends ScreenAdapter {
     private static final float TAMANO_FINAL = 450f;
     private static final float DURACION_CRECIMIENTO = 3.5f;
     
+    private OrthographicCamera camara;
+    private FitViewport viewport;
+
+    private static final float ANCHO_MUNDO = 800f;
+    private static final float ALTO_MUNDO = 600f;
+    
     public PantallaInicio(Agraria juego) {
         this.juego = juego;
     }
@@ -32,6 +40,13 @@ public class PantallaInicio extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
+
+        camara = new OrthographicCamera();
+        viewport = new FitViewport(ANCHO_MUNDO, ALTO_MUNDO, camara);
+        viewport.apply();
+
+        camara.position.set(ANCHO_MUNDO / 2f, ALTO_MUNDO / 2f, 0);
+        camara.update();
 
         logo = new Texture(
             Gdx.files.internal("pantallas/inicio/agrarialogo.png")
@@ -76,13 +91,20 @@ public void render(float delta) {
 
     // Dibujar logo
     
+
+    
     float progreso = Math.min(tiempo / DURACION_CRECIMIENTO, 1f);
     float ancho = TAMANO_INICIAL +
     	    (TAMANO_FINAL - TAMANO_INICIAL) * progreso;
     float alto = ancho * logo.getHeight() / logo.getWidth();
 
-    float x = (Gdx.graphics.getWidth() - ancho) / 2f;
-    float y = (Gdx.graphics.getHeight() - alto) / 2f;
+    float centroX = Gdx.graphics.getWidth() / 2f;
+    float centroY = Gdx.graphics.getHeight() / 2f;
+
+    float x = (ANCHO_MUNDO - ancho) / 2f;
+    float y = (ALTO_MUNDO - alto) / 2f;
+
+    batch.setProjectionMatrix(camara.combined);
 
     batch.begin();
 
@@ -91,6 +113,12 @@ public void render(float delta) {
     batch.setColor(1f, 1f, 1f, 1f);
 
     batch.end();
+}
+
+
+@Override
+public void resize(int width, int height) {
+    viewport.update(width, height, true);
 }
 
 
