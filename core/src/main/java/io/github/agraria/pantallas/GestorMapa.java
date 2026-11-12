@@ -23,7 +23,7 @@ public class GestorMapa implements Disposable{
 	    private OrthographicCamera camara;
 	    private Viewport viewport;
 
-	    // Colisiones obtenidas desde Tiled
+	    // Colisiones
 	    private Array<Polygon> colisionesMapa;
 	    private Rectangle zonaDormir;
 	    private Rectangle zonaTienda;
@@ -38,14 +38,14 @@ public class GestorMapa implements Disposable{
 	    private int mapWidthTiles;
 	    private int mapHeightTiles;
 
-	    // Tamaño de cada tile
+
 	    private int tileWidth;
 	    private int tileHeight;
 
 	   // public static final int V_WIDTH = 800;
 	   // public static final int V_HEIGHT = 600;
 	 
-	    // Índices de las capas que se renderizan antes y después del jugador
+
 	    private int idxAbajo = -1;
 	    private int idxArriba = -1;
 	
@@ -75,7 +75,7 @@ public class GestorMapa implements Disposable{
 	
 	
     // =========================
-    // INFORMACIÓN DEL MAPA
+    // INFO MAPA
     // =========================
 	
 	private void cargarPropiedades() {
@@ -100,9 +100,7 @@ public class GestorMapa implements Disposable{
 
 	private void cargarColisiones() {
 		
-
 	    colisionesMapa = new Array<>();
-
 	    if (mapa.getLayers().get("Colisiones") != null) {
 
 	        for (MapObject objeto :
@@ -110,19 +108,12 @@ public class GestorMapa implements Disposable{
 
 	            // Colisión dibujada como polígono
 	            if (objeto instanceof PolygonMapObject) {
-
-	                colisionesMapa.add(
-	                        ((PolygonMapObject) objeto).getPolygon()
-	                );
-
+	                colisionesMapa.add(((PolygonMapObject) objeto).getPolygon());
 	            }
 
 	            // Colisión dibujada como rectángulo
 	            else if (objeto instanceof RectangleMapObject) {
-
-	                Rectangle rect =
-	                        ((RectangleMapObject) objeto).getRectangle();
-
+	                Rectangle rect = ((RectangleMapObject) objeto).getRectangle();
 	                Polygon poly = new Polygon(new float[]{
 	                        0, 0,
 	                        rect.width, 0,
@@ -131,13 +122,14 @@ public class GestorMapa implements Disposable{
 	                }); 
 
 	                poly.setPosition(rect.x, rect.y);
-
 	                colisionesMapa.add(poly);
 	            }
 	        }
 	    }
 		
 	}
+	
+	
 	
 	private void cargarZonaDormir() {
 
@@ -148,20 +140,16 @@ public class GestorMapa implements Disposable{
 	    for (MapObject objeto :
 	            mapa.getLayers().get("zonaDormir").getObjects()) {
 
-	        if (objeto.getName() != null &&
-	            objeto.getName().equals("zonaDormir") &&
-	            objeto instanceof RectangleMapObject) {
-
-	            zonaDormir =
-	                    ((RectangleMapObject) objeto).getRectangle();
-
+	        if (objeto.getName() != null && objeto.getName().equals("zonaDormir") && objeto instanceof RectangleMapObject) {
+	            zonaDormir = ((RectangleMapObject) objeto).getRectangle();
 	            break;
 	        }
 	    }
 	}
 	
+	
+	
 	private void cargarZonaTienda() {
-
 	    if (mapa.getLayers().get("zonaTienda") == null) {
 	        return;
 	    }
@@ -182,6 +170,7 @@ public class GestorMapa implements Disposable{
 	}
 	
 	
+	
 
 	private void cargarZonaComprar() {
 	    if (mapa.getLayers().get("zonaComprar") == null) {
@@ -198,6 +187,9 @@ public class GestorMapa implements Disposable{
 	        }
 	    }
 	}
+	
+	
+	
 	
 	private void cargarZonaSalir() {
 	    if (mapa.getLayers().get("zonaSalir") == null) {
@@ -216,22 +208,17 @@ public class GestorMapa implements Disposable{
 	}
 	
     // =========================
-    // CAPAS DEL MAPA
+    // CAPAS MAPA
     // =========================
 
 	private void cargarCapas() {
-	
     
 		if(mapa.getLayers().get("abajo") != null) {
-			
 			idxAbajo = mapa.getLayers().getIndex("abajo");
-			
 		}
 		
 		if(mapa.getLayers().get("arriba") != null) {
-			
 			idxArriba = mapa.getLayers().getIndex("arriba");
-			
 		}
 	
 	}
@@ -261,10 +248,9 @@ public class GestorMapa implements Disposable{
         }
         
     }
+
     
- // =========================
-    // GETTERS
-    // =========================
+    
     
     public TiledMap getMapa() { return mapa; }
     public Array<Polygon> getColisionesMapa() { return colisionesMapa; }
@@ -278,7 +264,6 @@ public class GestorMapa implements Disposable{
     public int getMapHeightTiles() { return mapHeightTiles; }
     public int getTileWidth() { return tileWidth; }
     public int getTileHeight() { return tileHeight; }
-	
 	public void dispose() {
 
 		mapa.dispose();
