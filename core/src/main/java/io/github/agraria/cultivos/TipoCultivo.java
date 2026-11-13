@@ -26,9 +26,7 @@ public enum TipoCultivo {
     private final int cantidadEtapas;
     private final int nivelRequerido;
 
-    TipoCultivo(String nombre, int precioCompra, int precioVenta, int minutosPorEtapa, int xpRecompensa,
-                String rutaTextura, String rutaTexturaItem, String rutaTexturaPodrido,
-                int cantidadEtapas, int nivelRequerido) {
+    TipoCultivo(String nombre, int precioCompra, int precioVenta, int minutosPorEtapa, int xpRecompensa, String rutaTextura, String rutaTexturaItem, String rutaTexturaPodrido, int cantidadEtapas, int nivelRequerido) {
 
         this.nombre = nombre;
         this.precioCompra = precioCompra;
@@ -42,23 +40,33 @@ public enum TipoCultivo {
         this.nivelRequerido = nivelRequerido;
 
     }
+    
+    
     public String getRutaTexturaItem() { return rutaTexturaItem; }
 
+    
+    
     public Item crearItemSemilla() {
         String id = "semilla_" + this.name().toLowerCase();
         return new Item(id, "Semilla de " + nombre, TipoItem.SEMILLA, this, "cultivos/sobre_" + this.name().toLowerCase() + ".png", 64);
     }
 
+    
+    
     public Item crearItemCosecha() {
         String id = "cosecha_" + this.name().toLowerCase();
         return new Item(id, nombre, TipoItem.COSECHA, this, rutaTexturaItem, 64);
     }
 
+    
+    
     public Item crearItemPodrido() {
         String id = "cultivo_podrido";
         return new Item(id, "Cultivo Podrido", TipoItem.COSECHA, null, "cultivos/cultivoPodrido.png", 64);
     }
 
+    
+    
     public String getNombre() { return nombre; }
     public int getPrecioCompra() { return precioCompra; }
     public int getPrecioVenta() { return precioVenta; }

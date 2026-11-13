@@ -68,7 +68,6 @@ public class GestorCultivos {
             for (int c = 0; c < columnas; c++) {
 
                 boolean esPlantable = matrizPlantable[f][c];
-
                 grilla[f][c] = new Parcela(c, f, esPlantable);
             }
         }
@@ -101,6 +100,7 @@ public class GestorCultivos {
         return grilla[fila][col].cosechar();
     }
 
+    
     public void pasarTiempo(int minutosPasados) {
 
         for (int f = 0; f < filas; f++) {
@@ -111,6 +111,7 @@ public class GestorCultivos {
         }
     }
 
+    
     public Parcela getParcelaEnPx(float xPixel, float yPixel) {
 
         int col = xPixelAColumna(xPixel);
@@ -119,16 +120,15 @@ public class GestorCultivos {
         if (!esCoordenadaValida(col, fila)) {
             return null;
         }
-
         return grilla[fila][col];
     }
 
+    
     public Parcela getParcela(int col, int fila) {
 
         if (!esCoordenadaValida(col, fila)) {
             return null;
         }
-
         return grilla[fila][col];
     }
 
@@ -144,9 +144,7 @@ public class GestorCultivos {
 
 
     private boolean esCoordenadaValida(int col, int fila) {
-    	
-        return col >= 0 && col < columnas && fila >= 0 && fila < filas;
-        
+        return col >= 0 && col < columnas && fila >= 0 && fila < filas;   
     }
 
     public int getColumnas() {
@@ -161,9 +159,6 @@ public class GestorCultivos {
         return tamanoTilePixels;
     }
     
-    
-    
-    
 
     public void hacerLlover() {
         for (int f = 0; f < filas; f++) {
@@ -172,8 +167,6 @@ public class GestorCultivos {
             }
         }
     }
-    
-    
     
     
     public void cargarTexturas() {
@@ -203,7 +196,6 @@ public class GestorCultivos {
     }
     
     
-    
     public void procesarPudrir() {
 
         for (int f = 0; f < filas; f++) {
@@ -214,9 +206,8 @@ public class GestorCultivos {
     }
     
     
-    
-    
     public void renderizar(SpriteBatch batch) {
+    	
         for (int fila = 0; fila < filas; fila++) {
             for (int col = 0; col < columnas; col++) {
                 Parcela parcela = grilla[fila][col];
@@ -247,7 +238,6 @@ public class GestorCultivos {
             }
         }
     }
-
 
     
 	public void dispose() {

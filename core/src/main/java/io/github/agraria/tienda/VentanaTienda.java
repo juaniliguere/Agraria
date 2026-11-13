@@ -277,9 +277,7 @@ public class VentanaTienda {
             Table fila = new Table();
             fila.setBackground(fondoFila);
 
-            String textoSemilla = desbloqueado
-                ? "Semilla " + tipo.getNombre() + " - $" + costo
-                : "Semilla " + tipo.getNombre() + " - Nivel " + tipo.getNivelRequerido();
+            String textoSemilla = "Semilla " + tipo.getNombre() + " - $" + costo;
 
             Label lblSemilla = new Label(textoSemilla, skin);
             lblSemilla.setFontScale(0.75f);

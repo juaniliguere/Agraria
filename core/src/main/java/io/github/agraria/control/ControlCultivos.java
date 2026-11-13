@@ -16,11 +16,7 @@ public class ControlCultivos {
     private GestorAudio gestorAudio;
     private SistemaNiveles sistemaNiveles;
 
-    public ControlCultivos(
-            GestorCultivos gestorCultivos,
-            Inventario inventario,
-            GestorAudio gestorAudio,
-            SistemaNiveles sistemaNiveles) {
+    public ControlCultivos(GestorCultivos gestorCultivos, Inventario inventario, GestorAudio gestorAudio, SistemaNiveles sistemaNiveles) {
 
         this.gestorCultivos = gestorCultivos;
         this.inventario = inventario;
@@ -31,7 +27,6 @@ public class ControlCultivos {
     public void procesarCultivar(float mundoX, float mundoY) {
 
         Parcela parcela = gestorCultivos.getParcelaEnPx(mundoX, mundoY);
-
         if (parcela == null) {
             return;
         }
@@ -54,18 +49,17 @@ public class ControlCultivos {
             inventario.consumirSeleccionado(1);
             sistemaNiveles.ganarXp(cultivoSeleccionado.getXpPlantar());
         }
+        
     }
 
     public void procesarCosechar(float mundoX, float mundoY) {
 
         Parcela parcela = gestorCultivos.getParcelaEnPx(mundoX, mundoY);
-
         if (parcela == null) {
             return;
         }
 
         Cultivo cosechado = parcela.cosechar();
-
         if (cosechado == null) {
             return;
         }
@@ -85,4 +79,5 @@ public class ControlCultivos {
 
         inventario.agregarItem(itemCosecha, 1);
     }
+    
 }

@@ -28,9 +28,7 @@ public class ControlTienda {
 	private static final int HORA_CIERRE = 21;
 	
 	
-    public ControlTienda(Stage stage, Billetera billetera,
-                         Inventario inventario, Skin skin, ControlJugador controlJugador,
-                         GestorHud gestorHud, SistemaNiveles sistemaNiveles, Reloj reloj) {
+    public ControlTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin, ControlJugador controlJugador, GestorHud gestorHud, SistemaNiveles sistemaNiveles, Reloj reloj) {
 
         this.stage = stage;
         this.billetera = billetera;
@@ -45,14 +43,11 @@ public class ControlTienda {
     }
 
     public void abrir() {
-
     	
         if (reloj.getHoras() >= HORA_CIERRE) {
             gestorHud.mostrarMensaje("La tienda esta cerrada.");
             return;
         }
-        
-    	
         if (ventana != null && ventana.estaAbierta()) {
             return; 
         }
@@ -60,7 +55,6 @@ public class ControlTienda {
         ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio, gestorHud, sistemaNiveles);
         
         gestorAudio.reproducirAbrirTienda();
-        
         
         if (controlJugador != null) {
             controlJugador.setMovimientoBloqueado(true);
@@ -79,12 +73,12 @@ public class ControlTienda {
     
     
     public void cerrar() {
+    	
         if (ventana != null) {
             ventana.cerrarVentana(); 
             gestorAudio.reproducirAbrirTienda();
             ventana = null;          
         }
-
         
         if (controlJugador != null) {
             controlJugador.setMovimientoBloqueado(false);
@@ -93,7 +87,6 @@ public class ControlTienda {
     }
     
     public boolean estaAbierta() {
-    	
         return ventana != null && ventana.estaAbierta();
     }
     

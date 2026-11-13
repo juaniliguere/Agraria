@@ -12,7 +12,6 @@ public class Parcela{
     public Parcela(int x, int y, boolean esPlantable) {
 
         this.esPlantable = esPlantable;
-
         this.cultivoActual = null;
         
     }
@@ -26,7 +25,7 @@ public class Parcela{
         if (!puedePlantar()) {
             return false;
         }
-
+        
         cultivoActual = new Cultivo(tipo);
         lluviasRecibidas = 0;
         pendienteDePudrirse = false;
@@ -41,12 +40,10 @@ public class Parcela{
         }
 
         lluviasRecibidas++;
-
-        System.out.println("Lluvias recibidas: " + lluviasRecibidas);
-
+//        System.out.println("Lluvias recibidas: " + lluviasRecibidas);
         if (lluviasRecibidas >= 2) {
             pendienteDePudrirse = true;
-            System.out.println("Recibio 2 lluvias cultivo podrido");
+//            System.out.println("Recibio 2 lluvias cultivo podrido");
         }
     }
     
@@ -55,34 +52,31 @@ public class Parcela{
         if (cultivoActual != null && pendienteDePudrirse) {
             cultivoActual.pudrir();
             pendienteDePudrirse = false;
-
-            System.out.println("cultivo podrido al comenzar nuevo día");
+//            System.out.println("cultivo podrido al comenzar nuevo día");
         }
     }
 
     public Cultivo cosechar() {
 
         if (cultivoActual != null && (cultivoActual.isCosechable() || cultivoActual.isPodrido())) {
-
             Cultivo cosechado = cultivoActual;
-
             cultivoActual = null;
-
             return cosechado;
         }
-
         return null;
-        
     }
 
     
+    
     public boolean limpiarSiEstaPodrido() {
+    	
         if (cultivoActual != null && cultivoActual.isPodrido()) {
             cultivoActual = null; 
             return true;
-        }
+        } 
         return false;
     }
+    
     
     public void pasarTiempo(int minutosPasados) {
 
@@ -91,14 +85,17 @@ public class Parcela{
         }
     }
 
+    
     public boolean isEsPlantable() {
         return esPlantable;
     }
 
+    
     public boolean tieneCultivo() {
         return cultivoActual != null;
     }
 
+    
     public Cultivo getCultivoActual() {
         return cultivoActual;
     }
