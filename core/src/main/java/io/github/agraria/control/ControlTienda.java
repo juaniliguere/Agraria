@@ -9,6 +9,7 @@ import io.github.agraria.progreso.SistemaNiveles;
 import io.github.agraria.sonidos.GestorAudio;
 import io.github.agraria.tienda.VentanaTienda;
 import io.github.agraria.ui.GestorHud;
+import io.github.tiempo.Reloj;
 
 public class ControlTienda {
 
@@ -23,9 +24,13 @@ public class ControlTienda {
 	private GestorHud gestorHud;
 	private SistemaNiveles sistemaNiveles;
 	
+	private Reloj reloj;
+	private static final int HORA_CIERRE = 21;
+	
+	
     public ControlTienda(Stage stage, Billetera billetera,
                          Inventario inventario, Skin skin, ControlJugador controlJugador,
-                         GestorHud gestorHud, SistemaNiveles sistemaNiveles) {
+                         GestorHud gestorHud, SistemaNiveles sistemaNiveles, Reloj reloj) {
 
         this.stage = stage;
         this.billetera = billetera;
@@ -35,14 +40,21 @@ public class ControlTienda {
         this.gestorAudio = new GestorAudio();
         this.gestorHud = gestorHud;
         this.sistemaNiveles = sistemaNiveles;
+        this.reloj = reloj;
         
     }
 
     public void abrir() {
 
-        if (ventana != null && ventana.estaAbierta()) {
+    	
+        if (reloj.getHoras() >= HORA_CIERRE) {
+            gestorHud.mostrarMensaje("La tienda esta cerrada.");
             return;
-            
+        }
+        
+    	
+        if (ventana != null && ventana.estaAbierta()) {
+            return; 
         }
 
         ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio, gestorHud, sistemaNiveles);
@@ -54,6 +66,17 @@ public class ControlTienda {
             controlJugador.setMovimientoBloqueado(true);
         }
     }
+    
+    
+    public void actualizar() {
+
+        if (reloj.getHoras() >= HORA_CIERRE && estaAbierta()) {
+            cerrar();
+            gestorHud.mostrarMensaje("La tienda ha cerrado por hoy.");
+        }
+    }
+    
+    
     
     public void cerrar() {
         if (ventana != null) {

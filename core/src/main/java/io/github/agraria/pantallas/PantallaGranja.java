@@ -128,8 +128,7 @@ public class PantallaGranja extends ScreenAdapter {
 
         FreeTypeFontGenerator generador = new FreeTypeFontGenerator(Gdx.files.internal("fuentes/VT323-Regular.ttf"));
 
-        FreeTypeFontGenerator.FreeTypeFontParameter parametros =
-            new FreeTypeFontGenerator.FreeTypeFontParameter();
+        FreeTypeFontGenerator.FreeTypeFontParameter parametros = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         parametros.size = 22;
         parametros.minFilter = Texture.TextureFilter.Nearest;
@@ -141,7 +140,6 @@ public class PantallaGranja extends ScreenAdapter {
 
         mapaGranja = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
         pantallaTienda = new PantallaTienda();
-   
         
         controlMapa = mapaGranja;
         
@@ -151,13 +149,11 @@ public class PantallaGranja extends ScreenAdapter {
         this.inventario = new Inventario(10);
         this.gestorInventario = new GestorInventario(inventario);
 
-
         this.billetera = new Billetera(100);
         
         stageUi = new Stage(new FitViewport(V_WIDTH, V_HEIGHT, hudCamara));
         skinUi = new Skin(Gdx.files.internal("uiskin.json"));
         skinUi.get("default", Label.LabelStyle.class).font = font;
-
 
         this.gestorPrompt = new GestorPrompt(stageUi, skinUi);
 
@@ -191,6 +187,7 @@ public class PantallaGranja extends ScreenAdapter {
         controlSueno.setAlPonerseNegraPorDesmayo(() -> llevarJugadorACasa());
 
         sistemaNiveles.setAlSubirNivel((anterior, nuevo) -> {
+        	
             StringBuilder msg = new StringBuilder("¡Nivel " + nuevo + "!");
             for (TipoCultivo t : TipoCultivo.values()) {
                 if (t.getNivelRequerido() > anterior && t.getNivelRequerido() <= nuevo) {
@@ -206,41 +203,30 @@ public class PantallaGranja extends ScreenAdapter {
 
     @Override
     public void show() {
-
         gestorAudio.reproducirMusicaFondo();
-    	
 
         if (controlJugador == null) {
             controlJugador = new ControlJugador(jugador, inventario);
 
             controlJugador.setAccionDormir(() -> procesarDormir());
             controlJugador.setAccionTienda(() -> procesarAbrirTienda());
-
-            controlJugador.setAccionCultivar(
-                (screenX, screenY) -> procesarCultivar(screenX, screenY)
-            );
-
-            controlJugador.setAccionCosechar(
-                (screenX, screenY) -> procesarCosechar(screenX, screenY)
-            );
+            controlJugador.setAccionCultivar((screenX, screenY) -> procesarCultivar(screenX, screenY));
+            controlJugador.setAccionCosechar((screenX, screenY) -> procesarCosechar(screenX, screenY));
+            
         }
 
         controlEntrada = new ControlEntrada();
 
         if (controlTienda == null) {
-            controlTienda = new ControlTienda(stageUi, billetera, inventario, skinUi, controlJugador, gestorHud, sistemaNiveles);
+            controlTienda = new ControlTienda(stageUi, billetera, inventario, skinUi, controlJugador, gestorHud, sistemaNiveles, reloj);
         }
         
         
     	controlJugador.setAccionDormir(() -> procesarDormir());
-
     	controlJugador.setAccionTienda(() -> procesarAbrirTienda());
-
     	controlJugador.setAccionCultivar((screenX, screenY) -> procesarCultivar(screenX, screenY));
-
     	controlJugador.setAccionCosechar((screenX, screenY) -> procesarCosechar(screenX, screenY));
-
-
+    	
         
         com.badlogic.gdx.InputMultiplexer multiplexer = new com.badlogic.gdx.InputMultiplexer();
         multiplexer.addProcessor(stageUi);   
@@ -252,28 +238,19 @@ public class PantallaGranja extends ScreenAdapter {
 
     
     
+    
     public void procesarCultivar(int screenX, int screenY) {
-
-        Vector3 posicionMundo = camara.unproject(
-            new Vector3(screenX, screenY, 0)
-        );
-
-        controlCultivos.procesarCultivar(
-            posicionMundo.x,
-            posicionMundo.y
-        );
+    	
+        Vector3 posicionMundo = camara.unproject(new Vector3(screenX, screenY, 0));
+        controlCultivos.procesarCultivar(posicionMundo.x, posicionMundo.y);
     }
     
     
     
     public void procesarCosechar(int screenX, int screenY) {
-
+    	
         Vector3 posicionMundo = camara.unproject(new Vector3(screenX, screenY, 0));
-
-        controlCultivos.procesarCosechar(
-            posicionMundo.x,
-            posicionMundo.y
-        );
+        controlCultivos.procesarCosechar(posicionMundo.x, posicionMundo.y);    
     }
      
     
@@ -288,8 +265,7 @@ public class PantallaGranja extends ScreenAdapter {
             return;
         }
         controlSueno.iniciarDormir(reloj, 6);
-        controlClima.sortearClimaDiario();
-        
+        controlClima.sortearClimaDiario();  
     }
     
 
@@ -297,6 +273,7 @@ public class PantallaGranja extends ScreenAdapter {
     
     
     public boolean estaCercaDeLaCasa() {
+    	
         if (zonaDormir == null) {
             return false;
         }
@@ -305,9 +282,8 @@ public class PantallaGranja extends ScreenAdapter {
     
     
     
-    
     private void llevarJugadorACasa() {
-
+    	
         if (pantallaTienda.estaDentro()) {
             entrarSalirTienda();
         }
@@ -317,7 +293,6 @@ public class PantallaGranja extends ScreenAdapter {
         }
 
         float offsetPies = jugador.getPiesY() - jugador.getY();
-
         float baseX = zonaDormir.x + (zonaDormir.width / 2f) - (jugador.getAncho() / 2f);
         float baseY = zonaDormir.y + (zonaDormir.height / 2f) - offsetPies;
 
@@ -330,15 +305,11 @@ public class PantallaGranja extends ScreenAdapter {
         float destinoY = baseY;
 
         if (jugador.chocaEn(baseX, baseY, colisiones)) {
-
             boolean encontrado = false;
-
             for (float radio = 4f; radio <= 300f && !encontrado; radio += 4f) {
-
                 for (int paso = 0; paso < 24; paso++) {
-
+                	
                     int grados = (270 + paso * 15) % 360;
-
                     float px = MathUtils.clamp(baseX + MathUtils.cosDeg(grados) * radio, 0, maxX);
                     float py = MathUtils.clamp(baseY + MathUtils.sinDeg(grados) * radio, 0, maxY);
 
@@ -348,6 +319,7 @@ public class PantallaGranja extends ScreenAdapter {
                         encontrado = true;
                         break;
                     }
+                    
                 }
             }
         }
@@ -364,25 +336,23 @@ public class PantallaGranja extends ScreenAdapter {
             if (pantallaTienda.estaCercaDeLaTienda(jugador, mapaGranja)) {
                 entrarSalirTienda();  
             } 
+            
         } else {
             entrarSalirTienda();
         }
+        
     }
     
     
     
     public void entrarSalirTienda() {
-
+    	
         if (!pantallaTienda.estaDentro()) {
-
             pantallaTienda.entrar(jugador);
-
             controlMapa = pantallaTienda.getMapa();
 
         } else {
-
             pantallaTienda.salir(jugador);
-
             controlMapa = mapaGranja;
         }
 
@@ -462,6 +432,11 @@ public class PantallaGranja extends ScreenAdapter {
             }
         }
         
+        
+        if (controlTienda != null) {
+            controlTienda.actualizar();
+        }
+        
         jugador.actualizar(delta, controlMapa.getColisionesMapa(), controlMapa.getAnchoMapaPixels(), controlMapa.getAltoMapaPixels());
         
         verificarInteraccionesTiendaCasa();
@@ -520,13 +495,23 @@ public class PantallaGranja extends ScreenAdapter {
     
     
     private void verificarInteraccionesTiendaCasa() {
+
         if (enCasa && pantallaTienda.estaCercaDeSalir(jugador)) {
             entrarSalirTienda();
         }
+
         if (!pantallaTienda.estaDentro()) {
+
             if (pantallaTienda.estaCercaDeLaTienda(jugador, mapaGranja)) {
+
+                if (reloj.getHoras() >= 21) {
+                    gestorHud.mostrarMensaje("La tienda está cerrada.");
+                    return;
+                }
+
                 entrarSalirTienda();
             }
+
         } else if (pantallaTienda.estaCercaDeSalir(jugador)) {
             entrarSalirTienda();
         }
@@ -597,7 +582,6 @@ public class PantallaGranja extends ScreenAdapter {
     
     private void renderizarPartida(float delta, boolean actualizarInterfaz) {
 
-
         controlMapa.setView(camara);
         controlMapa.renderAbajo();
 
@@ -613,35 +597,22 @@ public class PantallaGranja extends ScreenAdapter {
 
         controlMapa.renderArriba();
 
-
         boolean mostrarClima = !pantallaTienda.estaDentro() && !enCasa;
 
-        controlClima.renderizarOscurecimiento(
-            shapeRenderer, camara,
-            vp.getWorldWidth(), vp.getWorldHeight(),
-            mostrarClima
-        );
-
-        controlClima.renderizarEfectoVisual(
-            batch, hudCamara,
-            V_WIDTH, V_HEIGHT,
-            mostrarClima
-        );
+        controlClima.renderizarOscurecimiento(shapeRenderer, camara, vp.getWorldWidth(), vp.getWorldHeight(), mostrarClima);
+        controlClima.renderizarEfectoVisual(batch, hudCamara, V_WIDTH, V_HEIGHT, mostrarClima);
 
         renderizarIluminacionNocturna();
 
         gestorHud.renderizar(batch, reloj, billetera, V_WIDTH, V_HEIGHT);
 
-        
         if (actualizarInterfaz) {
             stageUi.act(delta);
         }
 
         stageUi.draw();
 
-
         gestorHud.renderizarMensaje(batch, V_WIDTH, V_HEIGHT);
-        
         
         controlSueno.renderizarEfectoVisual(
             shapeRenderer, batch, camara, hudCamara, vp,
@@ -697,6 +668,7 @@ public class PantallaGranja extends ScreenAdapter {
     
     @Override
     public void resize(int width, int height) {
+    	
         vp.update(width, height);
         stageUi.getViewport().update(width, height, true);
     }
@@ -732,4 +704,6 @@ public class PantallaGranja extends ScreenAdapter {
             font.dispose();
         }
     }
+    
+    
 }

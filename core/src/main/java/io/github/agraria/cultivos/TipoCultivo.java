@@ -7,13 +7,13 @@ public enum TipoCultivo {
 
 	// Nombre, Precio Compra, Precio Venta, Min/Etapa, XP cosecha, Textura, TexturaItem, TexturaPodrido, Etapas, Nivel requerido
 
-	ZANAHORIA("Zanahoria", 10, 15, 60, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", "cultivos/cultivoPodrido.png", 4, 1),
-	PAPA("Papa", 20, 30, 60, 21, "cultivos/papaEtapas.png", "cultivos/papaItem.png", "cultivos/cultivoPodrido.png", 5, 3),
-	ARROZ("Arroz", 15, 22, 60, 18, "cultivos/arrozEtapas.png", "cultivos/arrozItem.png", "cultivos/cultivoPodrido.png", 5, 2),
-	BROCOLI("Brocoli", 25, 38, 60, 27, "cultivos/brocoliEtapas.png", "cultivos/brocoliItem.png", "cultivos/cultivoPodrido.png", 5, 5),
-	COLRIZADO("Col rizado", 20, 30, 60, 24, "cultivos/colrizadoEtapas.png", "cultivos/colrizadoItem.png", "cultivos/cultivoPodrido.png", 5, 4),
-	CALABAZA("Calabaza", 35, 55, 60, 31, "cultivos/calabazaEtapas.png", "cultivos/calabazaItem.png", "cultivos/cultivoPodrido.png", 6, 6),
-	MELON("Melon", 40, 65, 60, 35, "cultivos/melonEtapas.png", "cultivos/melonItem.png", "cultivos/cultivoPodrido.png", 6, 7);
+	ZANAHORIA("Zanahoria", 10, 15, 720, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", "cultivos/cultivoPodrido.png", 4, 1),
+	PAPA("Papa", 20, 30, 840, 21, "cultivos/papaEtapas.png", "cultivos/papaItem.png", "cultivos/cultivoPodrido.png", 5, 3),
+	ARROZ("Arroz", 15, 22, 780, 18, "cultivos/arrozEtapas.png", "cultivos/arrozItem.png", "cultivos/cultivoPodrido.png", 5, 2),
+	BROCOLI("Brocoli", 25, 38, 1080, 27, "cultivos/brocoliEtapas.png", "cultivos/brocoliItem.png", "cultivos/cultivoPodrido.png", 5, 5),
+	COLRIZADO("Col rizado", 20, 30, 960, 24, "cultivos/colrizadoEtapas.png", "cultivos/colrizadoItem.png", "cultivos/cultivoPodrido.png", 5, 4),
+	CALABAZA("Calabaza", 35, 55, 1200, 31, "cultivos/calabazaEtapas.png", "cultivos/calabazaItem.png", "cultivos/cultivoPodrido.png", 6, 6),
+	MELON("Melon", 40, 65, 1080, 35, "cultivos/melonEtapas.png", "cultivos/melonItem.png", "cultivos/cultivoPodrido.png", 6, 7);
 
     private final String nombre;
     private final int precioCompra;

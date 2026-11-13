@@ -70,6 +70,8 @@ public class ControlCultivos {
             return;
         }
 
+        gestorAudio.reproducirCosechar();
+        
         TipoCultivo tipo = cosechado.getTipo();
 
         Item itemCosecha;
