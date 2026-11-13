@@ -108,39 +108,40 @@ public class PantallaGranja extends ScreenAdapter {
     
     public PantallaGranja(Agraria juego) {
 
-        	this.juego = juego;
-            batch = new SpriteBatch();
-            jugador = new Personaje(125, 125);
-            shapeRenderer = new ShapeRenderer();
+    	this.juego = juego;
+        batch = new SpriteBatch();
+        jugador = new Personaje(125, 125);
+        shapeRenderer = new ShapeRenderer();
 
-            // =========================
-            // CÁMARA Y VIEWPORT
-            // =========================
+        
+        // -----------------------------------
+        // CÁMARA Y VIEWPORT
+        // -----------------------------------
 
-            camara = new OrthographicCamera();
-            vp = new FitViewport(V_WIDTH, V_HEIGHT, camara);
-            vp.apply();
-            camara.zoom = 0.5f;
-            
-            hudCamara = new OrthographicCamera();
-            hudCamara.setToOrtho(false, V_WIDTH, V_HEIGHT);
+        camara = new OrthographicCamera();
+        vp = new FitViewport(V_WIDTH, V_HEIGHT, camara);
+        vp.apply();
+        camara.zoom = 0.5f;
+        
+        hudCamara = new OrthographicCamera();
+        hudCamara.setToOrtho(false, V_WIDTH, V_HEIGHT);
 
-            FreeTypeFontGenerator generador = new FreeTypeFontGenerator(Gdx.files.internal("fuentes/VT323-Regular.ttf"));
+        FreeTypeFontGenerator generador = new FreeTypeFontGenerator(Gdx.files.internal("fuentes/VT323-Regular.ttf"));
 
-            FreeTypeFontGenerator.FreeTypeFontParameter parametros =
-                new FreeTypeFontGenerator.FreeTypeFontParameter();
+        FreeTypeFontGenerator.FreeTypeFontParameter parametros =
+            new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-            parametros.size = 22;
-            parametros.minFilter = Texture.TextureFilter.Nearest;
-            parametros.magFilter = Texture.TextureFilter.Nearest;
+        parametros.size = 22;
+        parametros.minFilter = Texture.TextureFilter.Nearest;
+        parametros.magFilter = Texture.TextureFilter.Nearest;
 
-            font = generador.generateFont(parametros);
+        font = generador.generateFont(parametros);
 
-            generador.dispose();
+        generador.dispose();
 
-            mapaGranja = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
-            pantallaTienda = new PantallaTienda();
-       
+        mapaGranja = new GestorMapa("pantallas/zona1/AgrariaMapa.tmx");
+        pantallaTienda = new PantallaTienda();
+   
         
         controlMapa = mapaGranja;
         
@@ -185,7 +186,7 @@ public class PantallaGranja extends ScreenAdapter {
         sistemaNiveles = new SistemaNiveles();
 
         gestorHud = new GestorHud(inventario, V_WIDTH, V_HEIGHT, font, sistemaNiveles);
-        controlSueno = new ControlSueno(gestorHud);
+        controlSueno = new ControlSueno(gestorHud, billetera, sistemaNiveles);
 
         controlSueno.setAlPonerseNegraPorDesmayo(() -> llevarJugadorACasa());
 
@@ -439,6 +440,8 @@ public class PantallaGranja extends ScreenAdapter {
         controlSueno.actualizar(delta, reloj, gestorCultivos);
         gestorHud.actualizar(delta);
 
+        controlSueno.verificarAvisoCansancio(reloj);
+        
         if (controlSueno.verificarDesmayoPorHorario(reloj)) {
 
             if (controlTienda != null && controlTienda.estaAbierta()) {

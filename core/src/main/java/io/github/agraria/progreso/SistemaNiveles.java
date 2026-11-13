@@ -1,3 +1,4 @@
+
 package io.github.agraria.progreso;
 
 import io.github.agraria.cultivos.TipoCultivo;
@@ -12,6 +13,8 @@ public class SistemaNiveles {
 
     private int nivel = 1;
     private int xpActual = 0;
+    private int xpGanadaHoy = 0;
+
     private Listener listener;
 
     public void setAlSubirNivel(Listener listener) {
@@ -19,9 +22,12 @@ public class SistemaNiveles {
     }
 
     public void ganarXp(int cantidad) {
+
         if (cantidad <= 0 || nivel >= NIVEL_MAXIMO) {
             return;
         }
+
+        xpGanadaHoy += cantidad;
 
         int nivelAnterior = nivel;
         xpActual += cantidad;
@@ -48,8 +54,21 @@ public class SistemaNiveles {
         return nivel >= tipo.getNivelRequerido();
     }
 
-    public int getNivel() { return nivel; }
-    public int getXpActual() { return xpActual; }
+    public int getNivel() {
+        return nivel;
+    }
+
+    public int getXpActual() {
+        return xpActual;
+    }
+
+    public int getXpGanadaHoy() {
+        return xpGanadaHoy;
+    }
+
+    public void reiniciarRegistroDiario() {
+        xpGanadaHoy = 0;
+    }
 
     public float getProgreso() {
         return nivel >= NIVEL_MAXIMO ? 1f : (float) xpActual / xpParaSiguienteNivel();

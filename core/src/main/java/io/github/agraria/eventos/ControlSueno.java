@@ -1,6 +1,8 @@
 package io.github.agraria.eventos;
 
 import io.github.agraria.cultivos.GestorCultivos;
+import io.github.agraria.economia.Billetera;
+import io.github.agraria.progreso.SistemaNiveles;
 import io.github.agraria.ui.GestorHud;
 import io.github.tiempo.Reloj;
 
@@ -15,7 +17,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class ControlSueno {
 
-    public enum EstadoTransicion { IDLE, FADE_OUT, FAST_FORWARD, FADE_IN }
+	public enum EstadoTransicion {IDLE, FADE_OUT, FAST_FORWARD, RESUMEN, FADE_IN}
+	
     private EstadoTransicion estadoTransicion = EstadoTransicion.IDLE;
 
     private float fadeAlpha = 0f;
@@ -28,15 +31,24 @@ public class ControlSueno {
     private int horaDespertar;
 
     private boolean desmayado = false;
+    private boolean avisoCansancioMostrado = false;
     private Runnable alPonerseNegraPorDesmayo;
 
 	private GestorHud gestorHud;
+	
+	private Billetera billetera;
+	private SistemaNiveles sistemaNiveles;
+
+	private float tiempoResumen = 0f;
+	private static final float DURACION_RESUMEN = 4f;
 
     
-	public ControlSueno(GestorHud gestorHud) {
-		
+	public ControlSueno(GestorHud gestorHud, Billetera billetera,
+            SistemaNiveles sistemaNiveles) {
+
 		this.gestorHud = gestorHud;
-		
+		this.billetera = billetera;
+		this.sistemaNiveles = sistemaNiveles;
 	}
 
     public void setAlPonerseNegraPorDesmayo(Runnable accion) {
@@ -57,7 +69,7 @@ public class ControlSueno {
             targetDiaDormir = reloj.getDias() + 1;
             this.horaDespertar = horaDespertar;
             this.desmayado = false;
-
+            avisoCansancioMostrado = false;
             estadoTransicion = EstadoTransicion.FADE_OUT;
 
         }
@@ -99,10 +111,25 @@ public class ControlSueno {
                 gestorCultivos.pasarTiempo(minutosAvanzadosEsteFrame);
             }
 
-            if (reloj.getDias() == targetDiaDormir &&
-                reloj.getHoras() >= horaDespertar) {
-
+            if (reloj.getDias() == targetDiaDormir && reloj.getHoras() >= horaDespertar) {
                 gestorCultivos.procesarPudrir();
+
+                tiempoResumen = 0f;
+                estadoTransicion = EstadoTransicion.RESUMEN;
+            }
+            
+        }
+        
+        
+        else if (estadoTransicion == EstadoTransicion.RESUMEN) {
+
+            tiempoResumen += delta;
+
+            if (tiempoResumen >= DURACION_RESUMEN) {
+
+                billetera.reiniciarRegistroDiario();
+                sistemaNiveles.reiniciarRegistroDiario();
+
                 estadoTransicion = EstadoTransicion.FADE_IN;
             }
         }
@@ -153,7 +180,46 @@ public class ControlSueno {
             layout.setText(font, "Dia: " + reloj.getDias());
             font.draw(batch, layout, centroX - layout.width / 2f, centroY - 40);
 
-        } else if (estadoTransicion == EstadoTransicion.FADE_IN) {
+        } 
+        
+        else if (estadoTransicion == EstadoTransicion.RESUMEN) {
+
+            font.getData().setScale(1.3f);
+
+            layout.setText(font, "Resumen del dia");
+            font.draw(batch, layout,
+                    centroX - layout.width / 2f, centroY + 100);
+
+            String monedasGanadas = "Monedas ganadas: +"
+                    + billetera.getMonedasGanadas();
+
+            layout.setText(font, monedasGanadas);
+            font.draw(batch, layout,
+                    centroX - layout.width / 2f, centroY + 45);
+
+            String monedasGastadas = "Monedas gastadas: -"
+                    + billetera.getMonedasGastadas();
+
+            layout.setText(font, monedasGastadas);
+            font.draw(batch, layout,
+                    centroX - layout.width / 2f, centroY + 5);
+
+            String experiencia = "Experiencia obtenida: +"
+                    + sistemaNiveles.getXpGanadaHoy();
+
+            layout.setText(font, experiencia);
+            font.draw(batch, layout,
+                    centroX - layout.width / 2f, centroY - 35);
+
+            String nivel = "Nivel actual: "
+                    + sistemaNiveles.getNivel();
+
+            layout.setText(font, nivel);
+            font.draw(batch, layout,
+                    centroX - layout.width / 2f, centroY - 75);
+        }
+        
+        else if (estadoTransicion == EstadoTransicion.FADE_IN) {
             layout.setText(font, "¡Buenos días!");
             font.draw(batch, layout, centroX - layout.width / 2f, centroY + 30);
 
@@ -174,6 +240,23 @@ public class ControlSueno {
 
         return false;
     }
+    
+    
+    
+    public void verificarAvisoCansancio(Reloj reloj) {
+
+        if (estadoTransicion != EstadoTransicion.IDLE) return;
+
+        if (!avisoCansancioMostrado &&
+            reloj.getHoras() == 1 &&
+            reloj.getMinutos() == 0) {
+
+            gestorHud.mostrarMensaje("Estas demasiado cansado... ¡Deberias dormir!");
+
+            avisoCansancioMostrado = true;
+        }
+    }
+    
     
     
     public boolean estaDurmiendo() {

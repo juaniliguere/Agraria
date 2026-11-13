@@ -13,6 +13,7 @@ public class GestorAudio {
     private static float volumenSonidos = 1.0f;
     
     private Sound sonidoPlantar;
+    private Sound cosechar;
     private Sound apretarBoton;
     private Sound abrirTienda;
     private Sound comprar;
@@ -23,13 +24,11 @@ public class GestorAudio {
     public GestorAudio() {
 
 
-        sonidoPlantar = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/plantar.wav")
-        );
+        sonidoPlantar = Gdx.audio.newSound(Gdx.files.internal("sonidos/plantar.wav"));
+        
+        cosechar = Gdx.audio.newSound(Gdx.files.internal("sonidos/cosechar.wav"));
 
-        apretarBoton = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/apretarBoton.wav")
-        );
+        apretarBoton = Gdx.audio.newSound(Gdx.files.internal("sonidos/apretarBoton.wav"));
 
         abrirTienda = Gdx.audio.newSound(Gdx.files.internal("sonidos/abrirTienda.wav"));
         
@@ -104,7 +103,12 @@ public class GestorAudio {
         }
     }
     
-    
+    public void reproducirCosechar() {
+    	
+        if (cosechar != null) {
+            cosechar.play(volumenSonidos);
+        }
+    }
     
 
     public void reproducirApretarBoton() {
@@ -168,6 +172,11 @@ public class GestorAudio {
         if (sonidoPlantar != null) {
             sonidoPlantar.dispose();
             sonidoPlantar = null;
+        }
+        
+        if (cosechar != null) {
+            cosechar.dispose();
+            cosechar = null;
         }
 
         if (apretarBoton != null) {
