@@ -52,7 +52,7 @@ public class ControlClima {
     
     public void sortearClimaDiario() {
 
-        float probabilidadLluvia = 0.20f;
+        float probabilidadLluvia = 0.38f;
         lluviaActiva = MathUtils.random() < probabilidadLluvia;
 
         if (lluviaActiva) {

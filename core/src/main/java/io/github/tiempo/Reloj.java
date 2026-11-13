@@ -2,7 +2,7 @@ package io.github.tiempo;
 
 public class Reloj {
 
-    private static final float SEGS_POR_MIN_JUEGO = 0.01f;
+    private static final float SEGS_POR_MIN_JUEGO = 0.1f;
 	
     private int minutos;
     private int horas;
