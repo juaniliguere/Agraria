@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import io.github.agraria.Agraria;
+import com.badlogic.gdx.Input;
 
 public class PantallaInicio extends ScreenAdapter {
 
@@ -37,6 +38,8 @@ public class PantallaInicio extends ScreenAdapter {
         this.juego = juego;
     }
 
+
+    
     @Override
     public void show() {
         batch = new SpriteBatch();
@@ -53,68 +56,80 @@ public class PantallaInicio extends ScreenAdapter {
         );
     }
 
-
-@Override
-public void render(float delta) {
-
-    Gdx.gl.glClearColor(0, 0, 0, 1);
-    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-    tiempo += delta;
-
-    if (tiempo < DURACION_FADE_IN) {
-
-        alpha = tiempo / DURACION_FADE_IN;
-
-    } else if (tiempo < DURACION_FADE_IN + DURACION_ESPERA) {
-
-        alpha = 1f;
-
-    } else if (tiempo < DURACION_FADE_IN
-            + DURACION_ESPERA + DURACION_FADE_OUT) {
-
-                float tiempoFadeOut =
-            tiempo - DURACION_FADE_IN - DURACION_ESPERA;
-
-        alpha = 1f - (tiempoFadeOut / DURACION_FADE_OUT);
-
-    } else {
-
-        alpha = 0f;
+    
+    private void saltarIntro() {
         juego.setScreen(new PantallaMenu(juego));
-        return;
     }
-
     
 
-    
-    float progreso = Math.min(tiempo / DURACION_CRECIMIENTO, 1f);
-    float ancho = TAMANO_INICIAL +
-    	    (TAMANO_FINAL - TAMANO_INICIAL) * progreso;
-    float alto = ancho * logo.getHeight() / logo.getWidth();
-
-    float centroX = Gdx.graphics.getWidth() / 2f;
-    float centroY = Gdx.graphics.getHeight() / 2f;
-
-    float x = (ANCHO_MUNDO - ancho) / 2f;
-    float y = (ALTO_MUNDO - alto) / 2f;
-
-    batch.setProjectionMatrix(camara.combined);
-
-    batch.begin();
-
-    batch.setColor(1f, 1f, 1f, alpha);
-    batch.draw(logo, x, y, ancho, alto);
-    batch.setColor(1f, 1f, 1f, 1f);
-
-    batch.end();
-}
-
-
-@Override
-public void resize(int width, int height) {
-    viewport.update(width, height, true);
-}
+	@Override
+	public void render(float delta) {
+	
+	    Gdx.gl.glClearColor(0, 0, 0, 1);
+	    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	    
+	    if (Gdx.input.justTouched()
+	            || Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
+	
+	        saltarIntro();
+	        return;
+	    }
+	
+	    tiempo += delta;
+	
+	    if (tiempo < DURACION_FADE_IN) {
+	
+	        alpha = tiempo / DURACION_FADE_IN;
+	
+	    } else if (tiempo < DURACION_FADE_IN + DURACION_ESPERA) {
+	
+	        alpha = 1f;
+	
+	    } else if (tiempo < DURACION_FADE_IN
+	            + DURACION_ESPERA + DURACION_FADE_OUT) {
+	
+	                float tiempoFadeOut =
+	            tiempo - DURACION_FADE_IN - DURACION_ESPERA;
+	
+	        alpha = 1f - (tiempoFadeOut / DURACION_FADE_OUT);
+	
+	    } else {
+	
+	        alpha = 0f;
+	        saltarIntro();
+	        return;
+	    }
+	
+	    
+	
+	    
+	    float progreso = Math.min(tiempo / DURACION_CRECIMIENTO, 1f);
+	    float ancho = TAMANO_INICIAL +
+	    	    (TAMANO_FINAL - TAMANO_INICIAL) * progreso;
+	    float alto = ancho * logo.getHeight() / logo.getWidth();
+	
+	    float centroX = Gdx.graphics.getWidth() / 2f;
+	    float centroY = Gdx.graphics.getHeight() / 2f;
+	
+	    float x = (ANCHO_MUNDO - ancho) / 2f;
+	    float y = (ALTO_MUNDO - alto) / 2f;
+	
+	    batch.setProjectionMatrix(camara.combined);
+	
+	    batch.begin();
+	
+	    batch.setColor(1f, 1f, 1f, alpha);
+	    batch.draw(logo, x, y, ancho, alto);
+	    batch.setColor(1f, 1f, 1f, 1f);
+	
+	    batch.end();
+	}
+	
+	
+	@Override
+	public void resize(int width, int height) {
+	    viewport.update(width, height, true);
+	}
 
 
     @Override
