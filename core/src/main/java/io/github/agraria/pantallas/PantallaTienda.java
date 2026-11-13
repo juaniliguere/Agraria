@@ -10,11 +10,9 @@ public class PantallaTienda {
 
     private boolean jugadorDentro = false;
 
-    // Posición del jugador antes de entrar
     private float posicionAnteriorX;
     private float posicionAnteriorY;
 
-    // Posición inicial dentro de la tienda
     private static final float POSICION_INICIAL_X = 80;
     private static final float POSICION_INICIAL_Y = 30;
 
@@ -24,9 +22,6 @@ public class PantallaTienda {
         );
     }
 
-    // =========================
-    // ENTRAR Y SALIR
-    // =========================
 
     public void entrar(Personaje jugador) {
 
@@ -97,10 +92,6 @@ public class PantallaTienda {
         return zonaSalir.contains(jugador.getCentroX(), jugador.getPiesY());
     }
 
-    // =========================
-    // GETTERS
-    // =========================
-
     public GestorMapa getMapa() {
         return mapa;
     }
@@ -109,9 +100,6 @@ public class PantallaTienda {
         return jugadorDentro;
     }
 
-    // =========================
-    // LIBERAR RECURSOS
-    // =========================
 
     public void dispose() {
         mapa.dispose();

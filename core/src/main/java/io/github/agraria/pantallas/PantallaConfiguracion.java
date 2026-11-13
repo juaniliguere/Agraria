@@ -29,6 +29,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 
 import io.github.agraria.Agraria;
 import io.github.agraria.sonidos.GestorAudio;
@@ -90,7 +91,6 @@ public class PantallaConfiguracion extends ScreenAdapter {
         viewport = new StretchViewport(MAP_WIDTH, MAP_HEIGHT, camera);
         viewport.apply();
 
-        // --- ACÁ ESTÁ EL SECRETO: Centrar la cámara en la mitad del mapa ---
         camera.position.set(MAP_WIDTH / 2f, MAP_HEIGHT / 2f, 0);
         camera.update();
 
@@ -98,6 +98,18 @@ public class PantallaConfiguracion extends ScreenAdapter {
         
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
+
+        stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    ((Game) Gdx.app.getApplicationListener())
+                        .setScreen(pantallaAnterior);
+                    return true;
+                }
+                return false;
+            }
+        });
         
         texturaVolver = new Texture(Gdx.files.internal("pantallas/menu/back_dark_12x12.png"));
 
@@ -121,7 +133,6 @@ public class PantallaConfiguracion extends ScreenAdapter {
         		    }
         		});
         		
-        		// Texturas de los sliders
         		texturaSliderTrack = new Texture(Gdx.files.internal("pantallas/menu/slider_track_64x8.png"));
 
         		texturaSliderFill = new Texture(Gdx.files.internal("pantallas/menu/slider_fill_64x8.png"));
@@ -139,13 +150,11 @@ public class PantallaConfiguracion extends ScreenAdapter {
         		texturaSliderKnobPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		
         		
-        		// Crear los sliders
         		Slider.SliderStyle estiloSlider = crearEstiloSlider();
 
         		sliderMusica = new Slider(0f, 1f, 0.01f, false, estiloSlider);
         		sliderSonidos = new Slider(0f, 1f, 0.01f, false, estiloSlider);
 
-        		// Establecer los volúmenes actuales
         		sliderMusica.setValue(GestorAudio.getVolumenMusica());
         		sliderSonidos.setValue(GestorAudio.getVolumenSonidos());
         		
@@ -163,12 +172,10 @@ public class PantallaConfiguracion extends ScreenAdapter {
         		    }
         		});
         		
-        		// Textura del panel
         		texturaPanel = new Texture(
         		    Gdx.files.internal("pantallas/menu/panel_48x48.png")
         		);
 
-        		// Texturas de los botones
         		texturaBotonNormal = new Texture(
         		    Gdx.files.internal("pantallas/menu/button_L_normal.png")
         		);
@@ -186,34 +193,26 @@ public class PantallaConfiguracion extends ScreenAdapter {
         		texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		
-        		// Crear el panel NinePatch
         		panelConfiguracion = new NinePatch(texturaPanel, 12, 12, 12, 12);
 
-        		// Cargar fuente
         		gestorFuentes = new GestorFuentes();
         		gestorFuentes.cargar();
         		fuente = gestorFuentes.getFuentePrincipal();
         		
-        		// Panel principal
         		panelPrincipal = new Table();
         		panelPrincipal.setBackground(new NinePatchDrawable(panelConfiguracion));
 
-        		// Dimensiones del panel
         		panelPrincipal.setSize(280, 200);
 
-        		// Centrar el panel en la pantalla
         		panelPrincipal.setPosition(
         		    MAP_WIDTH / 2f - panelPrincipal.getWidth() / 2f,
         		    MAP_HEIGHT / 2f - panelPrincipal.getHeight() / 2f
         		);
 
-        		// Tabla interna
         		tablaConfiguracion = new Table();
 
-        		// Agregar tabla interna al panel
         		panelPrincipal.add(tablaConfiguracion).expand().fill();
 
-        		// Agregar panel al Stage
         		stage.addActor(panelPrincipal);
         		
         		btnVolver.setSize(25, 25);
@@ -223,24 +222,22 @@ public class PantallaConfiguracion extends ScreenAdapter {
         		);
         		stage.addActor(btnVolver);
         		
-        		// Estilo de los textos
         		Label.LabelStyle estiloTexto = crearEstiloTexto();
 
-        		// Título
+        		
         		Label titulo = new Label("CONFIGURACIÓN", estiloTexto);
 
-        		// Etiquetas de volumen
+        	
         		lblMusica = new Label("MÚSICA", estiloTexto);
         		lblSonidos = new Label("SONIDOS", estiloTexto);
         		
-        		// Agregar título
+        
         		tablaConfiguracion.add(titulo).colspan(2).padBottom(20).row();
 
-        		// Fila de música
+        	
         		tablaConfiguracion.add(lblMusica).left().padRight(15);
         		tablaConfiguracion.add(sliderMusica).width(100).row();
 
-        		// Fila de sonidos
         		tablaConfiguracion.add(lblSonidos).left().padRight(15);
         		tablaConfiguracion.add(sliderSonidos).width(100);
         		
@@ -279,27 +276,22 @@ public class PantallaConfiguracion extends ScreenAdapter {
 
         Slider.SliderStyle estilo = new Slider.SliderStyle();
 
-        // Barra de fondo
         estilo.background = new TextureRegionDrawable(
             new TextureRegion(texturaSliderTrack)
         );
 
-        // Relleno de la barra
         estilo.knobBefore = new TextureRegionDrawable(
             new TextureRegion(texturaSliderFill)
         );
 
-        // Perilla normal
         estilo.knob = new TextureRegionDrawable(
             new TextureRegion(texturaSliderKnobNormal)
         );
 
-        // Perilla al pasar el cursor
         estilo.knobOver = new TextureRegionDrawable(
             new TextureRegion(texturaSliderKnobHover)
         );
 
-        // Perilla al mantener presionado
         estilo.knobDown = new TextureRegionDrawable(
             new TextureRegion(texturaSliderKnobPresionado)
         );
@@ -314,7 +306,6 @@ public class PantallaConfiguracion extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Asegurate de actualizar la cámara antes de pasarla al renderer
         camera.update();
         renderer.setView(camera);
         renderer.render();

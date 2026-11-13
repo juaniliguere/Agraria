@@ -15,6 +15,8 @@ public class ControlEntrada extends InputAdapter {
 	
 
     private boolean solicitioSalirMenu = false;
+
+    @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
         	
@@ -28,7 +30,9 @@ public class ControlEntrada extends InputAdapter {
         return solicitioSalirMenu;
     }
 
+    public void limpiarSolicitudSalirMenu() {
+        solicitioSalirMenu = false;
+    }
+
   
 }
-
-

@@ -62,22 +62,18 @@ public void render(float delta) {
 
     tiempo += delta;
 
-    // Calcular la transparencia del logo
     if (tiempo < DURACION_FADE_IN) {
 
-        // Fade In
         alpha = tiempo / DURACION_FADE_IN;
 
     } else if (tiempo < DURACION_FADE_IN + DURACION_ESPERA) {
 
-        // Mantener visible
         alpha = 1f;
 
     } else if (tiempo < DURACION_FADE_IN
             + DURACION_ESPERA + DURACION_FADE_OUT) {
 
-        // Fade Out
-        float tiempoFadeOut =
+                float tiempoFadeOut =
             tiempo - DURACION_FADE_IN - DURACION_ESPERA;
 
         alpha = 1f - (tiempoFadeOut / DURACION_FADE_OUT);
@@ -89,7 +85,6 @@ public void render(float delta) {
         return;
     }
 
-    // Dibujar logo
     
 
     

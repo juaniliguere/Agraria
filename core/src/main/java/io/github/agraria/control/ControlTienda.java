@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import io.github.agraria.economia.Billetera;
 import io.github.agraria.inventario.Inventario;
+import io.github.agraria.progreso.SistemaNiveles;
 import io.github.agraria.sonidos.GestorAudio;
 import io.github.agraria.tienda.VentanaTienda;
 import io.github.agraria.ui.GestorHud;
@@ -20,9 +21,11 @@ public class ControlTienda {
     private ControlJugador controlJugador;
 	private GestorAudio gestorAudio;
 	private GestorHud gestorHud;
+	private SistemaNiveles sistemaNiveles;
 	
     public ControlTienda(Stage stage, Billetera billetera,
-                         Inventario inventario, Skin skin, ControlJugador controlJugador, GestorHud gestorHud) {
+                         Inventario inventario, Skin skin, ControlJugador controlJugador,
+                         GestorHud gestorHud, SistemaNiveles sistemaNiveles) {
 
         this.stage = stage;
         this.billetera = billetera;
@@ -31,18 +34,18 @@ public class ControlTienda {
         this.controlJugador = controlJugador;
         this.gestorAudio = new GestorAudio();
         this.gestorHud = gestorHud;
+        this.sistemaNiveles = sistemaNiveles;
         
     }
 
     public void abrir() {
 
-        // Evitar crear varias ventanas
         if (ventana != null && ventana.estaAbierta()) {
             return;
             
         }
 
-        ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio, gestorHud);
+        ventana = new VentanaTienda(stage, billetera, inventario, skin, gestorAudio, gestorHud, sistemaNiveles);
         
         gestorAudio.reproducirAbrirTienda();
         
@@ -55,8 +58,8 @@ public class ControlTienda {
     public void cerrar() {
         if (ventana != null) {
             ventana.cerrarVentana(); 
-            gestorAudio.reproducirAbrirTienda();// Llama al método que limpia la ventana del Stage
-            ventana = null;          // Limpiamos la referencia para poder abrirla de cero después
+            gestorAudio.reproducirAbrirTienda();
+            ventana = null;          
         }
 
         

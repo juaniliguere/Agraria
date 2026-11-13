@@ -15,6 +15,7 @@ import io.github.agraria.control.ControlEntrada;
 import io.github.agraria.control.ControlJugador;
 import io.github.agraria.control.ControlTienda;
 import io.github.agraria.personajes.Personaje;
+import io.github.agraria.progreso.SistemaNiveles;
 import io.github.tiempo.Reloj;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -30,10 +31,12 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -96,6 +99,8 @@ public class PantallaGranja extends ScreenAdapter {
     
     private GestorHud gestorHud;
     
+    private SistemaNiveles sistemaNiveles;
+    
     private float tiempoFadeEntrada = 0f;
     private static final float DURACION_FADE_ENTRADA = 1.2f;
 
@@ -148,7 +153,6 @@ public class PantallaGranja extends ScreenAdapter {
 
         this.billetera = new Billetera(100);
         
-     // Stage con la cámara fija del HUD para que no se mueva con el zoom del mapa
         stageUi = new Stage(new FitViewport(V_WIDTH, V_HEIGHT, hudCamara));
         skinUi = new Skin(Gdx.files.internal("uiskin.json"));
         skinUi.get("default", Label.LabelStyle.class).font = font;
@@ -174,10 +178,28 @@ public class PantallaGranja extends ScreenAdapter {
         reloj = new Reloj();
         controlClima = new ControlClima(gestorCultivos, gestorAudio);
 
-        gestorHud = new GestorHud(inventario, V_WIDTH, V_HEIGHT, font);
+        // =========================
+        // SISTEMA DE NIVELES
+        // =========================
+
+        sistemaNiveles = new SistemaNiveles();
+
+        gestorHud = new GestorHud(inventario, V_WIDTH, V_HEIGHT, font, sistemaNiveles);
         controlSueno = new ControlSueno(gestorHud);
+
+        controlSueno.setAlPonerseNegraPorDesmayo(() -> llevarJugadorACasa());
+
+        sistemaNiveles.setAlSubirNivel((anterior, nuevo) -> {
+            StringBuilder msg = new StringBuilder("¡Nivel " + nuevo + "!");
+            for (TipoCultivo t : TipoCultivo.values()) {
+                if (t.getNivelRequerido() > anterior && t.getNivelRequerido() <= nuevo) {
+                    msg.append(" Semilla desbloqueada: ").append(t.getNombre());
+                }
+            }
+            gestorHud.mostrarMensaje(msg.toString());
+        });
         
-        controlCultivos = new ControlCultivos(gestorCultivos, inventario, gestorAudio);   
+        controlCultivos = new ControlCultivos(gestorCultivos, inventario, gestorAudio, sistemaNiveles);   
     }
     
 
@@ -205,11 +227,10 @@ public class PantallaGranja extends ScreenAdapter {
         controlEntrada = new ControlEntrada();
 
         if (controlTienda == null) {
-            controlTienda = new ControlTienda(stageUi, billetera, inventario, skinUi, controlJugador, gestorHud);
+            controlTienda = new ControlTienda(stageUi, billetera, inventario, skinUi, controlJugador, gestorHud, sistemaNiveles);
         }
         
         
-    	// Acciones del jugador en la granja
     	controlJugador.setAccionDormir(() -> procesarDormir());
 
     	controlJugador.setAccionTienda(() -> procesarAbrirTienda());
@@ -284,6 +305,58 @@ public class PantallaGranja extends ScreenAdapter {
     
     
     
+    private void llevarJugadorACasa() {
+
+        if (pantallaTienda.estaDentro()) {
+            entrarSalirTienda();
+        }
+
+        if (zonaDormir == null) {
+            return;
+        }
+
+        float offsetPies = jugador.getPiesY() - jugador.getY();
+
+        float baseX = zonaDormir.x + (zonaDormir.width / 2f) - (jugador.getAncho() / 2f);
+        float baseY = zonaDormir.y + (zonaDormir.height / 2f) - offsetPies;
+
+        Array<Polygon> colisiones = controlMapa.getColisionesMapa();
+
+        float maxX = Math.max(0, controlMapa.getAnchoMapaPixels() - jugador.getAncho());
+        float maxY = Math.max(0, controlMapa.getAltoMapaPixels() - jugador.getAlto());
+
+        float destinoX = baseX;
+        float destinoY = baseY;
+
+        if (jugador.chocaEn(baseX, baseY, colisiones)) {
+
+            boolean encontrado = false;
+
+            for (float radio = 4f; radio <= 300f && !encontrado; radio += 4f) {
+
+                for (int paso = 0; paso < 24; paso++) {
+
+                    int grados = (270 + paso * 15) % 360;
+
+                    float px = MathUtils.clamp(baseX + MathUtils.cosDeg(grados) * radio, 0, maxX);
+                    float py = MathUtils.clamp(baseY + MathUtils.sinDeg(grados) * radio, 0, maxY);
+
+                    if (!jugador.chocaEn(px, py, colisiones)) {
+                        destinoX = px;
+                        destinoY = py;
+                        encontrado = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        jugador.setPosicion(destinoX, destinoY);
+    }
+    
+    
+    
+    
     public void intentarEntrarSalirTienda() {
     	
         if (!pantallaTienda.estaDentro()) {
@@ -341,11 +414,19 @@ public class PantallaGranja extends ScreenAdapter {
         ScreenUtils.clear(0, 0, 0, 1);
 
         if (controlJugador != null) {
+            controlJugador.setAccionesBloqueadas(controlSueno.estaDurmiendo());
             controlJugador.actualizarMovimiento();
         }
 
-        if (controlEntrada != null && controlEntrada.isSolicitioSalirMenu() && !isSaliendoAlMenu) {
-            isSaliendoAlMenu = true;
+        if (controlEntrada != null && controlEntrada.isSolicitioSalirMenu()) {
+
+            controlEntrada.limpiarSolicitudSalirMenu();
+
+            if (controlTienda != null && controlTienda.estaAbierta()) {
+                controlTienda.cerrar();
+            } else {
+                isSaliendoAlMenu = true;
+            }
         }
     
         if (isSaliendoAlMenu) {
@@ -359,6 +440,15 @@ public class PantallaGranja extends ScreenAdapter {
         gestorHud.actualizar(delta);
 
         if (controlSueno.verificarDesmayoPorHorario(reloj)) {
+
+            if (controlTienda != null && controlTienda.estaAbierta()) {
+                controlTienda.cerrar();
+            }
+
+            if (controlJugador != null) {
+                controlJugador.setAccionesBloqueadas(true);
+            }
+
             controlClima.sortearClimaDiario();
         }
         
@@ -535,6 +625,8 @@ public class PantallaGranja extends ScreenAdapter {
             mostrarClima
         );
 
+        renderizarIluminacionNocturna();
+
         gestorHud.renderizar(batch, reloj, billetera, V_WIDTH, V_HEIGHT);
 
         
@@ -552,8 +644,6 @@ public class PantallaGranja extends ScreenAdapter {
             shapeRenderer, batch, camara, hudCamara, vp,
             font, reloj, V_WIDTH, V_HEIGHT
         );
-
-        renderizarIluminacionNocturna();
     }
     
     

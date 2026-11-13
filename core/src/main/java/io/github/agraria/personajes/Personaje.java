@@ -21,7 +21,6 @@ public class Personaje {
     public float dirY = 0;
 
 
-    // --- SPRITES Y ANIMACIONES ---
     private Texture spriteSheet;
     
     private Animation<TextureRegion> animAbajo;
@@ -36,7 +35,6 @@ public class Personaje {
     private float anchoFrame;
     private float altoFrame;
 
-    // 0: Abajo, 1: Derecha/Izquierda, 2: Arriba
     private int ultimaDireccion = 0; 
     private boolean mirandoIzquierda = false;
 
@@ -44,11 +42,9 @@ public class Personaje {
         this.x = xInicial;
         this.y = yInicial;
         
-        // 1. Cargar la Spritesheet de 3x3
         this.spriteSheet = new Texture("personaje/pj_spritesheet.png");
         this.spriteSheet.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        // 2. Cortar la hoja en 3 filas y 3 columnas
         int anchoTotal = spriteSheet.getWidth();
         int altoTotal = spriteSheet.getHeight();
         
@@ -57,18 +53,16 @@ public class Personaje {
         this.anchoFrame = anchoTotal / 3f;
         this.altoFrame = altoTotal / 3f;
 
-        // 3. Configurar Frames Estáticos (Columna 0 de cada fila)
-        frameEstaticoAbajo = tmp[0][0];   // Fila 0, Columna 0
-        frameEstaticoDerecha = tmp[1][0]; // Fila 1, Columna 0
-        frameEstaticoArriba = tmp[2][0];  // Fila 2, Columna 0
 
-        // 4. Configurar Animaciones de caminata (Paso1, Quieto, Paso2)
+        frameEstaticoAbajo = tmp[0][0];   
+        frameEstaticoDerecha = tmp[1][0]; 
+        frameEstaticoArriba = tmp[2][0];  
+
         float duracionPaso = 0.15f;
         animAbajo = new Animation<TextureRegion>(duracionPaso, tmp[0][1], tmp[0][0], tmp[0][2]);
         animDerecha = new Animation<TextureRegion>(duracionPaso, tmp[1][1], tmp[1][0], tmp[1][2]);
         animArriba = new Animation<TextureRegion>(duracionPaso, tmp[2][1], tmp[2][0], tmp[2][2]);
 
-        // Hitbox en la base/pies del personaje
         this.hitbox = new Rectangle(x, y, anchoFrame, altoFrame / 2f);
         
         this.hitboxPoly = new Polygon(new float[]{
@@ -89,9 +83,8 @@ public class Personaje {
         float xAnterior = x;
         float yAnterior = y;
 
-        // --- ACTUALIZAR DIRECCIÓN DE ANIMACIÓN ---
         if (dirX != 0 || dirY != 0) {
-            stateTime += delta; // Avanza tiempo de la caminata
+            stateTime += delta; 
 
             if (dirX < 0) {
                 ultimaDireccion = 1;
@@ -100,16 +93,18 @@ public class Personaje {
                 ultimaDireccion = 1;
                 mirandoIzquierda = false;
             } else if (dirY > 0) {
-                ultimaDireccion = 2; // Arriba
+                ultimaDireccion = 2; 
             } else if (dirY < 0) {
-                ultimaDireccion = 0; // Abajo
+                ultimaDireccion = 0; 
             }
         } else {
-            stateTime = 0f; // Reiniciar animación al frenar
+            stateTime = 0f; 
         }
 
-        // LÓGICA DE MOVIMIENTO Y COLISIONES 
-        x += dirX * VELOCIDAD * delta;
+
+        float factorVelocidad = (dirX != 0 && dirY != 0) ? 0.7071f : 1f;
+
+        x += dirX * VELOCIDAD * factorVelocidad * delta;
         hitboxPoly.setPosition(x, y);
         
         for (Polygon colision : colisiones) {
@@ -119,7 +114,7 @@ public class Personaje {
             }
         }
 
-        y += dirY * VELOCIDAD * delta;
+        y += dirY * VELOCIDAD * factorVelocidad * delta;
 
         hitboxPoly.setPosition(x, y);
         
@@ -133,7 +128,6 @@ public class Personaje {
         float maxX = Math.max(0, limiteAncho - anchoFrame);
         float maxY = Math.max(0, limiteAlto - altoFrame);
 
-        // Límites de los bordes del mapa
         x = MathUtils.clamp(x, 0, maxX);
         y = MathUtils.clamp(y, 0, maxY);
 
@@ -146,22 +140,20 @@ public class Personaje {
 
         boolean enMovimiento = (dirX != 0 || dirY != 0);
 
-        // Selección del frame según la dirección actual
+
         switch (ultimaDireccion) {
-            case 0: // ABAJO
+            case 0: 
                 currentFrame = enMovimiento ? animAbajo.getKeyFrame(stateTime, true) : frameEstaticoAbajo;
                 break;
-            case 1: // DERECHA / IZQUIERDA
+            case 1: 
                 currentFrame = enMovimiento ? animDerecha.getKeyFrame(stateTime, true) : frameEstaticoDerecha;
                 break;
-            case 2: // ARRIBA
+            case 2:
                 currentFrame = enMovimiento ? animArriba.getKeyFrame(stateTime, true) : frameEstaticoArriba;
                 break;
         }
 
-        // DIBUJAR CON FLIP EN X SI MIRA A LA IZQUIERDA
         if (mirandoIzquierda && ultimaDireccion == 1) {
-            // Se suma anchoFrame a la posición X y se pasa -anchoFrame para invertir horizontalmente
             batch.draw(currentFrame, x + anchoFrame, y, -anchoFrame, altoFrame);
         } else {
             batch.draw(currentFrame, x, y, anchoFrame, altoFrame);
@@ -172,13 +164,30 @@ public class Personaje {
         this.x = x;
         this.y = y;
 
-        // Actualizar las hitboxes
         hitbox.setPosition(x, y);
         hitboxPoly.setPosition(x, y);
 
-        // Detener el movimiento
+
         dirX = 0;
         dirY = 0;
+    }
+    
+    public boolean chocaEn(float px, float py, Array<Polygon> colisiones) {
+
+        hitboxPoly.setPosition(px, py);
+
+        boolean choca = false;
+
+        for (Polygon colision : colisiones) {
+            if (Intersector.overlapConvexPolygons(hitboxPoly, colision)) {
+                choca = true;
+                break;
+            }
+        }
+
+        hitboxPoly.setPosition(x, y);
+
+        return choca;
     }
     
     public void liberarRecursos() {

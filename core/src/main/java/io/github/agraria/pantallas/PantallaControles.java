@@ -3,6 +3,7 @@ package io.github.agraria.pantallas;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -29,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 
 import io.github.agraria.Agraria;
 import io.github.agraria.sonidos.GestorAudio;
@@ -51,20 +54,20 @@ public class PantallaControles extends ScreenAdapter {
     private Texture texturaSliderKnobPresionado;
     
     
- // Recursos del panel
+
     private Texture texturaPanel;
     private NinePatch panelConfiguracion;
 
-    // Botones
+
+    private Texture texturaControles;
+
     private Texture texturaBotonNormal;
     private Texture texturaBotonPresionado;
     private Texture texturaBotonHover;
 
-    // Fuente
     private GestorFuentes gestorFuentes;
     private BitmapFont fuente;
 
-    // Tablas
     private Table panelPrincipal;
     private Table tablaConfiguracion;
     
@@ -75,6 +78,11 @@ public class PantallaControles extends ScreenAdapter {
     
     private static final float MAP_WIDTH = 480; 
     private static final float MAP_HEIGHT = 320;
+
+    private static final float PANEL_ANCHO = 440;
+    private static final float PANEL_ALTO = 290;
+    private static final float IMAGEN_ANCHO = 410;
+    private static final float IMAGEN_ALTO = 225;
 
     public PantallaControles(Screen pantallaAnterior) {
         this.pantallaAnterior = pantallaAnterior;
@@ -87,8 +95,7 @@ public class PantallaControles extends ScreenAdapter {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(MAP_WIDTH, MAP_HEIGHT, camera);
         viewport.apply();
-
-        // --- ACÁ ESTÁ EL SECRETO: Centrar la cámara en la mitad del mapa ---
+        
         camera.position.set(MAP_WIDTH / 2f, MAP_HEIGHT / 2f, 0);
         camera.update();
 
@@ -96,6 +103,18 @@ public class PantallaControles extends ScreenAdapter {
         
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
+
+        stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    ((Game) Gdx.app.getApplicationListener())
+                        .setScreen(pantallaAnterior);
+                    return true;
+                }
+                return false;
+            }
+        });
         
         texturaVolver = new Texture(Gdx.files.internal("pantallas/menu/back_dark_12x12.png"));
 
@@ -120,13 +139,11 @@ public class PantallaControles extends ScreenAdapter {
 
 
      
-        		// Textura del panel
         		texturaPanel = new Texture(
         		    Gdx.files.internal("pantallas/menu/panel_48x48.png")
         		);
 
-        		// Texturas de los botones
-        		texturaBotonNormal = new Texture(
+           		texturaBotonNormal = new Texture(
         		    Gdx.files.internal("pantallas/menu/button_L_normal.png")
         		);
 
@@ -137,40 +154,37 @@ public class PantallaControles extends ScreenAdapter {
         		texturaBotonHover = new Texture(
         		    Gdx.files.internal("pantallas/menu/button_L_hover.png")
         		);
+
+        		texturaControles = new Texture(
+        		    Gdx.files.internal("pantallas/controles/controles.jpg")
+        		);
         		
         		texturaPanel.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		texturaBotonNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        		texturaControles.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         		
-        		// Crear el panel NinePatch
         		panelConfiguracion = new NinePatch(texturaPanel, 12, 12, 12, 12);
 
-        		// Cargar fuente
         		gestorFuentes = new GestorFuentes();
         		gestorFuentes.cargar();
         		fuente = gestorFuentes.getFuentePrincipal();
         		
-        		// Panel principal
         		panelPrincipal = new Table();
         		panelPrincipal.setBackground(new NinePatchDrawable(panelConfiguracion));
 
-        		// Dimensiones del panel
-        		panelPrincipal.setSize(280, 200);
+        		panelPrincipal.setSize(PANEL_ANCHO, PANEL_ALTO);
 
-        		// Centrar el panel en la pantalla
         		panelPrincipal.setPosition(
         		    MAP_WIDTH / 2f - panelPrincipal.getWidth() / 2f,
         		    MAP_HEIGHT / 2f - panelPrincipal.getHeight() / 2f
         		);
 
-        		// Tabla interna
         		tablaConfiguracion = new Table();
 
-        		// Agregar tabla interna al panel
         		panelPrincipal.add(tablaConfiguracion).expand().fill();
 
-        		// Agregar panel al Stage
         		stage.addActor(panelPrincipal);
         		
         		btnVolver.setSize(25, 25);
@@ -180,18 +194,18 @@ public class PantallaControles extends ScreenAdapter {
         		);
         		stage.addActor(btnVolver);
         		
-        		// Estilo de los textos
         		Label.LabelStyle estiloTexto = crearEstiloTexto();
 
-        		// Título
         		Label titulo = new Label("CONTROLES", estiloTexto);
 
-        		// Etiquetas de volumen
         		lblMusica = new Label("MÚSICA", estiloTexto);
         		lblSonidos = new Label("SONIDOS", estiloTexto);
         		
-        		// Agregar título
-        		tablaConfiguracion.add(titulo).colspan(2).padBottom(20).row();
+        		Image imagenControles = new Image(texturaControles);
+        		imagenControles.setScaling(Scaling.fit);
+
+        		tablaConfiguracion.add(titulo).padBottom(6).row();
+        		tablaConfiguracion.add(imagenControles).width(IMAGEN_ANCHO).height(IMAGEN_ALTO);
         		
     }
 
@@ -229,27 +243,22 @@ public class PantallaControles extends ScreenAdapter {
 
         Slider.SliderStyle estilo = new Slider.SliderStyle();
 
-        // Barra de fondo
         estilo.background = new TextureRegionDrawable(
             new TextureRegion(texturaSliderTrack)
         );
 
-        // Relleno de la barra
         estilo.knobBefore = new TextureRegionDrawable(
             new TextureRegion(texturaSliderFill)
         );
 
-        // Perilla normal
         estilo.knob = new TextureRegionDrawable(
             new TextureRegion(texturaSliderKnobNormal)
         );
 
-        // Perilla al pasar el cursor
         estilo.knobOver = new TextureRegionDrawable(
             new TextureRegion(texturaSliderKnobHover)
         );
 
-        // Perilla al mantener presionado
         estilo.knobDown = new TextureRegionDrawable(
             new TextureRegion(texturaSliderKnobPresionado)
         );
@@ -264,7 +273,6 @@ public class PantallaControles extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Asegurate de actualizar la cámara antes de pasarla al renderer
         camera.update();
         renderer.setView(camera);
         renderer.render();
@@ -296,6 +304,7 @@ public class PantallaControles extends ScreenAdapter {
         if (stage != null) stage.dispose();
         
         if (texturaPanel != null) texturaPanel.dispose();
+        if (texturaControles != null) texturaControles.dispose();
         if (texturaBotonNormal != null) texturaBotonNormal.dispose();
         if (texturaBotonPresionado != null) texturaBotonPresionado.dispose();
         if (texturaBotonHover != null) texturaBotonHover.dispose();

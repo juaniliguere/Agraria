@@ -1,4 +1,3 @@
-
 package io.github.agraria.control;
 
 import com.badlogic.gdx.Input.Keys;
@@ -20,7 +19,8 @@ public class ControlJugador extends InputAdapter {
 
     private boolean movimientoBloqueado = false;
 
-    // Acciones que puede ejecutar el jugador
+    private boolean accionesBloqueadas = false;
+
     private Runnable accionDormir;
     private Runnable accionTienda;
     private AccionMouse accionCultivar;
@@ -31,7 +31,6 @@ public class ControlJugador extends InputAdapter {
         this.inventario = inventario;
     }
 
-    // Configuración de las acciones
 
     public void setAccionDormir(Runnable accion) {
         this.accionDormir = accion;
@@ -58,9 +57,18 @@ public class ControlJugador extends InputAdapter {
         }
     }
 
+    public void setAccionesBloqueadas(boolean bloqueadas) {
+        this.accionesBloqueadas = bloqueadas;
+
+        if (bloqueadas) {
+            jugador.dirX = 0;
+            jugador.dirY = 0;
+        }
+    }
+
     public void actualizarMovimiento() {
 
-        if (movimientoBloqueado) {
+        if (movimientoBloqueado || accionesBloqueadas) {
             jugador.dirX = 0;
             jugador.dirY = 0;
             return;
@@ -81,12 +89,13 @@ public class ControlJugador extends InputAdapter {
         boolean derecha = Gdx.input.isKeyPressed(Keys.D)
                 || Gdx.input.isKeyPressed(Keys.RIGHT);
 
-        // Movimiento exclusivamente horizontal o vertical
         if (arriba && !abajo) {
             dirY = 1;
         } else if (abajo && !arriba) {
             dirY = -1;
-        } else if (izquierda && !derecha) {
+        }
+
+        if (izquierda && !derecha) {
             dirX = -1;
         } else if (derecha && !izquierda) {
             dirX = 1;
@@ -98,6 +107,10 @@ public class ControlJugador extends InputAdapter {
 
     @Override
     public boolean keyDown(int keycode) {
+
+        if (accionesBloqueadas) {
+            return true;
+        }
 
         if (keycode == Keys.T && accionTienda != null) {
             accionTienda.run();
@@ -111,8 +124,6 @@ public class ControlJugador extends InputAdapter {
             accionDormir.run();
         }
 
-
-        // Selección del inventario
         if (keycode >= Keys.NUM_1 && keycode <= Keys.NUM_9) {
             inventario.setCasillaSeleccionada(keycode - Keys.NUM_1);
         }
@@ -132,7 +143,7 @@ public class ControlJugador extends InputAdapter {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        if (movimientoBloqueado) {
+        if (movimientoBloqueado || accionesBloqueadas) {
             return true;
         }
 
@@ -154,5 +165,21 @@ public class ControlJugador extends InputAdapter {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+
+        if (movimientoBloqueado || accionesBloqueadas) {
+            return true;
+        }
+
+        if (amountY > 0) {
+            inventario.moverSeleccion(1); 
+        } else if (amountY < 0) {
+            inventario.moverSeleccion(-1);  
+        }
+
+        return true;
     }
 }

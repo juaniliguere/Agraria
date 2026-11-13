@@ -33,11 +33,7 @@ public class GestorCultivos {
         
     }
 
-    /*
-     * Genera una matriz indicando qué celdas del mapa son plantables.
-     * true  = hay un tile en esa posición → se puede plantar
-     * false = no hay tile → no se puede plantar
-     */
+    
     public static boolean[][] generarMatrizPlantableDesdeMapa(TiledMap mapa, int columnas, int filas) {
 
         boolean[][] matriz = new boolean[filas][columnas];
@@ -55,10 +51,8 @@ public class GestorCultivos {
             }
         }
 
-        // Recorremos todas las posiciones de la grilla
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
-                // Si existe una celda con un tile, esa posición es plantable
                 matriz[f][c] = capaPlantable != null && capaPlantable.getCell(c, f) != null;
                 
             }
@@ -67,7 +61,6 @@ public class GestorCultivos {
         return matriz;
     }
     
-    // Crea una Parcela para cada posición de la matriz.
     
     private void inicializarGrilla(boolean[][] matrizPlantable) {
 
@@ -95,7 +88,6 @@ public class GestorCultivos {
         return grilla[fila][col].plantar(tipo);
     }
 
-    //Intenta cosechar usando coordenadas del mundo en píxeles. Devuelve el Cultivo cosechado o null si no se pudo cosechar.
 
     public Cultivo cosecharEn(float xPixel, float yPixel) {
 
@@ -174,7 +166,6 @@ public class GestorCultivos {
     
 
     public void hacerLlover() {
-//    	System.out.println("3. Ejecutando hacerLlover() en el gestor.");
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 grilla[f][c].recibirLluvia();

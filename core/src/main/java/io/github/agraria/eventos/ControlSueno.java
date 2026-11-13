@@ -27,6 +27,9 @@ public class ControlSueno {
     private static final int HORA_DESPERTAR_TARDE = 10;
     private int horaDespertar;
 
+    private boolean desmayado = false;
+    private Runnable alPonerseNegraPorDesmayo;
+
 	private GestorHud gestorHud;
 
     
@@ -35,6 +38,10 @@ public class ControlSueno {
 		this.gestorHud = gestorHud;
 		
 	}
+
+    public void setAlPonerseNegraPorDesmayo(Runnable accion) {
+        this.alPonerseNegraPorDesmayo = accion;
+    }
 	
     public boolean puedeDormir(Reloj reloj) {
         int hora = reloj.getHoras();
@@ -49,6 +56,7 @@ public class ControlSueno {
         if (estadoTransicion == EstadoTransicion.IDLE) {
             targetDiaDormir = reloj.getDias() + 1;
             this.horaDespertar = horaDespertar;
+            this.desmayado = false;
 
             estadoTransicion = EstadoTransicion.FADE_OUT;
 
@@ -64,6 +72,10 @@ public class ControlSueno {
             if (fadeAlpha >= 1f) {
                 fadeAlpha = 1f;
                 estadoTransicion = EstadoTransicion.FAST_FORWARD; 
+
+                if (desmayado && alPonerseNegraPorDesmayo != null) {
+                    alPonerseNegraPorDesmayo.run();
+                }
             }
         } 
         
@@ -155,8 +167,8 @@ public class ControlSueno {
 
     public boolean verificarDesmayoPorHorario(Reloj reloj) {
         if (reloj.getHoras() == 2 && !estaDurmiendo()) {
-        //	gestorHud.mostrarMensaje("Son las 2am Te desmayás y te vas a dormir hasta más tarde.");
             iniciarDormir(reloj, HORA_DESPERTAR_TARDE);
+            desmayado = true;
             return true;
         }
 

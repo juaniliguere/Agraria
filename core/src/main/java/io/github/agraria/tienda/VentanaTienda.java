@@ -15,6 +15,7 @@ import io.github.agraria.ui.GestorHud;
 import io.github.agraria.inventario.CasillaInventario;
 import io.github.agraria.elementos.Item;
 import io.github.agraria.cultivos.TipoCultivo;
+import io.github.agraria.progreso.SistemaNiveles;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -56,6 +57,7 @@ public class VentanaTienda {
     
     private GestorAudio gestorAudio;
     private GestorHud gestorHud;
+    private SistemaNiveles sistemaNiveles;
     
     private Map<TipoCultivo, Texture> texturasProductos = new HashMap<>();
     
@@ -103,7 +105,6 @@ public class VentanaTienda {
             Gdx.files.internal("tienda/icon_sell_hand.png")
         );
 
-        // Evitamos el suavizado de los píxeles
         texturaPanel.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
         texturaTitulo.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
         texturaSeparador.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
@@ -167,31 +168,28 @@ public class VentanaTienda {
         return new ImageButton(estilo);
     }
     
-    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin, GestorAudio gestorAudio, GestorHud gestorHud) {
+    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin,
+                         GestorAudio gestorAudio, GestorHud gestorHud, SistemaNiveles sistemaNiveles) {
 
 		this.billetera = billetera;
 		this.inventario = inventario;
 		this.skin = skin;
 		this.gestorAudio = gestorAudio;
 		this.gestorHud = gestorHud;
+		this.sistemaNiveles = sistemaNiveles;
 		
-		// Primero cargamos las texturas
 		cargarRecursos();
 		
-		// Creamos el fondo personalizado
 		NinePatch panel = new NinePatch(
 		texturaPanel,
 		6, 6, 6, 6
 		);
 		
-		// Copiamos el estilo original
 		Window.WindowStyle estiloVentana =
 		new Window.WindowStyle(skin.get(Window.WindowStyle.class));
 		
-		// Aplicamos el fondo personalizado
 		estiloVentana.background = new NinePatchDrawable(panel);
 		
-		// Creamos la ventana
 		ventana = new Window("", estiloVentana);
 		
 		ventana.setSize(600, 500);
@@ -214,7 +212,6 @@ public class VentanaTienda {
         ventana.clearChildren();
         ventana.defaults().pad(5);
 
-        // FONDO DE CADA FILA
         TextureRegionDrawable fondoFila = new TextureRegionDrawable(
             new TextureRegion(texturaFilaProducto)
         );
@@ -275,26 +272,33 @@ public class VentanaTienda {
         for (TipoCultivo tipo : TipoCultivo.values()) {
 
             int costo = tipo.getPrecioCompra();
+            boolean desbloqueado = sistemaNiveles.estaDesbloqueado(tipo);
 
             Table fila = new Table();
             fila.setBackground(fondoFila);
 
-            Label lblSemilla = new Label(
-                "Semilla " + tipo.getNombre() + " - $" + costo,
-                skin
-            );
+            String textoSemilla = desbloqueado
+                ? "Semilla " + tipo.getNombre() + " - $" + costo
+                : "Semilla " + tipo.getNombre() + " - Nivel " + tipo.getNivelRequerido();
+
+            Label lblSemilla = new Label(textoSemilla, skin);
             lblSemilla.setFontScale(0.75f);
             ImageButton btnComprar = crearBotonImagen(
             	    texturaPestanaComprar,
             	    texturaPestanaComprarInactiva
             	);
 
-            	btnComprar.setDisabled(billetera.getMonedas() < costo);
+            	btnComprar.setDisabled(!desbloqueado || billetera.getMonedas() < costo);
 
             btnComprar.addListener(new ClickListener() {
 
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
+
+                    if (!sistemaNiveles.estaDesbloqueado(tipo)) {
+                        gestorHud.mostrarMensaje("Necesitás nivel " + tipo.getNivelRequerido() + " para comprar esta semilla.");
+                        return;
+                    }
 
                     if (billetera.gastar(costo)) {
 
@@ -324,6 +328,10 @@ public class VentanaTienda {
          // Imagen del producto
             Image imagenProducto = new Image(obtenerImagenProducto(tipo));
 
+            if (!desbloqueado) {
+                imagenProducto.setColor(0.35f, 0.35f, 0.35f, 1f);
+            }
+
             fila.add(imagenProducto)
                 .size(28, 28)
                 .padLeft(5)
@@ -337,7 +345,11 @@ public class VentanaTienda {
             
             lblSemilla.setFontScale(0.62f);
             lblSemilla.setEllipsis(true);
-            lblSemilla.setColor(new Color(0.30f, 0.17f, 0.10f, 1f));
+            if (desbloqueado) {
+                lblSemilla.setColor(new Color(0.30f, 0.17f, 0.10f, 1f));
+            } else {
+                lblSemilla.setColor(new Color(0.55f, 0.50f, 0.45f, 1f));
+            }
             
             // Botón de compra
             fila.add(btnComprar)
@@ -478,7 +490,6 @@ public class VentanaTienda {
         // SCROLLS
         // =========================
 
-  // Estilo de desplazamiento sin fondo gris
      ScrollPane.ScrollPaneStyle estiloScroll =
          new ScrollPane.ScrollPaneStyle(
              skin.get(ScrollPane.ScrollPaneStyle.class)
@@ -486,14 +497,12 @@ public class VentanaTienda {
 
      estiloScroll.background = null;
 
-     // Scroll de compra
      ScrollPane scrollComprar =
          new ScrollPane(listaComprar, estiloScroll);
 
      scrollComprar.setScrollingDisabled(true, false);
      scrollComprar.setFadeScrollBars(false);
 
-     // Scroll de venta
      ScrollPane scrollVender =
          new ScrollPane(listaVender, estiloScroll);
 

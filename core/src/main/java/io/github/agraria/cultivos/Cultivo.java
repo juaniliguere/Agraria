@@ -35,7 +35,6 @@ public class Cultivo {
     }
     
     public boolean isCosechable() {
-        // cosechable cuando llega a la ultima etapa (ej: si tiene 4 etapas van a ir d 0 a 3)
     	return !podrido && (etapaActual >= tipo.getCantidadEtapas() - 1);
     }
 
@@ -53,11 +52,9 @@ public class Cultivo {
             return false;
         }
 
-        // 1. Generamos el item d la cosecha
         Item producto = tipo.crearItemCosecha();
         int cantidadObtenida = 1; 
 
-        // 2. Intentamos guardar en el inventario
         boolean guardado = inventario.agregarItem(producto, cantidadObtenida);
 
         return guardado;

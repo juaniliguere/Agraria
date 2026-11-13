@@ -23,18 +23,15 @@ public class GestorMapa implements Disposable{
 	    private OrthographicCamera camara;
 	    private Viewport viewport;
 
-	    // Colisiones
 	    private Array<Polygon> colisionesMapa;
 	    private Rectangle zonaDormir;
 	    private Rectangle zonaTienda;
 	    private Rectangle zonaComprar;
 	    private Rectangle zonaSalir;
 	    
-	    // Dimensiones del mapa en píxeles
 	    private float anchoMapaPixels;
 	    private float altoMapaPixels;
 
-	    // Dimensiones del mapa en tiles
 	    private int mapWidthTiles;
 	    private int mapHeightTiles;
 
@@ -42,8 +39,6 @@ public class GestorMapa implements Disposable{
 	    private int tileWidth;
 	    private int tileHeight;
 
-	   // public static final int V_WIDTH = 800;
-	   // public static final int V_HEIGHT = 600;
 	 
 
 	    private int idxAbajo = -1;
@@ -106,12 +101,10 @@ public class GestorMapa implements Disposable{
 	        for (MapObject objeto :
 	                mapa.getLayers().get("Colisiones").getObjects()) {
 
-	            // Colisión dibujada como polígono
 	            if (objeto instanceof PolygonMapObject) {
 	                colisionesMapa.add(((PolygonMapObject) objeto).getPolygon());
 	            }
 
-	            // Colisión dibujada como rectángulo
 	            else if (objeto instanceof RectangleMapObject) {
 	                Rectangle rect = ((RectangleMapObject) objeto).getRectangle();
 	                Polygon poly = new Polygon(new float[]{

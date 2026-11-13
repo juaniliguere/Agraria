@@ -33,7 +33,7 @@ public class ControlClima {
     }
 
     private void cargarAnimacionLluvia() {
-        int totalFrames = 12; // De 00 a 11
+        int totalFrames = 12;
         texturasLluvia = new Texture[totalFrames];
         TextureRegion[] regionFrames = new TextureRegion[totalFrames];
 
@@ -52,7 +52,7 @@ public class ControlClima {
     
     public void sortearClimaDiario() {
 
-        float probabilidadLluvia = 0.99f;
+        float probabilidadLluvia = 0.20f;
         lluviaActiva = MathUtils.random() < probabilidadLluvia;
 
         if (lluviaActiva) {

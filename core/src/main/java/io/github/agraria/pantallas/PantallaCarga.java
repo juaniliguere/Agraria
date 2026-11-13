@@ -37,7 +37,7 @@ public class PantallaCarga extends ScreenAdapter {
     private static final float MAP_HEIGHT = 320f;
 
     private float tiempoCargando = 0f;
-    private final float TIEMPO_MINIMO_CARGA = 3.0f; // Tiempo en segundos que dura la pantalla
+    private final float TIEMPO_MINIMO_CARGA = 3.0f; 
     private boolean cambioRealizado = false;
     
     private float alphaFadeIn = 1f;
@@ -95,7 +95,6 @@ public void render(float delta) {
     float progreso = Math.min(1f, tiempoCargando / TIEMPO_MINIMO_CARGA);
     
 
-    // Fade in: quitar gradualmente la pantalla negra
     if (alphaFadeIn > 0f) {
         alphaFadeIn = Math.max(
             0f,
@@ -103,12 +102,10 @@ public void render(float delta) {
         );
     }
 
-    // Comenzar el fade out cuando termina el tiempo de carga
     if (tiempoCargando >= TIEMPO_MINIMO_CARGA) {
         iniciandoFadeOut = true;
     }
 
-    // Fade out: oscurecer gradualmente
     if (iniciandoFadeOut) {
         alphaFadeOut = Math.min(
             1f,
@@ -121,7 +118,6 @@ public void render(float delta) {
     camera.update();
     renderer.setView(camera);
     renderer.render();
-    // Dimensiones y posición de la barra
     float anchoBarraMax = 240f;
     float altoBarra = 12f;
 
@@ -131,7 +127,6 @@ public void render(float delta) {
     batch.setProjectionMatrix(camera.combined);
     batch.begin();
 
-    // Primero dibujamos el marco
     batch.draw(
         texturaMarco,
         xBarra,
@@ -140,7 +135,6 @@ public void render(float delta) {
         20f
     );
 
-    // Después dibujamos el relleno verde
     batch.draw(
         texturaRelleno,
         xBarra + 7f,
@@ -151,7 +145,6 @@ public void render(float delta) {
 
     batch.end();
 
-    // Determinar texto
     String textoCarga = "Cargando...";
 
 
@@ -159,7 +152,6 @@ public void render(float delta) {
         textoCarga = "Listo";
     }
 
-    // Dibujar texto
     batch.setProjectionMatrix(camera.combined);
     batch.begin();
 
@@ -184,7 +176,6 @@ public void render(float delta) {
 
     
     
- // Dibujar transición negra
     float alpha = Math.max(alphaFadeIn, alphaFadeOut);
 
     if (alpha > 0f) {

@@ -37,17 +37,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 public class PantallaMenu implements Screen {
 
 	
-	// Interfaz
 	private Texture texturaPanel;
 	private Texture texturaBotonNormal;
 	private Texture texturaBotonPresionado;
 	private Texture texturaBotonHover;
 	private NinePatch panelMenu;
-	// Fuente
 	private GestorFuentes gestorFuentes;
 	private BitmapFont fuente;
 
-	// Botones
 	private TextButton btnJugar;
 	private TextButton btnConfiguracion;
 	private TextButton btnControles;
@@ -62,13 +59,11 @@ public class PantallaMenu implements Screen {
     private Table panelPrincipal;
     private Table tablaMenu;
 
-    // Variables de Scene2D y texturas de los botones
     private Stage stage;
 
-    // Variables para la transición a negro
     private ShapeRenderer shapeRenderer;
-    private float fadeAlpha = 0f;          // Controla la transparencia (0 a 1)
-    private boolean isTransitioning = false; // Bandera para activar la animación
+    private float fadeAlpha = 0f;          
+    private boolean isTransitioning = false; 
 
     private static final float MAP_WIDTH = 480; 
     private static final float MAP_HEIGHT = 320;
@@ -86,10 +81,8 @@ public class PantallaMenu implements Screen {
 
     	gestorAudio.reproducirMusicaFondo();
     	
-        // 1. Cargar el mapa Tiled
         map = new TmxMapLoader().load("pantallas/menu/pantallaMenu.tmx");
 
-        // 2. Configurar cámara y viewport con las medidas reales del mapa
         camera = new OrthographicCamera();
         viewport = new StretchViewport(MAP_WIDTH, MAP_HEIGHT, camera);
         viewport.apply();
@@ -99,11 +92,9 @@ public class PantallaMenu implements Screen {
 
         renderer = new OrthogonalTiledMapRenderer(map);
 
-        // Inicializar el ShapeRenderer para dibujar el rectángulo negro de la transición
         shapeRenderer = new ShapeRenderer();
         
-     // --- RECURSOS DE LA INTERFAZ ---
-
+     
         texturaPanel = new Texture(
             Gdx.files.internal("pantallas/menu/panel_48x48.png")
         );
@@ -125,61 +116,48 @@ public class PantallaMenu implements Screen {
             Gdx.files.internal("pantallas/menu/button_L_hover.png")
         );
 
-        // Filtro para mantener la estética pixel art
         texturaPanel.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texturaBotonNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        // Cargar fuente
         gestorFuentes = new GestorFuentes();
         gestorFuentes.cargar();
         fuente = gestorFuentes.getFuentePrincipal();
 
-     // Crear el Stage para administrar la interfaz
         stage = new Stage(viewport);
 
-        // Permitir que Scene2D reciba las entradas del teclado y mouse
         Gdx.input.setInputProcessor(stage);
         
-     // Panel principal
-        panelPrincipal = new Table();
+             panelPrincipal = new Table();
         panelPrincipal.setBackground(new NinePatchDrawable(panelMenu));
 
-        // Tamaño y posición
         panelPrincipal.setSize(190, 220);
         panelPrincipal.setPosition(
             MAP_WIDTH / 2f - panelPrincipal.getWidth() / 2f,
             MAP_HEIGHT / 2f - panelPrincipal.getHeight() / 2f
         );
 
-        // Tabla interna para los botones
         tablaMenu = new Table();
         tablaMenu.defaults().padBottom(10);
 
-        // Agregar tabla al panel
         panelPrincipal.add(tablaMenu).expand().fill();
 
-        // Agregar panel al Stage
         stage.addActor(panelPrincipal);
         
-     // Crear estilo compartido
         TextButton.TextButtonStyle estiloBoton = crearEstiloBoton();
 
-        // Crear botones
         btnJugar = new TextButton("JUGAR", estiloBoton);
         btnConfiguracion = new TextButton("CONFIGURACIÓN", estiloBoton);
         btnControles = new TextButton("CONTROLES", estiloBoton);
         btnSalir = new TextButton("SALIR", estiloBoton);
 
-        // Agregar botones a la tabla
         tablaMenu.add(btnJugar).width(160).height(40).row();
         tablaMenu.add(btnConfiguracion).width(160).height(40).row();
         tablaMenu.add(btnControles).width(160).height(40).row();
         tablaMenu.add(btnSalir).width(160).height(40).row();
         
         
-     // JUGAR
         btnJugar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -190,7 +168,6 @@ public class PantallaMenu implements Screen {
             }
         });
 
-        // CONFIGURACIÓN
         btnConfiguracion.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -201,7 +178,6 @@ public class PantallaMenu implements Screen {
             }
         });
 
-        // CONTROLES
         btnControles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -212,7 +188,6 @@ public class PantallaMenu implements Screen {
             }
         });
 
-        // SALIR
         btnSalir.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -255,18 +230,14 @@ public class PantallaMenu implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Renderizar el mapa de fondo
         camera.update();
         renderer.setView(camera);
         renderer.render();
 
-        // Actualizar y renderizar los botones de Scene2D encima
         stage.act(delta);
         stage.draw();
 
-        // --- 4. LÓGICA DE LA TRANSICIÓN A NEGRO ---
         if (isTransitioning) {
-            // Velocidad del fundido (1.5f ajusta qué tan rápido se pone en negro)
             fadeAlpha += delta * 1.5f; 
             if (fadeAlpha >= 1f) {
                 fadeAlpha = 1f;
@@ -275,7 +246,6 @@ public class PantallaMenu implements Screen {
             }
         }
 
-        // Dibujar el rectángulo negro translúcido por encima de todo si la animación está activa
         if (fadeAlpha > 0f) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -314,7 +284,7 @@ public class PantallaMenu implements Screen {
         stage.dispose();
 
         if (shapeRenderer != null) {
-            shapeRenderer.dispose(); // Liberar memoria del ShapeRenderer
+            shapeRenderer.dispose(); 
         }
         
         Gdx.input.setInputProcessor(null);

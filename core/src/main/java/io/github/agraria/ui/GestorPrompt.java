@@ -24,7 +24,6 @@ public class GestorPrompt {
 
         contenedorPrompt = new Table(skin);
         
-        // --- SIN FONDO (CAJITA GRIS ELIMINADA) ---
         contenedorPrompt.setBackground((Drawable) null);
 
         contenedorPrompt.pad(2, 6, 2, 6);
@@ -32,7 +31,6 @@ public class GestorPrompt {
         lblTecla = new Label("", skin);
         lblAccion = new Label("", skin);
 
-        // Texto grande y destacado
         lblTecla.setFontScale(1.4f);
         lblAccion.setFontScale(1.4f);
 
@@ -46,9 +44,6 @@ public class GestorPrompt {
         stage.addActor(contenedorPrompt);
     }
 
-    /**
-     * Muestra el prompt flotando en una posición específica del mundo (al lado de la casa/tienda).
-     */
     public void mostrarPromptMundial(String tecla, String accion, float mundoX, float mundoY, OrthographicCamera camara) {
         lblTecla.setText("[" + tecla + "]");
         lblAccion.setText(accion);
@@ -71,9 +66,7 @@ public class GestorPrompt {
         }
     }
 
-    /**
-     * Método de respaldo (por si en algún lado se llama sin coordenadas).
-     */
+    
     public void mostrarPrompt(String tecla, String accion) {
         lblTecla.setText("[" + tecla + "]");
         lblAccion.setText(accion);

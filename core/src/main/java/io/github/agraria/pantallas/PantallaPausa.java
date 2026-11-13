@@ -3,6 +3,7 @@ package io.github.agraria.pantallas;
 import com.badlogic.gdx.Game;
 import io.github.agraria.Agraria;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -34,7 +36,6 @@ public class PantallaPausa extends ScreenAdapter {
     private OrthographicCamera camera;
 	private PantallaGranja pantallaGranja;
 	
-	// Recursos de la interfaz
 	private Texture texturaPanel;
 	private Texture texturaBotonNormal;
 	private Texture texturaBotonPresionado;
@@ -42,11 +43,9 @@ public class PantallaPausa extends ScreenAdapter {
 
 	private NinePatch panelPausa;
 
-	// Fuente
 	private GestorFuentes gestorFuentes;
 	private BitmapFont fuente;
 
-	// Interfaz
 	private Table panelPrincipal;
 	private Table tablaMenu;
 
@@ -70,7 +69,6 @@ public class PantallaPausa extends ScreenAdapter {
         stage = new Stage(new FitViewport(800, 600, camera));
         shapeRenderer = new ShapeRenderer();
         
-     // Cargar texturas
         texturaPanel = new Texture(
             Gdx.files.internal("pantallas/menu/panel_48x48.png")
         );
@@ -87,62 +85,63 @@ public class PantallaPausa extends ScreenAdapter {
             Gdx.files.internal("pantallas/menu/button_L_hover.png")
         );
 
-        // Mantener estética pixel art
         texturaPanel.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texturaBotonNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        // Crear marco decorativo
         panelPausa = new NinePatch(texturaPanel, 12, 12, 12, 12);
 
-        // Cargar fuente
         gestorFuentes = new GestorFuentes();
         gestorFuentes.cargar();
         fuente = gestorFuentes.getFuentePrincipal();
 
         Gdx.input.setInputProcessor(stage);
 
-     // Crear panel principal
+        stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+
+                    gestorAudio.reproducirApretarBoton();
+
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(pantallaGranja);
+                    return true;
+                }
+                return false;
+            }
+        });
+
         panelPrincipal = new Table();
         panelPrincipal.setBackground(new NinePatchDrawable(panelPausa));
 
-        // Tamaño del panel
         panelPrincipal.setSize(240, 280);
 
-        // Centrarlo en pantalla
         panelPrincipal.setPosition(
             800 / 2f - panelPrincipal.getWidth() / 2f,
             600 / 2f - panelPrincipal.getHeight() / 2f
         );
 
-        // Tabla interna
-        tablaMenu = new Table();
+                tablaMenu = new Table();
         tablaMenu.defaults().padBottom(10);
 
-        // Agregar tabla al panel
         panelPrincipal.add(tablaMenu).expand().fill();
 
-        // Agregar panel al Stage
         stage.addActor(panelPrincipal);
         
-     // Crear estilo compartido
-        TextButton.TextButtonStyle estiloBoton = crearEstiloBoton();
+             TextButton.TextButtonStyle estiloBoton = crearEstiloBoton();
 
-        // Crear botones
-        btnContinuar = new TextButton("CONTINUAR", estiloBoton);
+                btnContinuar = new TextButton("CONTINUAR", estiloBoton);
         btnConfiguracion = new TextButton("CONFIGURACIÓN", estiloBoton);
         btnControles = new TextButton("CONTROLES", estiloBoton);
         btnSalir = new TextButton("SALIR AL MENÚ", estiloBoton);
 
-        // Agregar botones al panel
         tablaMenu.add(btnContinuar).width(160).height(40).row();
         tablaMenu.add(btnConfiguracion).width(160).height(40).row();
         tablaMenu.add(btnControles).width(160).height(40).row();
         tablaMenu.add(btnSalir).width(160).height(40).row();
         
 
-     // --- ACCIÓN DEL BOTÓN CONTINUAR ---
         btnContinuar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -153,7 +152,6 @@ public class PantallaPausa extends ScreenAdapter {
             }
         });
 
-        // --- ACCIÓN DEL BOTÓN CONFIGURACIÓN ---
         btnConfiguracion.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -165,7 +163,6 @@ public class PantallaPausa extends ScreenAdapter {
             }
         });
 
-        // --- ACCIÓN DEL BOTÓN CONTROLES ---
         btnControles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -177,7 +174,6 @@ public class PantallaPausa extends ScreenAdapter {
             }
         });
 
-        // --- ACCIÓN DEL BOTÓN SALIR AL MENÚ ---
         btnSalir.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -222,10 +218,8 @@ public class PantallaPausa extends ScreenAdapter {
     @Override
     public void render(float delta) {
 
-        // Dibujar la partida congelada
         pantallaGranja.renderizarPausada();
 
-        // Oscurecer el fondo
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(
             GL20.GL_SRC_ALPHA,
@@ -242,7 +236,6 @@ public class PantallaPausa extends ScreenAdapter {
 
         Gdx.gl.glDisable(GL20.GL_BLEND);
 
-        // Dibujar el menú de pausa
         stage.act(delta);
         stage.draw();
     }
