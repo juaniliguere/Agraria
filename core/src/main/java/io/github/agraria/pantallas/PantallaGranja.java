@@ -114,9 +114,7 @@ public class PantallaGranja extends ScreenAdapter {
         shapeRenderer = new ShapeRenderer();
 
         
-        // -----------------------------------
-        // CÁMARA Y VIEWPORT
-        // -----------------------------------
+
 
         camara = new OrthographicCamera();
         vp = new FitViewport(V_WIDTH, V_HEIGHT, camara);
@@ -157,9 +155,8 @@ public class PantallaGranja extends ScreenAdapter {
 
         this.gestorPrompt = new GestorPrompt(stageUi, skinUi);
 
-        // =========================
-        // CONTROL DE CULTIVOS
-        // =========================
+
+        
 
         boolean[][] matrizPlantable = GestorCultivos.generarMatrizPlantableDesdeMapa(
                 controlMapa.getMapa(),
@@ -175,9 +172,9 @@ public class PantallaGranja extends ScreenAdapter {
         reloj = new Reloj();
         controlClima = new ControlClima(gestorCultivos, gestorAudio);
 
-        // =========================
-        // SISTEMA DE NIVELES
-        // =========================
+
+
+
 
         sistemaNiveles = new SistemaNiveles();
 

@@ -39,7 +39,7 @@ public class VentanaTienda {
     private Billetera billetera;
     private Inventario inventario;
     private Skin skin;
-    
+
     private Texture texturaPanel;
     private Texture texturaTitulo;
     private Texture texturaSeparador;
@@ -54,13 +54,13 @@ public class VentanaTienda {
 
     private Texture texturaIconoComprar;
     private Texture texturaIconoVender;
-    
+
     private GestorAudio gestorAudio;
     private GestorHud gestorHud;
     private SistemaNiveles sistemaNiveles;
-    
+
     private Map<TipoCultivo, Texture> texturasProductos = new HashMap<>();
-    
+
     private void cargarRecursos() {
 
         texturaPanel = new Texture(
@@ -82,13 +82,15 @@ public class VentanaTienda {
         texturaPestanaVender = new Texture(
             Gdx.files.internal("tienda/tab_sell_active_36x16.png")
         );
+
         texturaPestanaComprarInactiva = new Texture(
-        	Gdx.files.internal("tienda/tab_buy_inactive_36x16.png")
-        	);
+            Gdx.files.internal("tienda/tab_buy_inactive_36x16.png")
+        );
 
         texturaPestanaVenderInactiva = new Texture(
-        	Gdx.files.internal("tienda/tab_sell_inactive_36x16.png")
+            Gdx.files.internal("tienda/tab_sell_inactive_36x16.png")
         );
+
         texturaFilaProducto = new Texture(
             Gdx.files.internal("tienda/item_row_normal_120x20.png")
         );
@@ -117,10 +119,7 @@ public class VentanaTienda {
         texturaIconoComprar.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
         texturaIconoVender.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
     }
-    
-    
-    
-    
+
     private Texture cargarImagenProducto(TipoCultivo tipo) {
 
         Texture textura = new Texture(
@@ -131,10 +130,7 @@ public class VentanaTienda {
 
         return textura;
     }
-    
-    
-    
-    
+
     private Texture obtenerImagenProducto(TipoCultivo tipo) {
 
         if (!texturasProductos.containsKey(tipo)) {
@@ -143,8 +139,6 @@ public class VentanaTienda {
 
         return texturasProductos.get(tipo);
     }
-    
-    
 
     private ImageButton crearBotonImagen(
             Texture texturaActiva,
@@ -167,46 +161,45 @@ public class VentanaTienda {
 
         return new ImageButton(estilo);
     }
-    
-    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin,
-                         GestorAudio gestorAudio, GestorHud gestorHud, SistemaNiveles sistemaNiveles) {
 
-		this.billetera = billetera;
-		this.inventario = inventario;
-		this.skin = skin;
-		this.gestorAudio = gestorAudio;
-		this.gestorHud = gestorHud;
-		this.sistemaNiveles = sistemaNiveles;
-		
-		cargarRecursos();
-		
-		NinePatch panel = new NinePatch(
-		texturaPanel,
-		6, 6, 6, 6
-		);
-		
-		Window.WindowStyle estiloVentana =
-		new Window.WindowStyle(skin.get(Window.WindowStyle.class));
-		
-		estiloVentana.background = new NinePatchDrawable(panel);
-		
-		ventana = new Window("", estiloVentana);
-		
-		ventana.setSize(600, 500);
-		ventana.setPosition(
-			    (stage.getWidth() - ventana.getWidth()) / 2,
-			    (stage.getHeight() - ventana.getHeight()) / 2
-			);
-		ventana.setMovable(true);
-		
-		actualizarContenidoVentana();
-		
-		stage.addActor(ventana);
-		
-		
-	}
-    
+    public VentanaTienda(Stage stage, Billetera billetera, Inventario inventario, Skin skin, GestorAudio gestorAudio, GestorHud gestorHud, SistemaNiveles sistemaNiveles) {
 
+        this.billetera = billetera;
+        this.inventario = inventario;
+        this.skin = skin;
+        this.gestorAudio = gestorAudio;
+        this.gestorHud = gestorHud;
+        this.sistemaNiveles = sistemaNiveles;
+
+        cargarRecursos();
+
+        NinePatch panel = new NinePatch(
+            texturaPanel,
+            6, 6, 6, 6
+        );
+
+        Window.WindowStyle estiloVentana =
+            new Window.WindowStyle(skin.get(Window.WindowStyle.class));
+
+        estiloVentana.background = new NinePatchDrawable(panel);
+
+        ventana = new Window("", estiloVentana);
+
+        ventana.setSize(600, 500);
+        ventana.setPosition(
+            (stage.getWidth() - ventana.getWidth()) / 2,
+            (stage.getHeight() - ventana.getHeight()) / 2
+        );
+
+        ventana.setMovable(true);
+
+        actualizarContenidoVentana();
+
+        stage.addActor(ventana);
+    }
+
+    
+    
     public void actualizarContenidoVentana() {
 
         ventana.clearChildren();
@@ -216,56 +209,44 @@ public class VentanaTienda {
             new TextureRegion(texturaFilaProducto)
         );
 
-     // =========================
-     // ENCABEZADO
-     // =========================
+        Table encabezado = new Table();
 
-     Table encabezado = new Table();
+        encabezado.setBackground(
+            new TextureRegionDrawable(
+                new TextureRegion(texturaTitulo)
+            )
+        );
 
-     encabezado.setBackground(
-         new TextureRegionDrawable(
-             new TextureRegion(texturaTitulo)
-         )
-     );
+        Label titulo = new Label("TIENDA DE LA GRANJA", skin);
 
-     Label titulo = new Label("TIENDA DE LA GRANJA", skin);
+        encabezado.add(titulo)
+            .center()
+            .pad(8);
 
-     encabezado.add(titulo)
-         .center()
-         .pad(8);
+        ventana.add(encabezado)
+            .colspan(2)
+            .width(570)
+            .height(40)
+            .padBottom(5)
+            .row();
 
-     ventana.add(encabezado)
-         .colspan(2)
-         .width(570)
-         .height(40)
-         .padBottom(5)
-         .row();
+        Table saldo = new Table();
 
-     // =========================
-     // MONEDAS
-     // =========================
+        Image iconoMoneda = new Image(texturaPrecio);
 
-     Table saldo = new Table();
+        Label lblMonedas = new Label(
+            " " + billetera.getMonedas(),
+            skin
+        );
 
-     Image iconoMoneda = new Image(texturaPrecio);
+        saldo.add(iconoMoneda).size(24);
+        saldo.add(lblMonedas).padLeft(5);
 
-     Label lblMonedas = new Label(
-         " " + billetera.getMonedas(),
-         skin
-     );
-
-     saldo.add(iconoMoneda).size(24);
-     saldo.add(lblMonedas).padLeft(5);
-
-     ventana.add(saldo)
-         .colspan(2)
-         .center()
-         .padBottom(10)
-         .row();
-
-        // =========================
-        // COLUMNA COMPRAR
-        // =========================
+        ventana.add(saldo)
+            .colspan(2)
+            .center()
+            .padBottom(10)
+            .row();
 
         Table listaComprar = new Table();
 
@@ -281,12 +262,13 @@ public class VentanaTienda {
 
             Label lblSemilla = new Label(textoSemilla, skin);
             lblSemilla.setFontScale(0.75f);
-            ImageButton btnComprar = crearBotonImagen(
-            	    texturaPestanaComprar,
-            	    texturaPestanaComprarInactiva
-            	);
 
-            	btnComprar.setDisabled(!desbloqueado || billetera.getMonedas() < costo);
+            ImageButton btnComprar = crearBotonImagen(
+                texturaPestanaComprar,
+                texturaPestanaComprarInactiva
+            );
+
+            btnComprar.setDisabled(!desbloqueado || billetera.getMonedas() < costo);
 
             btnComprar.addListener(new ClickListener() {
 
@@ -309,7 +291,7 @@ public class VentanaTienda {
                             billetera.ganar(costo);
 
                         } else {
-                            
+
                             gestorAudio.reproducirComprar();
                         }
 
@@ -317,13 +299,11 @@ public class VentanaTienda {
 
                     } else {
 
-                    	gestorHud.mostrarMensaje("No tenés suficientes monedas.");
-                    	
+                        gestorHud.mostrarMensaje("No tenés suficientes monedas.");
                     }
                 }
             });
 
-         // Imagen del producto
             Image imagenProducto = new Image(obtenerImagenProducto(tipo));
 
             if (!desbloqueado) {
@@ -335,36 +315,31 @@ public class VentanaTienda {
                 .padLeft(5)
                 .padRight(6);
 
-            // Nombre del producto
             fila.add(lblSemilla)
                 .width(135)
                 .left()
                 .padRight(4);
-            
+
             lblSemilla.setFontScale(0.62f);
             lblSemilla.setEllipsis(true);
+
             if (desbloqueado) {
                 lblSemilla.setColor(new Color(0.30f, 0.17f, 0.10f, 1f));
             } else {
                 lblSemilla.setColor(new Color(0.55f, 0.50f, 0.45f, 1f));
             }
-            
-            // Botón de compra
+
             fila.add(btnComprar)
                 .size(63, 28)
                 .padLeft(12)
                 .padRight(2);
 
             listaComprar.add(fila)
-            .width(270)
-            .height(45)
-            .padBottom(5)
-            .row();
+                .width(270)
+                .height(45)
+                .padBottom(5)
+                .row();
         }
-
-        // =========================
-        // COLUMNA VENDER
-        // =========================
 
         Table listaVender = new Table();
 
@@ -404,11 +379,13 @@ public class VentanaTienda {
                     item.getNombre() + " (x" + cantidad + ") - $" + precioTotal,
                     skin
                 );
+
                 lblItem.setFontScale(0.62f);
+
                 ImageButton btnVender = crearBotonImagen(
-                	    texturaPestanaVender,
-                	    texturaPestanaVenderInactiva
-                	);
+                    texturaPestanaVender,
+                    texturaPestanaVenderInactiva
+                );
 
                 btnVender.addListener(new ClickListener() {
 
@@ -418,7 +395,7 @@ public class VentanaTienda {
                         casilla.limpiar();
 
                         billetera.ganar(precioTotal);
-                        
+
                         gestorAudio.reproducirVender();
 
                         actualizarContenidoVentana();
@@ -426,21 +403,21 @@ public class VentanaTienda {
                 });
 
                 fila.add(lblItem)
-                .left()
-                .expandX()
-                .padLeft(8)
-                .padRight(4);
+                    .left()
+                    .expandX()
+                    .padLeft(8)
+                    .padRight(4);
 
                 fila.add(btnVender)
-                .size(63, 28)
-                .padLeft(12)
-                .padRight(2);
+                    .size(63, 28)
+                    .padLeft(12)
+                    .padRight(2);
 
                 listaVender.add(fila)
-                .width(270)
-                .height(45)
-                .padBottom(5)
-                .row();
+                    .width(270)
+                    .height(45)
+                    .padBottom(5)
+                    .row();
             }
         }
 
@@ -449,69 +426,60 @@ public class VentanaTienda {
             listaVender.add(new Label("No tenés cultivos para vender.", skin)).pad(10);
         }
 
-     // =========================
-     // ENCABEZADOS DE SECCIONES
-     // =========================
+        Table columnaComprar = new Table();
 
-     Table columnaComprar = new Table();
+        columnaComprar.add(
+            new Label("COMPRAR SEMILLAS", skin)
+        )
+        .center()
+        .padBottom(5)
+        .row();
 
-     columnaComprar.add(
-         new Label("COMPRAR SEMILLAS", skin)
-     )
-     .center()
-     .padBottom(5)
-     .row();
+        columnaComprar.add(new Image(texturaSeparador))
+            .width(250)
+            .height(7)
+            .padBottom(5)
+            .row();
 
-     columnaComprar.add(new Image(texturaSeparador))
-         .width(250)
-         .height(7)
-         .padBottom(5)
-         .row();
+        Table columnaVender = new Table();
 
+        columnaVender.add(
+            new Label("VENDER COSECHAS", skin)
+        )
+        .center()
+        .padBottom(5)
+        .row();
 
-     Table columnaVender = new Table();
+        columnaVender.add(new Image(texturaSeparador))
+            .width(250)
+            .height(7)
+            .padBottom(5)
+            .row();
 
-     columnaVender.add(
-         new Label("VENDER COSECHAS", skin)
-     )
-     .center()
-     .padBottom(5)
-     .row();
+        ScrollPane.ScrollPaneStyle estiloScroll =
+            new ScrollPane.ScrollPaneStyle(
+                skin.get(ScrollPane.ScrollPaneStyle.class)
+            );
 
-     columnaVender.add(new Image(texturaSeparador))
-         .width(250)
-         .height(7)
-         .padBottom(5)
-         .row();
+        estiloScroll.background = null;
 
-        // =========================
-        // SCROLLS
-        // =========================
+        ScrollPane scrollComprar =
+            new ScrollPane(listaComprar, estiloScroll);
 
-     ScrollPane.ScrollPaneStyle estiloScroll =
-         new ScrollPane.ScrollPaneStyle(
-             skin.get(ScrollPane.ScrollPaneStyle.class)
-         );
+        scrollComprar.setScrollingDisabled(true, false);
+        scrollComprar.setFadeScrollBars(false);
 
-     estiloScroll.background = null;
+        ScrollPane scrollVender =
+            new ScrollPane(listaVender, estiloScroll);
 
-     ScrollPane scrollComprar =
-         new ScrollPane(listaComprar, estiloScroll);
-
-     scrollComprar.setScrollingDisabled(true, false);
-     scrollComprar.setFadeScrollBars(false);
-
-     ScrollPane scrollVender =
-         new ScrollPane(listaVender, estiloScroll);
-
-     scrollVender.setScrollingDisabled(true, false);
-     scrollVender.setFadeScrollBars(false);
+        scrollVender.setScrollingDisabled(true, false);
+        scrollVender.setFadeScrollBars(false);
 
         columnaComprar.add(scrollComprar)
-        .width(280)
-        .height(370)
-        .expand()
-        .fill();
+            .width(280)
+            .height(370)
+            .expand()
+            .fill();
 
         columnaVender.add(scrollVender)
             .width(270)
@@ -519,30 +487,28 @@ public class VentanaTienda {
             .expand()
             .fill();
 
-        // =========================
-        // AGREGAMOS LAS COLUMNAS
-        // =========================
-
         ventana.add(columnaComprar)
-        .width(295)
-        .height(410)
-        .top();
+            .width(295)
+            .height(410)
+            .top();
+
         ventana.add(columnaVender)
-        .width(295)
-        .height(410)
-        .top();
+            .width(295)
+            .height(410)
+            .top();
     }
-    
+
     public void cerrarVentana() {
+
         if (ventana != null) {
             ventana.remove();
         }
     }
-    
+
     public boolean estaAbierta() {
         return ventana.hasParent();
     }
-    
+
     public void dispose() {
 
         texturaPanel.dispose();
@@ -551,7 +517,7 @@ public class VentanaTienda {
 
         texturaPestanaComprar.dispose();
         texturaPestanaVender.dispose();
-        
+
         texturaPestanaComprarInactiva.dispose();
         texturaPestanaVenderInactiva.dispose();
 

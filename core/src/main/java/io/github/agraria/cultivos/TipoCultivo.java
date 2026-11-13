@@ -5,7 +5,7 @@ import io.github.agraria.elementos.Item;
 
 public enum TipoCultivo {
 
-	// Nombre, Precio Compra, Precio Venta, Min/Etapa, XP cosecha, Textura, TexturaItem, TexturaPodrido, Etapas, Nivel requerido
+
 
 	ZANAHORIA("Zanahoria", 10, 15, 720, 15, "cultivos/zanahoriaEtapas.png", "cultivos/zanahoriaItem.png", "cultivos/cultivoPodrido.png", 4, 1),
 	PAPA("Papa", 20, 30, 840, 21, "cultivos/papaEtapas.png", "cultivos/papaItem.png", "cultivos/cultivoPodrido.png", 5, 3),

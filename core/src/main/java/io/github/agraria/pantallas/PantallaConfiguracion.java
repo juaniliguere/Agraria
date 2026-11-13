@@ -36,6 +36,7 @@ import io.github.agraria.sonidos.GestorAudio;
 import io.github.agraria.ui.GestorFuentes;
 
 public class PantallaConfiguracion extends ScreenAdapter {
+
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
     private OrthographicCamera camera;
@@ -44,47 +45,44 @@ public class PantallaConfiguracion extends ScreenAdapter {
     private Texture texturaVolver;
     private ImageButton btnVolver;
     private Stage stage;
-    
+
     private Texture texturaSliderTrack;
     private Texture texturaSliderFill;
     private Texture texturaSliderKnobNormal;
     private Texture texturaSliderKnobHover;
     private Texture texturaSliderKnobPresionado;
-    
+
     private Slider sliderMusica;
     private Slider sliderSonidos;
-    
- // Recursos del panel
+
     private Texture texturaPanel;
     private NinePatch panelConfiguracion;
 
-    // Botones
     private Texture texturaBotonNormal;
     private Texture texturaBotonPresionado;
     private Texture texturaBotonHover;
 
-    // Fuente
     private GestorFuentes gestorFuentes;
     private BitmapFont fuente;
 
-    // Tablas
     private Table panelPrincipal;
     private Table tablaConfiguracion;
-    
+
     private Label lblMusica;
     private Label lblSonidos;
-    
+
     private Screen pantallaAnterior;
-    
-    private static final float MAP_WIDTH = 480; 
+
+    private static final float MAP_WIDTH = 480;
     private static final float MAP_HEIGHT = 320;
 
     public PantallaConfiguracion(Screen pantallaAnterior) {
         this.pantallaAnterior = pantallaAnterior;
     }
-    
+
     @Override
     public void show() {
+
         map = new TmxMapLoader().load("pantallas/menu/pantallaMenu.tmx");
 
         camera = new OrthographicCamera();
@@ -95,7 +93,7 @@ public class PantallaConfiguracion extends ScreenAdapter {
         camera.update();
 
         renderer = new OrthogonalTiledMapRenderer(map);
-        
+
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
 
@@ -110,147 +108,143 @@ public class PantallaConfiguracion extends ScreenAdapter {
                 return false;
             }
         });
-        
+
         texturaVolver = new Texture(Gdx.files.internal("pantallas/menu/back_dark_12x12.png"));
 
-        	texturaVolver.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        	
-        	TextureRegionDrawable drawableVolver = new TextureRegionDrawable(new TextureRegion(texturaVolver));
+        texturaVolver.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        	drawableVolver.setMinWidth(36);
-        	drawableVolver.setMinHeight(36);
+        TextureRegionDrawable drawableVolver = new TextureRegionDrawable(new TextureRegion(texturaVolver));
 
-        	btnVolver = new ImageButton(drawableVolver);
-        	btnVolver.getImage().setScaling(com.badlogic.gdx.utils.Scaling.fit);
+        drawableVolver.setMinWidth(36);
+        drawableVolver.setMinHeight(36);
 
+        btnVolver = new ImageButton(drawableVolver);
+        btnVolver.getImage().setScaling(com.badlogic.gdx.utils.Scaling.fit);
 
-        		
-        		btnVolver.addListener(new ClickListener() {
-        		    @Override
-        		    public void clicked(InputEvent event, float x, float y) {
-        		        ((Game) Gdx.app.getApplicationListener())
-        		            .setScreen(pantallaAnterior);
-        		    }
-        		});
-        		
-        		texturaSliderTrack = new Texture(Gdx.files.internal("pantallas/menu/slider_track_64x8.png"));
+        btnVolver.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ((Game) Gdx.app.getApplicationListener())
+                    .setScreen(pantallaAnterior);
+            }
+        });
 
-        		texturaSliderFill = new Texture(Gdx.files.internal("pantallas/menu/slider_fill_64x8.png"));
+        texturaSliderTrack = new Texture(Gdx.files.internal("pantallas/menu/slider_track_64x8.png"));
 
-        		texturaSliderKnobNormal = new Texture(Gdx.files.internal("pantallas/menu/slider_knob_normal_8x12.png"));
+        texturaSliderFill = new Texture(Gdx.files.internal("pantallas/menu/slider_fill_64x8.png"));
 
-        		texturaSliderKnobHover = new Texture(Gdx.files.internal("pantallas/menu/slider_knob_hover_8x12.png"));
+        texturaSliderKnobNormal = new Texture(Gdx.files.internal("pantallas/menu/slider_knob_normal_8x12.png"));
 
-        		texturaSliderKnobPresionado = new Texture(Gdx.files.internal("pantallas/menu/slider_knob_pressed_8x12.png"));
-        		
-        		texturaSliderTrack.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaSliderFill.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaSliderKnobNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaSliderKnobHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaSliderKnobPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		
-        		
-        		Slider.SliderStyle estiloSlider = crearEstiloSlider();
+        texturaSliderKnobHover = new Texture(Gdx.files.internal("pantallas/menu/slider_knob_hover_8x12.png"));
 
-        		sliderMusica = new Slider(0f, 1f, 0.01f, false, estiloSlider);
-        		sliderSonidos = new Slider(0f, 1f, 0.01f, false, estiloSlider);
+        texturaSliderKnobPresionado = new Texture(Gdx.files.internal("pantallas/menu/slider_knob_pressed_8x12.png"));
 
-        		sliderMusica.setValue(GestorAudio.getVolumenMusica());
-        		sliderSonidos.setValue(GestorAudio.getVolumenSonidos());
-        		
-        		sliderMusica.addListener(new ChangeListener() {
-        		    @Override
-        		    public void changed(ChangeEvent event, Actor actor) {
-        		        GestorAudio.setVolumenMusica(sliderMusica.getValue());
-        		    }
-        		});
+        texturaSliderTrack.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaSliderFill.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaSliderKnobNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaSliderKnobHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaSliderKnobPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        		sliderSonidos.addListener(new ChangeListener() {
-        		    @Override
-        		    public void changed(ChangeEvent event, Actor actor) {
-        		        GestorAudio.setVolumenSonidos(sliderSonidos.getValue());
-        		    }
-        		});
-        		
-        		texturaPanel = new Texture(
-        		    Gdx.files.internal("pantallas/menu/panel_48x48.png")
-        		);
+        Slider.SliderStyle estiloSlider = crearEstiloSlider();
 
-        		texturaBotonNormal = new Texture(
-        		    Gdx.files.internal("pantallas/menu/button_L_normal.png")
-        		);
+        sliderMusica = new Slider(0f, 1f, 0.01f, false, estiloSlider);
+        sliderSonidos = new Slider(0f, 1f, 0.01f, false, estiloSlider);
 
-        		texturaBotonPresionado = new Texture(
-        		    Gdx.files.internal("pantallas/menu/button_L_pressed.png")
-        		);
+        sliderMusica.setValue(GestorAudio.getVolumenMusica());
+        sliderSonidos.setValue(GestorAudio.getVolumenSonidos());
 
-        		texturaBotonHover = new Texture(
-        		    Gdx.files.internal("pantallas/menu/button_L_hover.png")
-        		);
-        		
-        		texturaPanel.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaBotonNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        		
-        		panelConfiguracion = new NinePatch(texturaPanel, 12, 12, 12, 12);
+        sliderMusica.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                GestorAudio.setVolumenMusica(sliderMusica.getValue());
+            }
+        });
 
-        		gestorFuentes = new GestorFuentes();
-        		gestorFuentes.cargar();
-        		fuente = gestorFuentes.getFuentePrincipal();
-        		
-        		panelPrincipal = new Table();
-        		panelPrincipal.setBackground(new NinePatchDrawable(panelConfiguracion));
+        sliderSonidos.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                GestorAudio.setVolumenSonidos(sliderSonidos.getValue());
+            }
+        });
 
-        		panelPrincipal.setSize(280, 200);
+        texturaPanel = new Texture(
+            Gdx.files.internal("pantallas/menu/panel_48x48.png")
+        );
 
-        		panelPrincipal.setPosition(
-        		    MAP_WIDTH / 2f - panelPrincipal.getWidth() / 2f,
-        		    MAP_HEIGHT / 2f - panelPrincipal.getHeight() / 2f
-        		);
+        texturaBotonNormal = new Texture(
+            Gdx.files.internal("pantallas/menu/button_L_normal.png")
+        );
 
-        		tablaConfiguracion = new Table();
+        texturaBotonPresionado = new Texture(
+            Gdx.files.internal("pantallas/menu/button_L_pressed.png")
+        );
 
-        		panelPrincipal.add(tablaConfiguracion).expand().fill();
+        texturaBotonHover = new Texture(
+            Gdx.files.internal("pantallas/menu/button_L_hover.png")
+        );
 
-        		stage.addActor(panelPrincipal);
-        		
-        		btnVolver.setSize(25, 25);
-        		btnVolver.setPosition(
-        		    panelPrincipal.getX() + 8,
-        		    panelPrincipal.getY() + panelPrincipal.getHeight() - 30
-        		);
-        		stage.addActor(btnVolver);
-        		
-        		Label.LabelStyle estiloTexto = crearEstiloTexto();
+        texturaPanel.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaBotonNormal.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaBotonPresionado.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texturaBotonHover.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        		
-        		Label titulo = new Label("CONFIGURACIÓN", estiloTexto);
+        panelConfiguracion = new NinePatch(texturaPanel, 12, 12, 12, 12);
 
-        	
-        		lblMusica = new Label("MÚSICA", estiloTexto);
-        		lblSonidos = new Label("SONIDOS", estiloTexto);
-        		
-        
-        		tablaConfiguracion.add(titulo).colspan(2).padBottom(20).row();
+        gestorFuentes = new GestorFuentes();
+        gestorFuentes.cargar();
+        fuente = gestorFuentes.getFuentePrincipal();
 
-        	
-        		tablaConfiguracion.add(lblMusica).left().padRight(15);
-        		tablaConfiguracion.add(sliderMusica).width(100).row();
+        panelPrincipal = new Table();
+        panelPrincipal.setBackground(new NinePatchDrawable(panelConfiguracion));
 
-        		tablaConfiguracion.add(lblSonidos).left().padRight(15);
-        		tablaConfiguracion.add(sliderSonidos).width(100);
-        		
+        panelPrincipal.setSize(280, 200);
+
+        panelPrincipal.setPosition(
+            MAP_WIDTH / 2f - panelPrincipal.getWidth() / 2f,
+            MAP_HEIGHT / 2f - panelPrincipal.getHeight() / 2f
+        );
+
+        tablaConfiguracion = new Table();
+
+        panelPrincipal.add(tablaConfiguracion).expand().fill();
+
+        stage.addActor(panelPrincipal);
+
+        btnVolver.setSize(25, 25);
+        btnVolver.setPosition(
+            panelPrincipal.getX() + 8,
+            panelPrincipal.getY() + panelPrincipal.getHeight() - 30
+        );
+
+        stage.addActor(btnVolver);
+
+        Label.LabelStyle estiloTexto = crearEstiloTexto();
+
+        Label titulo = new Label("CONFIGURACIÓN", estiloTexto);
+
+        lblMusica = new Label("MÚSICA", estiloTexto);
+        lblSonidos = new Label("SONIDOS", estiloTexto);
+
+        tablaConfiguracion.add(titulo).colspan(2).padBottom(20).row();
+
+        tablaConfiguracion.add(lblMusica).left().padRight(15);
+        tablaConfiguracion.add(sliderMusica).width(100).row();
+
+        tablaConfiguracion.add(lblSonidos).left().padRight(15);
+        tablaConfiguracion.add(sliderSonidos).width(100);
     }
 
     private Label.LabelStyle crearEstiloTexto() {
+
         Label.LabelStyle estilo = new Label.LabelStyle();
         estilo.font = fuente;
         estilo.fontColor = new Color(0.30f, 0.17f, 0.10f, 1f);
+
         return estilo;
     }
-    
+
     private TextButton.TextButtonStyle crearEstiloBoton() {
+
         TextButton.TextButtonStyle estilo = new TextButton.TextButtonStyle();
 
         estilo.up = new TextureRegionDrawable(
@@ -269,9 +263,10 @@ public class PantallaConfiguracion extends ScreenAdapter {
         estilo.fontColor = new Color(0.30f, 0.17f, 0.10f, 1f);
         estilo.downFontColor = new Color(0.30f, 0.17f, 0.10f, 1f);
         estilo.overFontColor = new Color(0.42f, 0.25f, 0.14f, 1f);
+
         return estilo;
     }
-    
+
     private Slider.SliderStyle crearEstiloSlider() {
 
         Slider.SliderStyle estilo = new Slider.SliderStyle();
@@ -298,23 +293,20 @@ public class PantallaConfiguracion extends ScreenAdapter {
 
         return estilo;
     }
-    
-    
-    
+
     @Override
     public void render(float delta) {
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
         renderer.setView(camera);
         renderer.render();
-        
+
         stage.act(delta);
         stage.draw();
     }
-
-
 
     @Override
     public void resize(int width, int height) {
@@ -323,9 +315,10 @@ public class PantallaConfiguracion extends ScreenAdapter {
 
     @Override
     public void dispose() {
+
         if (map != null) map.dispose();
         if (renderer != null) renderer.dispose();
-        
+
         if (texturaVolver != null) texturaVolver.dispose();
 
         if (texturaSliderTrack != null) texturaSliderTrack.dispose();
@@ -335,13 +328,12 @@ public class PantallaConfiguracion extends ScreenAdapter {
         if (texturaSliderKnobPresionado != null) texturaSliderKnobPresionado.dispose();
 
         if (stage != null) stage.dispose();
-        
+
         if (texturaPanel != null) texturaPanel.dispose();
         if (texturaBotonNormal != null) texturaBotonNormal.dispose();
         if (texturaBotonPresionado != null) texturaBotonPresionado.dispose();
         if (texturaBotonHover != null) texturaBotonHover.dispose();
 
         if (gestorFuentes != null) gestorFuentes.dispose();
-        
     }
 }

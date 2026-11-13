@@ -40,10 +40,8 @@ public class Parcela{
         }
 
         lluviasRecibidas++;
-//        System.out.println("Lluvias recibidas: " + lluviasRecibidas);
         if (lluviasRecibidas >= 2) {
             pendienteDePudrirse = true;
-//            System.out.println("Recibio 2 lluvias cultivo podrido");
         }
     }
     
@@ -52,7 +50,6 @@ public class Parcela{
         if (cultivoActual != null && pendienteDePudrirse) {
             cultivoActual.pudrir();
             pendienteDePudrirse = false;
-//            System.out.println("cultivo podrido al comenzar nuevo día");
         }
     }
 

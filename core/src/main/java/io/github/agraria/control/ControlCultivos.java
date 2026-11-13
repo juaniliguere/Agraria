@@ -38,7 +38,6 @@ public class ControlCultivos {
         TipoCultivo cultivoSeleccionado = inventario.getCultivoSeleccionado();
 
         if (cultivoSeleccionado == null) {
-//            System.out.println("-> No tenés seleccionada ninguna semilla válida en la mano.");
             return;
         }
 

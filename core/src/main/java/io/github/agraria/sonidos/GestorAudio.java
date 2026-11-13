@@ -55,11 +55,10 @@ public class GestorAudio {
             musicaFondo.play();
         }
     }
-    
- // =========================
- // CONFIGURACIÓN DE VOLUMEN
- // =========================
 
+    
+    
+    
  public static void setVolumenMusica(float volumen) {
      volumenMusica = Math.max(0f, Math.min(1f, volumen));
 
@@ -163,9 +162,8 @@ public class GestorAudio {
         }
     }
     
-    // =========================
-    // LIBERAR RECURSOS
-    // =========================
+
+    
 
     public void dispose() {
 
